@@ -215,6 +215,12 @@ importers:
         specifier: 1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
+      '@galaxy/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/config/eslint
+      '@galaxy/prettier-config':
+        specifier: workspace:*
+        version: link:../../packages/config/prettier
       '@galaxy/tsconfig':
         specifier: workspace:*
         version: link:../../packages/config/tsconfig
@@ -251,12 +257,6 @@ importers:
       '@types/react-dom':
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.7)
-      '@typescript-eslint/eslint-plugin':
-        specifier: 8.46.2
-        version: 8.46.2(@typescript-eslint/parser@8.46.2(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)
-      '@typescript-eslint/parser':
-        specifier: 8.46.2
-        version: 8.46.2(eslint@8.57.1)(typescript@5.9.3)
       autoprefixer:
         specifier: 10.4.22
         version: 10.4.22(postcss@8.5.6)
@@ -269,18 +269,6 @@ importers:
       eslint:
         specifier: 8.57.1
         version: 8.57.1
-      eslint-config-next:
-        specifier: 15.1.2
-        version: 15.1.2(eslint@8.57.1)(typescript@5.9.3)
-      eslint-config-prettier:
-        specifier: 9.1.0
-        version: 9.1.0(eslint@8.57.1)
-      eslint-import-resolver-typescript:
-        specifier: 3.7.0
-        version: 3.7.0(eslint-plugin-import@2.31.0)(eslint@8.57.1)
-      eslint-plugin-import:
-        specifier: 2.31.0
-        version: 2.31.0(@typescript-eslint/parser@8.46.2(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.1)
       globby:
         specifier: 14.0.2
         version: 14.0.2
@@ -320,6 +308,32 @@ importers:
       typescript:
         specifier: 5.9.3
         version: 5.9.3
+
+  packages/config/eslint:
+    dependencies:
+      '@typescript-eslint/eslint-plugin':
+        specifier: 8.46.2
+        version: 8.46.2(@typescript-eslint/parser@8.46.2(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: 8.46.2
+        version: 8.46.2(eslint@8.57.1)(typescript@5.9.3)
+      eslint:
+        specifier: 8.57.1
+        version: 8.57.1
+      eslint-config-next:
+        specifier: 15.1.2
+        version: 15.1.2(eslint@8.57.1)(typescript@5.9.3)
+      eslint-config-prettier:
+        specifier: 9.1.0
+        version: 9.1.0(eslint@8.57.1)
+      eslint-import-resolver-typescript:
+        specifier: 3.7.0
+        version: 3.7.0(eslint-plugin-import@2.31.0)(eslint@8.57.1)
+      eslint-plugin-import:
+        specifier: 2.31.0
+        version: 2.31.0(@typescript-eslint/parser@8.46.2(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.1)
+
+  packages/config/prettier: {}
 
   packages/config/tsconfig: {}
 
