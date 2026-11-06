@@ -20,7 +20,8 @@ import type { SelectChangeEvent } from '@mui/material/Select'
 import { formatDate } from 'date-fns/format'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
+
 import DirectionalIcon from '@components/DirectionalIcon'
 
 // Styled Component Imports

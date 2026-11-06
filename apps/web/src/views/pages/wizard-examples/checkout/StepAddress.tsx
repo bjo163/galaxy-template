@@ -20,13 +20,17 @@ import type { ButtonProps } from '@mui/material/Button'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomInputHorizontal, CustomInputVertical } from '@galaxy/ui'
+
+import { db } from '@galaxy/fake-db/pages/formOptions'
+
 import type { CustomInputHorizontalData, CustomInputVerticalData } from '@core/components/custom-inputs/types'
 
 // Component Imports
-import CustomInputHorizontal from '@core/components/custom-inputs/Horizontal'
-import CustomInputVertical from '@core/components/custom-inputs/Vertical'
 import AddEditAddress from '@components/dialogs/add-edit-address'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+
+// Database Imports
 
 // Styled Components
 const HorizontalContent = styled(Typography, {
@@ -42,98 +46,45 @@ const VerticalContent = styled(Typography, {
 })
 
 // Vars
-const data: CustomInputHorizontalData[] = [
-  {
-    title: 'John Doe (Default)',
-    meta: <Chip variant='tonal' size='small' label='Home' color='primary' />,
-    value: 'home',
-    isSelected: true,
-    content: (
-      <HorizontalContent component='div' className='flex flex-col gap-3 mbs-2 bs-full'>
-        <Typography variant='body2'>
-          4135 Parkway Street, Los Angeles, CA, 90017.
-          <br />
-          Mobile : 1234567890 Cash / Card on delivery available
+const data: CustomInputHorizontalData[] = db.checkout.addresses.map(item => ({
+  title: item.title,
+  meta: <Chip variant='tonal' size='small' label={item.metaLabel} color={item.metaColor} />,
+  value: item.value,
+  ...(item.isSelected && { isSelected: true }),
+  content: (
+    <HorizontalContent component='div' className='flex flex-col gap-3 mbs-2 bs-full'>
+      <Typography variant='body2'>
+        {item.streetAddress}
+        <br />
+        {item.contactInfo}
+      </Typography>
+      <Divider />
+      <div className='flex items-center gap-4 mbs-0.5 pbe-[6px]'>
+        <Typography href='/' component={Link} onClick={e => e.preventDefault()} color='primary.main'>
+          {item.editLabel}
         </Typography>
-        <Divider />
-        <div className='flex items-center gap-4 mbs-0.5 pbe-[6px]'>
-          <Typography href='/' component={Link} onClick={e => e.preventDefault()} color='primary.main'>
-            Edit
-          </Typography>
-          <Typography href='/' component={Link} onClick={e => e.preventDefault()} color='primary.main'>
-            Remove
-          </Typography>
-        </div>
-      </HorizontalContent>
-    )
-  },
-  {
-    title: 'ACME Inc.',
-    meta: <Chip variant='tonal' size='small' label='Office' color='success' />,
-    value: 'office',
-    content: (
-      <HorizontalContent component='div' className='flex flex-col gap-3 mbs-2 bs-full'>
-        <Typography variant='body2'>
-          87 Hoffman Avenue, New York, NY, 10016.
-          <br />
-          Mobile : 1234567890 Cash / Card on delivery available
+        <Typography href='/' component={Link} onClick={e => e.preventDefault()} color='primary.main'>
+          {item.removeLabel}
         </Typography>
-        <Divider />
-        <div className='flex items-center gap-4 mbs-0.5 pbe-[6px]'>
-          <Typography href='/' component={Link} onClick={e => e.preventDefault()} color='primary.main'>
-            Edit
-          </Typography>
-          <Typography href='/' component={Link} onClick={e => e.preventDefault()} color='primary.main'>
-            Remove
-          </Typography>
-        </div>
-      </HorizontalContent>
-    )
-  }
-]
+      </div>
+    </HorizontalContent>
+  )
+}))
 
-const dataIcons: CustomInputVerticalData[] = [
-  {
-    isSelected: true,
-    value: 'standard',
-    title: 'Standard',
-    asset: 'tabler-user',
-    content: (
-      <>
-        <Chip variant='tonal' size='small' label='Free' color='success' className='absolute inline-end-4' />
-        <VerticalContent variant='body2' className='my-auto'>
-          Get your product in 1 Week.
-        </VerticalContent>
-      </>
-    )
-  },
-  {
-    value: 'express',
-    title: 'Express',
-    asset: 'tabler-star',
-    content: (
-      <>
-        <Chip variant='tonal' label='$10' size='small' color='secondary' className='absolute inline-end-4' />
-        <VerticalContent variant='body2' className='my-auto'>
-          Get your product in 3-4 days.
-        </VerticalContent>
-      </>
-    )
-  },
-  {
-    value: 'overnight',
-    title: 'Overnight',
-    asset: 'tabler-crown',
-    content: (
-      <>
-        <Chip variant='tonal' label='$15' size='small' color='secondary' className='absolute inline-end-4' />
-        <VerticalContent variant='body2' className='my-auto'>
-          Get your product in 1 day.
-        </VerticalContent>
-      </>
-    )
-  }
-]
+const dataIcons: CustomInputVerticalData[] = db.checkout.deliveryOptions.map(item => ({
+  ...(item.isSelected && { isSelected: true }),
+  value: item.value,
+  title: item.title,
+  asset: item.asset,
+  content: (
+    <>
+      <Chip variant='tonal' size='small' label={item.badgeLabel} color={item.badgeColor} className='absolute inline-end-4' />
+      <VerticalContent variant='body2' className='my-auto'>
+        {item.description}
+      </VerticalContent>
+    </>
+  )
+}))
 
 const StepAddress = ({ handleNext }: { handleNext: () => void }) => {
   // Vars

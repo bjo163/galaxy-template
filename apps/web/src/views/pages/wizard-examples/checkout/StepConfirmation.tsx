@@ -8,27 +8,11 @@ import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import CardContent from '@mui/material/CardContent'
 
+// Database Imports
+import { db } from '@galaxy/fake-db/pages/formOptions'
+
 // Vars
-const products = [
-  {
-    imgSrc: '/images/pages/google-home.png',
-    imgAlt: 'Google Home',
-    productName: 'Google - Google Home - White',
-    soldBy: 'Google',
-    inStock: true,
-    price: 299,
-    originalPrice: 359
-  },
-  {
-    imgSrc: '/images/pages/iPhone-11.png',
-    imgAlt: 'Apple iPhone',
-    productName: 'Apple iPhone 11 (64GB, Black)',
-    soldBy: 'Apple',
-    inStock: false,
-    price: 899,
-    originalPrice: 999
-  }
-]
+const products = db.checkout.confirmationProducts
 
 const StepConfirmation = () => {
   return (

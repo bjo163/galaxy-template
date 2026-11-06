@@ -11,7 +11,8 @@ import Checkbox from '@mui/material/Checkbox'
 import Button from '@mui/material/Button'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
+
 import DirectionalIcon from '@components/DirectionalIcon'
 
 type Props = {

@@ -12,12 +12,17 @@ import InputAdornment from '@mui/material/InputAdornment'
 import classnames from 'classnames'
 
 // Type Imports
-import type { CustomInputVerticalData } from '@core/components/custom-inputs/types'
 
 // Component Imports
-import CustomInputVertical from '@core/components/custom-inputs/Vertical'
+import { CustomInputVertical } from '@galaxy/ui'
+
+import { CustomTextField } from '@galaxy/ui'
+
+// Database Imports
+import { db } from '@galaxy/fake-db/pages/formOptions'
+
 import DirectionalIcon from '@components/DirectionalIcon'
-import CustomTextField from '@core/components/mui/TextField'
+import type { CustomInputVerticalData } from '@core/components/custom-inputs/types'
 
 type Props = {
   activeStep: number
@@ -27,27 +32,7 @@ type Props = {
 }
 
 // Vars
-const data: CustomInputVerticalData[] = [
-  {
-    title: 'I am the Builder',
-    value: 'builder',
-    content: 'List property as Builder, list your project and get highest reach very fast.',
-    asset: 'tabler-building',
-    isSelected: true
-  },
-  {
-    title: 'I am the Owner',
-    value: 'owner',
-    content: 'Submit property as an Individual. Lease, Rent or Sell at the best price.',
-    asset: 'tabler-diamond'
-  },
-  {
-    title: 'I am the broker',
-    value: 'broker',
-    content: 'Earn highest commission by listing your clients properties at the best price.',
-    asset: 'tabler-briefcase'
-  }
-]
+const data: CustomInputVerticalData[] = db.propertyListing.ownerTypes
 
 const StepPersonalDetails = ({ activeStep, handleNext, handlePrev, steps }: Props) => {
   // Vars

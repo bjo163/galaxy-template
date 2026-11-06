@@ -13,13 +13,17 @@ import { styled, useTheme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomInputVertical, CustomTextField } from '@galaxy/ui'
+
+import { db } from '@galaxy/fake-db/pages/formOptions'
+
 import type { Mode } from '@core/types'
 import type { CustomInputVerticalData } from '@core/components/custom-inputs/types'
 
 // Component Imports
-import CustomInputVertical from '@core/components/custom-inputs/Vertical'
-import CustomTextField from '@core/components/mui/TextField'
 import DirectionalIcon from '@components/DirectionalIcon'
+
+// Database Imports
 
 type Props = {
   activeStep: number
@@ -30,27 +34,7 @@ type Props = {
 }
 
 // Vars
-const data: CustomInputVerticalData[] = [
-  {
-    title: 'Percentage',
-    value: 'percentage',
-    content: 'Create a deal which offer uses some % off (i.e 5% OFF) on total.',
-    asset: 'tabler-discount-check-filled',
-    isSelected: true
-  },
-  {
-    title: 'Flat Amount',
-    value: 'flat-amount',
-    content: 'Create a deal which offer uses flat $ off (i.e $5 OFF) on the total.',
-    asset: 'tabler-credit-card-filled'
-  },
-  {
-    title: 'Prime Member',
-    value: 'prime member',
-    content: 'Create prime member only deal to encourage the prime members.',
-    asset: 'tabler-diamond-filled'
-  }
-]
+const data: CustomInputVerticalData[] = db.createDeal.dealTypes
 
 const ImgWrapper = styled('div')(({ theme }) => ({
   display: 'flex',

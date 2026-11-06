@@ -17,7 +17,8 @@ import type { StepProps } from '@mui/material/Step'
 import classnames from 'classnames'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
+
 import StepPersonalDetails from './StepPersonalDetails'
 import StepPropertyDetails from './StepPropertyDetails'
 import StepPropertyFeatures from './StepPropertyFeatures'

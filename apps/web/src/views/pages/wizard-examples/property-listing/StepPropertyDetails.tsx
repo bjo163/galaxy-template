@@ -1,5 +1,5 @@
 // React Imports
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import type { ChangeEvent } from 'react'
 
 // MUI IMports
@@ -14,12 +14,16 @@ import type { TypographyProps } from '@mui/material/Typography'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomInputVertical, CustomTextField } from '@galaxy/ui'
+
+import { db } from '@galaxy/fake-db/pages/formOptions'
+
 import type { CustomInputVerticalData } from '@core/components/custom-inputs/types'
 
 // Component Imports
-import CustomInputVertical from '@core/components/custom-inputs/Vertical'
-import CustomTextField from '@core/components/mui/TextField'
 import DirectionalIcon from '@components/DirectionalIcon'
+
+// Database Imports
 
 type Props = {
   activeStep: number
@@ -38,33 +42,22 @@ const Content = styled(Typography, {
 }))
 
 // Vars
-const data: CustomInputVerticalData[] = [
-  {
-    value: 'sale',
-    title: 'Sell the property',
-    content: (
-      <Content>
-        Post your property for sale.
-        <br />
-        Unlimited free listing.
-      </Content>
-    ),
-    asset: 'tabler-home',
-    isSelected: true
-  },
-  {
-    value: 'rent',
-    title: 'Rent the property',
-    content: (
-      <Content>
-        Post your property for sale.
-        <br />
-        Unlimited free listing.
-      </Content>
-    ),
-    asset: 'tabler-wallet'
-  }
-]
+const data: CustomInputVerticalData[] = db.propertyListing.sellOptions.map(item => ({
+  value: item.value,
+  title: item.title,
+  content: (
+    <Content>
+      {item.contentLines.map((line, index) => (
+        <Fragment key={index}>
+          {index > 0 && <br />}
+          {line}
+        </Fragment>
+      ))}
+    </Content>
+  ),
+  asset: item.asset,
+  ...(item.isSelected && { isSelected: true })
+}))
 
 const StepPropertyDetails = ({ activeStep, handleNext, handlePrev, steps }: Props) => {
   // Vars

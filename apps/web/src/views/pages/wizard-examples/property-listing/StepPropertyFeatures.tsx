@@ -13,9 +13,13 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Chip from '@mui/material/Chip'
 
 // Component Imports
-import CustomAutocomplete from '@core/components/mui/Autocomplete'
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomAutocomplete, CustomTextField } from '@galaxy/ui'
+
+import { db } from '@galaxy/fake-db/pages/formOptions'
+
 import DirectionalIcon from '@components/DirectionalIcon'
+
+// Database Imports
 
 type Props = {
   activeStep: number
@@ -25,19 +29,7 @@ type Props = {
 }
 
 // Vars
-const furnishingArray: string[] = [
-  'AC',
-  'TV',
-  'RO',
-  'Bed',
-  'WiFi',
-  'Sofa',
-  'Fridge',
-  'Cupboard',
-  'Microwave',
-  'Dining Table',
-  'Washing Machine'
-]
+const furnishingArray: string[] = db.propertyListing.furnishingOptions
 
 const StepPropertyFeatures = ({ activeStep, handleNext, handlePrev, steps }: Props) => {
   // States

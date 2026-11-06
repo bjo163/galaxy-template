@@ -20,34 +20,15 @@ import Collapse from '@mui/material/Collapse'
 import Fade from '@mui/material/Fade'
 
 // Component Imports
+import { CustomTextField } from '@galaxy/ui'
+
+// Database Imports
+import { db } from '@galaxy/fake-db/pages/formOptions'
+
 import DirectionalIcon from '@components/DirectionalIcon'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Vars
-const products = [
-  {
-    imgSrc: '/images/pages/google-home.png',
-    imgAlt: 'Google Home',
-    productName: 'Google - Google Home - White',
-    soldBy: 'Google',
-    inStock: true,
-    rating: 4,
-    count: 1,
-    price: 299,
-    originalPrice: 359
-  },
-  {
-    imgSrc: '/images/pages/iPhone-11.png',
-    imgAlt: 'Apple iPhone',
-    productName: 'Apple iPhone 11 (64GB, Black)',
-    soldBy: 'Apple',
-    inStock: true,
-    rating: 4,
-    count: 1,
-    price: 899,
-    originalPrice: 999
-  }
-]
+const products = db.checkout.cartProducts
 
 const StepCart = ({ handleNext }: { handleNext: () => void }) => {
   // States

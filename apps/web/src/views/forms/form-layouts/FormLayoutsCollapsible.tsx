@@ -19,11 +19,14 @@ import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 
 // Type Imports
-import type { CustomInputHorizontalData } from '@core/components/custom-inputs/types'
 
 // Component Imports
-import CustomInputHorizontal from '@core/components/custom-inputs/Horizontal'
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomInputHorizontal, CustomTextField } from '@galaxy/ui'
+
+// Database Imports
+import { db } from '@galaxy/fake-db/pages/formOptions'
+
+import type { CustomInputHorizontalData } from '@core/components/custom-inputs/types'
 
 type FormData = {
   fullName: string
@@ -41,27 +44,7 @@ type FormData = {
 }
 
 // Vars
-const data: CustomInputHorizontalData[] = [
-  {
-    title: 'Standard 3-5 Days',
-    meta: 'Free',
-    content: 'Friday, 15 Nov - Monday, 18 Nov',
-    isSelected: true,
-    value: 'standard'
-  },
-  {
-    title: 'Express',
-    meta: '$5.00',
-    content: 'Friday, 15 Nov - Sunday, 17 Nov',
-    value: 'express'
-  },
-  {
-    title: 'Overnight',
-    meta: '$10.00',
-    content: 'Friday, 15 Nov - Saturday, 16 Nov',
-    value: 'overnight'
-  }
-]
+const data: CustomInputHorizontalData[] = db.formLayouts.shippingOptions
 
 const FormLayoutsCollapsible = () => {
   // Vars
