@@ -1,8 +1,15 @@
 export class ArsyApi {
   private accessToken: string | null = null;
+  private workspaceId: string | null = null;
+  private projectId: string | null = null;
 
   setAccessToken(accessToken: string | null): void {
     this.accessToken = accessToken;
+  }
+
+  setProjectContext(workspaceId: string | null, projectId: string | null): void {
+    this.workspaceId = workspaceId;
+    this.projectId = projectId;
   }
 
   async request<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -11,6 +18,12 @@ export class ArsyApi {
 
     if (this.accessToken) {
       headers.set("Authorization", `Bearer ${this.accessToken}`);
+    }
+    if (this.workspaceId) {
+      headers.set("X-Arsy-Workspace-Id", this.workspaceId);
+    }
+    if (this.projectId) {
+      headers.set("X-Arsy-Project-Id", this.projectId);
     }
 
     if (init.body !== undefined) {

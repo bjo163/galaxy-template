@@ -34,6 +34,57 @@ export type Model = {
   status: string;
 };
 
+export type ModelDefinition = {
+  key: string;
+  displayName: string;
+  fields: Array<{ key: string; type: string }>;
+  access: { defaultVisibility: "private" | "project" };
+};
+
+export type ProjectCredential = {
+  id: string;
+  label: string;
+  keyPrefix: string;
+  scopes: string[];
+  expiresAt: string | null;
+  revokedAt: string | null;
+  createdAt: string;
+};
+
+export type ProjectUser = {
+  accountId: string;
+  email: string;
+  displayName: string;
+  role: string;
+  createdAt: string;
+};
+
+export type ProjectInvitation = {
+  id: string;
+  email: string;
+  role: string;
+  expiresAt: string;
+  acceptedAt: string | null;
+  revokedAt: string | null;
+  createdAt: string;
+};
+
+export type AuditEvent = {
+  id: string;
+  projectId: string | null;
+  actorId: string;
+  action: string;
+  resourceType: string;
+  resourceId: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+};
+
+export type CursorPage<T> = {
+  data: T[];
+  nextCursor: string | null;
+};
+
 export type AddonManifest = {
   id: string;
   version: string;

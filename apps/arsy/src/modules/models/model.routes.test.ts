@@ -113,6 +113,14 @@ describe("Arsy model and data API", () => {
       });
       assert.equal(duplicateResponse.statusCode, 409);
 
+      const secondRecord = await app.inject({
+        method: "POST",
+        url: "/api/v1/data/contacts",
+        headers: dataHeaders,
+        payload: { name: "Grace", score: 18 },
+      });
+      assert.equal(secondRecord.statusCode, 201, secondRecord.body);
+
       const queryResponse = await app.inject({
         method: "POST",
         url: "/api/v1/data/contacts/query",
@@ -129,6 +137,34 @@ describe("Arsy model and data API", () => {
       assert.equal(queryResponse.statusCode, 200, queryResponse.body);
       assert.equal(queryResponse.json().data.length, 1);
       assert.equal(queryResponse.json().data[0].id, record.id);
+
+      const sessionHeaders = {
+        authorization: `Bearer ${owner.accessToken}`,
+        "x-arsy-workspace-id": workspace.id,
+        "x-arsy-project-id": project.id,
+      };
+      const firstPage = await app.inject({
+        method: "POST",
+        url: "/api/v1/data/contacts/query",
+        headers: sessionHeaders,
+        payload: { limit: 1 },
+      });
+      assert.equal(firstPage.statusCode, 200, firstPage.body);
+      assert.equal(firstPage.json().data.length, 1);
+      assert.ok(firstPage.json().nextCursor);
+      const secondPage = await app.inject({
+        method: "POST",
+        url: "/api/v1/data/contacts/query",
+        headers: sessionHeaders,
+        payload: { limit: 1, cursor: firstPage.json().nextCursor },
+      });
+      assert.equal(secondPage.statusCode, 200, secondPage.body);
+      assert.equal(secondPage.json().data.length, 1);
+      assert.notEqual(
+        secondPage.json().data[0].id,
+        firstPage.json().data[0].id,
+      );
+      assert.equal(secondPage.json().nextCursor, null);
 
       const injectionFilter = await app.inject({
         method: "POST",

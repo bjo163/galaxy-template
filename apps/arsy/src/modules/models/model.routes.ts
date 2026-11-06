@@ -8,6 +8,10 @@ import {
   requireAccount,
 } from "../../core/auth/identity.js";
 import {
+  decodeTimestampIdCursor,
+  encodeTimestampIdCursor,
+} from "../../core/pagination.js";
+import {
   extractProjectCredential,
   requireCredentialScope,
   requireProjectCredential,
@@ -85,6 +89,51 @@ async function requireWorkspaceRole(
     throw new HttpError(404, "The requested workspace was not found.");
   }
   return membership.role as string;
+}
+
+async function requireWorkspaceOrProjectMember(
+  knex: Knex,
+  workspaceId: string,
+  projectId: string,
+  accountId: string,
+): Promise<void> {
+  const workspaceMembership = await withWorkspaceTransaction(
+    knex,
+    workspaceId,
+    (trx) =>
+      trx("arsy_workspace_members")
+        .select("id", "role")
+        .where({ workspace_id: workspaceId, account_id: accountId })
+        .first(),
+  );
+  if (
+    workspaceMembership &&
+    ["owner", "admin", "developer", "viewer"].includes(
+      workspaceMembership.role as string,
+    )
+  ) {
+    return;
+  }
+
+  const projectMembership = await withProjectTransaction(
+    knex,
+    workspaceId,
+    projectId,
+    async (trx) => {
+      await requireProject(trx, workspaceId, projectId);
+      return trx("arsy_project_users")
+        .select("id")
+        .where({
+          workspace_id: workspaceId,
+          project_id: projectId,
+          account_id: accountId,
+        })
+        .first();
+    },
+  );
+  if (!projectMembership) {
+    throw new HttpError(404, "The requested project was not found.");
+  }
 }
 
 async function writeAudit(
@@ -245,8 +294,8 @@ async function resolveProjectActor(
       if (!project) {
         return false;
       }
-      return Boolean(
-        await trx("arsy_project_users")
+      const [projectMembership, workspaceMembership] = await Promise.all([
+        trx("arsy_project_users")
           .select("id")
           .where({
             workspace_id: workspaceId,
@@ -254,6 +303,20 @@ async function resolveProjectActor(
             account_id: account.id,
           })
           .first(),
+        trx("arsy_workspace_members")
+          .select("id", "role")
+          .where({
+            workspace_id: workspaceId,
+            account_id: account.id,
+          })
+          .first(),
+      ]);
+      return Boolean(
+        projectMembership ||
+          (workspaceMembership &&
+            ["owner", "admin", "developer", "viewer"].includes(
+              workspaceMembership.role as string,
+            )),
       );
     },
   );
@@ -525,11 +588,11 @@ export async function registerModelRoutes(
     "/workspaces/:workspaceId/projects/:projectId/models",
     async (request) => {
       const account = await requireAccount(request, getKnex(app));
-      await requireWorkspaceRole(
+      await requireWorkspaceOrProjectMember(
         getKnex(app),
         request.params.workspaceId,
+        request.params.projectId,
         account.id,
-        ["owner", "admin", "developer", "viewer"],
       );
 
       const data = await withProjectTransaction(
@@ -848,11 +911,11 @@ export async function registerModelRoutes(
     "/workspaces/:workspaceId/projects/:projectId/models/:modelKey/revisions",
     async (request) => {
       const account = await requireAccount(request, getKnex(app));
-      await requireWorkspaceRole(
+      await requireWorkspaceOrProjectMember(
         getKnex(app),
         request.params.workspaceId,
+        request.params.projectId,
         account.id,
-        ["owner", "admin", "developer", "viewer"],
       );
       const revisions = await withProjectTransaction(
         getKnex(app),
@@ -892,7 +955,10 @@ export async function registerModelRoutes(
     },
   );
 
-  app.post<{ Params: RouteParams; Body: { filter?: unknown; limit?: number } }>(
+  app.post<{
+    Params: RouteParams;
+    Body: { filter?: unknown; limit?: number; cursor?: string };
+  }>(
     "/data/:modelKey/query",
     {
       schema: {
@@ -907,6 +973,7 @@ export async function registerModelRoutes(
           properties: {
             filter: { type: "object" },
             limit: { type: "integer", minimum: 1, maximum: 100 },
+            cursor: { type: "string", minLength: 1, maxLength: 256 },
           },
         },
       },
@@ -928,6 +995,8 @@ export async function registerModelRoutes(
           const fieldMap = new Map(
             model.definition.fields.map((field) => [field.key, field]),
           );
+          const limit = request.body.limit ?? 50;
+          const cursor = decodeTimestampIdCursor(request.body.cursor);
           const query = trx("arsy_records")
             .select(
               "id",
@@ -945,7 +1014,22 @@ export async function registerModelRoutes(
               model_key: request.params.modelKey,
             })
             .orderBy("created_at", "desc")
-            .limit(request.body.limit ?? 50);
+            .orderBy("id", "desc")
+            .limit(limit + 1);
+
+          if (cursor) {
+            query.andWhere(function applyCursor() {
+              this.where("created_at", "<", cursor.createdAt).orWhere(
+                function applyCursorTieBreak() {
+                  this.where("created_at", cursor.createdAt).andWhere(
+                    "id",
+                    "<",
+                    cursor.id,
+                  );
+                },
+              );
+            });
+          }
 
           if (model.definition.access.defaultVisibility === "private") {
             query.andWhere("owner_user_id", actor.accountId);
@@ -957,7 +1041,10 @@ export async function registerModelRoutes(
               fieldMap,
             );
           }
-          const rows = await query;
+          const fetchedRows = await query;
+          const hasMore = fetchedRows.length > limit;
+          const rows = fetchedRows.slice(0, limit);
+          const lastRow = rows[rows.length - 1];
           return {
             data: rows.map((row) => ({
               id: row.id,
@@ -967,6 +1054,13 @@ export async function registerModelRoutes(
               createdAt: new Date(row.createdAt as string).toISOString(),
               updatedAt: new Date(row.updatedAt as string).toISOString(),
             })),
+            nextCursor:
+              hasMore && lastRow
+                ? encodeTimestampIdCursor(
+                    lastRow.createdAt as Date | string,
+                    lastRow.id as string,
+                  )
+                : null,
           };
         },
       );

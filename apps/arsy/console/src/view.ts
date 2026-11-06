@@ -1,12 +1,23 @@
 import type {
   Account,
   Addon,
+  AuditEvent,
+  ModelDefinition,
   Model,
+  ProjectCredential,
+  ProjectInvitation,
+  ProjectUser,
   Project,
   Workspace,
 } from "./types";
 
-export type ConsoleSection = "overview" | "models" | "addons";
+export type ConsoleSection =
+  | "overview"
+  | "models"
+  | "records"
+  | "access"
+  | "audit"
+  | "addons";
 export type AuthMode =
   | "login"
   | "register"
@@ -19,11 +30,24 @@ export type ConsoleViewState = {
   authMode: AuthMode;
   emailActionToken: string | null;
   workspaces: Workspace[];
+  workspaceRole: string;
   workspaceId: string;
   projects: Project[];
   projectId: string;
   models: Model[];
   addons: Addon[];
+  credentials: ProjectCredential[];
+  users: ProjectUser[];
+  invitations: ProjectInvitation[];
+  oneTimeCredential: { label: string; secret: string } | null;
+  recordModelKey: string;
+  recordDefinition: ModelDefinition | null;
+  records: Array<Record<string, unknown>>;
+  recordCursor: string | null;
+  auditEvents: AuditEvent[];
+  auditCursor: string | null;
+  auditProjectFilter: string;
+  auditActionFilter: string;
   section: ConsoleSection;
   busy: boolean;
   loading: boolean;
@@ -215,7 +239,14 @@ function renderNavigation(state: ConsoleViewState): string {
   const items: Array<{ id: ConsoleSection; label: string }> = [
     { id: "overview", label: "Ringkasan" },
     { id: "models", label: "Model" },
-    { id: "addons", label: "Add-on" },
+    { id: "records", label: "Data" },
+    { id: "access", label: "Akses" },
+    ...(state.workspaceRole === "project_member"
+      ? []
+      : [{ id: "audit" as const, label: "Audit" }]),
+    ...(state.workspaceRole === "project_member"
+      ? []
+      : [{ id: "addons" as const, label: "Add-on" }]),
   ];
 
   return `
@@ -227,6 +258,266 @@ function renderNavigation(state: ConsoleViewState): string {
         )
         .join("")}
     </nav>`;
+}
+
+function formatRecordValue(value: unknown): string {
+  if (value === null || value === undefined) {
+    return "—";
+  }
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+  return String(value);
+}
+
+function renderRecords(state: ConsoleViewState): string {
+  if (!state.projectId) {
+    return `<section class="empty-state"><h2>Pilih project</h2><p>Pilih workspace dan project sebelum menelusuri data.</p></section>`;
+  }
+
+  const activeModels = state.models.filter(
+    (model) => model.activeRevision !== null,
+  );
+  if (activeModels.length === 0) {
+    return `
+      <section class="page-heading"><div><p class="eyebrow">Project / Data</p><h1>Data</h1><p class="lede">Publikasikan model sebelum menelusuri record.</p></div></section>
+      <section class="empty-state"><h2>Belum ada model aktif</h2><p>Buat dan publikasikan model pada bagian Model.</p></section>`;
+  }
+
+  const fields = state.recordDefinition?.fields ?? [];
+  const rows =
+    state.records.length === 0
+      ? `<tr><td colspan="${fields.length + 2}">Belum ada record yang dapat ditampilkan.</td></tr>`
+      : state.records
+          .map(
+            (record) =>
+              `<tr><th scope="row"><code>${escapeHtml(record.id)}</code></th>${fields
+                .map(
+                  (field) =>
+                    `<td>${escapeHtml(formatRecordValue(record[field.key]))}</td>`,
+                )
+                .join("")}<td>${escapeHtml(formatRecordValue(record.createdAt))}</td></tr>`,
+          )
+          .join("");
+
+  return `
+    <section class="page-heading">
+      <div><p class="eyebrow">Project / Data</p><h1>Data</h1><p class="lede">Record dibatasi pada model dan akses project yang dipilih.</p></div>
+    </section>
+    ${state.loading ? `<p class="loading-state" role="status">Memuat record...</p>` : ""}
+    <section class="panel" aria-labelledby="record-list-title">
+      <div class="form-grid record-controls">
+        <label for="record-model">Model aktif
+          <select id="record-model" data-select="record-model" ${state.loading ? "disabled" : ""}>
+            ${activeModels
+              .map(
+                (model) =>
+                  `<option value="${escapeHtml(model.key)}" ${model.key === state.recordModelKey ? "selected" : ""}>${escapeHtml(model.displayName)} (${escapeHtml(model.key)})</option>`,
+              )
+              .join("")}
+          </select>
+        </label>
+      </div>
+      <div class="panel-heading"><p class="eyebrow">Records</p><h2 id="record-list-title">${escapeHtml(state.recordDefinition?.displayName ?? state.recordModelKey)}</h2></div>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">Record ${escapeHtml(state.recordDefinition?.displayName ?? state.recordModelKey)}</caption>
+          <thead><tr><th scope="col">ID</th>${fields
+            .map(
+              (field) =>
+                `<th scope="col">${escapeHtml(field.key)} <span class="muted">(${escapeHtml(field.type)})</span></th>`,
+            )
+            .join("")}<th scope="col">Dibuat</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      ${
+        state.recordCursor
+          ? `<div class="pagination-actions"><button class="button button-secondary" type="button" data-action="load-more-records" ${state.busy || state.loading ? "disabled" : ""}>Muat lebih banyak</button></div>`
+          : ""
+      }
+    </section>`;
+}
+
+function renderCredentialAccess(state: ConsoleViewState): string {
+  const canManage = ["owner", "admin"].includes(state.workspaceRole);
+  const canRead = ["owner", "admin", "developer"].includes(
+    state.workspaceRole,
+  );
+  if (!canRead) {
+    return "";
+  }
+  const rows =
+    state.credentials.length === 0
+      ? `<p class="empty-copy">Belum ada kredensial untuk project ini.</p>`
+      : `<div class="table-wrap"><table>
+          <thead><tr><th scope="col">Label</th><th scope="col">Prefix</th><th scope="col">Scopes</th><th scope="col">Kedaluwarsa</th><th scope="col">Status</th>${canManage ? "<th scope=\"col\">Aksi</th>" : ""}</tr></thead>
+          <tbody>${state.credentials
+            .map((credential) => {
+              const expired =
+                credential.expiresAt !== null &&
+                Date.parse(credential.expiresAt) <= Date.now();
+              const active = !credential.revokedAt && !expired;
+              return `<tr>
+                <th scope="row">${escapeHtml(credential.label)}</th>
+                <td><code>${escapeHtml(credential.keyPrefix)}</code></td>
+                <td>${credential.scopes.map(escapeHtml).join(", ")}</td>
+                <td>${credential.expiresAt ? escapeHtml(credential.expiresAt) : "Tidak dibatasi"}</td>
+                <td>${credential.revokedAt ? "Dicabut" : expired ? "Kedaluwarsa" : "Aktif"}</td>
+                ${
+                  canManage
+                    ? `<td class="action-cell">${active ? `<button class="button button-secondary" type="button" data-action="rotate-credential" data-id="${escapeHtml(credential.id)}" ${state.busy ? "disabled" : ""}>Rotasi</button><button class="button button-secondary" type="button" data-action="revoke-credential" data-id="${escapeHtml(credential.id)}" ${state.busy ? "disabled" : ""}>Cabut</button>` : "—"}</td>`
+                    : ""
+                }
+              </tr>`;
+            })
+            .join("")}</tbody>
+        </table></div>`;
+
+  return `
+    <section class="panel" aria-labelledby="credential-title">
+      <div class="panel-heading"><p class="eyebrow">Project credentials</p><h2 id="credential-title">Kredensial API</h2><p>Secret hanya ditampilkan setelah pembuatan atau rotasi.</p></div>
+      ${state.oneTimeCredential ? `<div class="notice notice-success" role="status"><p>Salin secret ${escapeHtml(state.oneTimeCredential.label)} sekarang. Secret tidak disimpan di daftar kredensial.</p><output class="secret-value">${escapeHtml(state.oneTimeCredential.secret)}</output><button class="button button-secondary" type="button" data-action="dismiss-credential-secret">Sembunyikan secret</button></div>` : ""}
+      ${rows}
+      ${
+        canManage
+          ? `<form class="form-stack" data-action="create-credential">
+              <h3>Buat kredensial</h3>
+              <div class="form-grid">
+                <label>Label<input name="label" required maxlength="120" /></label>
+                <label>Kedaluwarsa (opsional)<input name="expiresAt" type="datetime-local" /></label>
+              </div>
+              <fieldset class="scope-options"><legend>Scopes</legend>
+                ${[
+                  "models:read",
+                  "models:manage",
+                  "records:read",
+                  "records:write",
+                  "addons:manage",
+                ]
+                  .map(
+                    (scope) =>
+                      `<label class="check-row"><input type="checkbox" name="scopes" value="${scope}" /><span>${scope}</span></label>`,
+                  )
+                  .join("")}
+              </fieldset>
+              <button class="button button-primary" type="submit" ${state.busy ? "disabled" : ""}>Buat kredensial</button>
+            </form>`
+          : ""
+      }
+    </section>`;
+}
+
+function renderProjectAccess(state: ConsoleViewState): string {
+  const canManage = ["owner", "admin"].includes(state.workspaceRole);
+  const projectUsers =
+    state.users.length === 0
+      ? `<p class="empty-copy">Belum ada anggota project.</p>`
+      : `<div class="table-wrap"><table>
+          <thead><tr><th scope="col">Nama</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Bergabung</th>${canManage ? "<th scope=\"col\">Aksi</th>" : ""}</tr></thead>
+          <tbody>${state.users
+            .map(
+              (user) =>
+                `<tr><th scope="row">${escapeHtml(user.displayName)}</th><td>${escapeHtml(user.email)}</td><td>${escapeHtml(user.role)}</td><td>${escapeHtml(user.createdAt)}</td>${canManage ? `<td><button class="button button-secondary" type="button" data-action="remove-project-user" data-id="${escapeHtml(user.accountId)}" ${state.busy ? "disabled" : ""}>Hapus akses</button></td>` : ""}</tr>`,
+            )
+            .join("")}</tbody>
+        </table></div>`;
+  const invitationRows =
+    state.invitations.length === 0
+      ? `<p class="empty-copy">Belum ada undangan.</p>`
+      : `<div class="table-wrap"><table>
+          <thead><tr><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Kedaluwarsa</th><th scope="col">Status</th>${canManage ? "<th scope=\"col\">Aksi</th>" : ""}</tr></thead>
+          <tbody>${state.invitations
+            .map((invitation) => {
+              const expired = Date.parse(invitation.expiresAt) <= Date.now();
+              const pending =
+                !invitation.acceptedAt && !invitation.revokedAt && !expired;
+              const status = invitation.acceptedAt
+                ? "Diterima"
+                : invitation.revokedAt
+                  ? "Dicabut"
+                  : expired
+                    ? "Kedaluwarsa"
+                    : "Menunggu";
+              return `<tr><th scope="row">${escapeHtml(invitation.email)}</th><td>${escapeHtml(invitation.role)}</td><td>${escapeHtml(invitation.expiresAt)}</td><td>${status}</td>${canManage ? `<td>${pending ? `<button class="button button-secondary" type="button" data-action="revoke-invitation" data-id="${escapeHtml(invitation.id)}" ${state.busy ? "disabled" : ""}>Cabut</button>` : "—"}</td>` : ""}</tr>`;
+            })
+            .join("")}</tbody>
+        </table></div>`;
+
+  return `
+    <section class="panel" aria-labelledby="project-users-title">
+      <div class="panel-heading"><p class="eyebrow">Project access</p><h2 id="project-users-title">Anggota project</h2></div>
+      ${projectUsers}
+    </section>
+    ${
+      canManage
+        ? `<section class="panel panel-form" aria-labelledby="invite-title">
+            <div class="panel-heading"><p class="eyebrow">Invitations</p><h2 id="invite-title">Undang anggota</h2><p>Undangan berlaku selama 7 hari dan hanya dapat diterima oleh akun dengan email yang sama.</p></div>
+            <form class="form-grid" data-action="create-invitation">
+              <label>Email<input name="email" type="email" required maxlength="320" /></label>
+              <label>Role
+                <select name="role">
+                  ${state.workspaceRole === "owner" ? '<option value="admin">Admin</option>' : ""}
+                  <option value="developer">Developer</option>
+                  <option value="member">Member</option>
+                </select>
+              </label>
+              <button class="button button-primary" type="submit" ${state.busy ? "disabled" : ""}>Kirim undangan</button>
+            </form>
+            <h3>Undangan terkirim</h3>
+            ${invitationRows}
+          </section>`
+        : ""
+    }
+    ${renderCredentialAccess(state)}`;
+}
+
+function renderAudit(state: ConsoleViewState): string {
+  const projects = state.projects
+    .map(
+      (project) =>
+        `<option value="${escapeHtml(project.id)}" ${project.id === state.auditProjectFilter ? "selected" : ""}>${escapeHtml(project.name)}</option>`,
+    )
+    .join("");
+  const rows =
+    state.auditEvents.length === 0
+      ? `<tr><td colspan="6">Belum ada event audit yang cocok.</td></tr>`
+      : state.auditEvents
+          .map((event) => {
+            const projectName = event.projectId
+              ? state.projects.find((project) => project.id === event.projectId)
+                  ?.name ?? event.projectId
+              : "Workspace";
+            return `<tr><th scope="row">${escapeHtml(event.action)}</th><td>${escapeHtml(projectName)}</td><td>${escapeHtml(event.resourceType)} / ${escapeHtml(event.resourceId)}</td><td><code>${escapeHtml(event.actorId)}</code></td><td>${escapeHtml(JSON.stringify(event.metadata))}</td><td>${escapeHtml(event.createdAt)}</td></tr>`;
+          })
+          .join("");
+
+  return `
+    <section class="page-heading">
+      <div><p class="eyebrow">Workspace / Audit</p><h1>Audit</h1><p class="lede">Telusuri event dalam batas workspace dengan filter yang tepat.</p></div>
+    </section>
+    ${state.loading ? `<p class="loading-state" role="status">Memuat audit...</p>` : ""}
+    <section class="panel">
+      <form class="form-grid audit-filters" data-action="filter-audit">
+        <label>Project
+          <select name="projectId"><option value="">Semua project</option>${projects}</select>
+        </label>
+        <label>Action (cocok persis)<input name="action" value="${escapeHtml(state.auditActionFilter)}" maxlength="80" pattern="[a-z][a-z0-9._-]*" /></label>
+        <button class="button button-primary" type="submit" ${state.busy ? "disabled" : ""}>Terapkan filter</button>
+      </form>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">Event audit workspace</caption>
+          <thead><tr><th scope="col">Action</th><th scope="col">Project</th><th scope="col">Resource</th><th scope="col">Actor</th><th scope="col">Metadata</th><th scope="col">Waktu</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      ${
+        state.auditCursor
+          ? `<div class="pagination-actions"><button class="button button-secondary" type="button" data-action="load-more-audit" ${state.busy || state.loading ? "disabled" : ""}>Muat lebih banyak</button></div>`
+          : ""
+      }
+    </section>`;
 }
 
 function renderWorkspaceForm(state: ConsoleViewState): string {
@@ -249,7 +540,10 @@ function renderWorkspaceForm(state: ConsoleViewState): string {
 }
 
 function renderProjectForm(state: ConsoleViewState): string {
-  if (!state.workspaceId) {
+  if (
+    !state.workspaceId ||
+    !["owner", "admin", "developer"].includes(state.workspaceRole)
+  ) {
     return "";
   }
 
@@ -325,6 +619,9 @@ function renderModels(state: ConsoleViewState): string {
             .join("")}</tbody>
         </table></div>`;
 
+  const canManageModels = ["owner", "admin", "developer"].includes(
+    state.workspaceRole,
+  );
   return `
     <section class="page-heading">
       <div><p class="eyebrow">Project / Model</p><h1>Model</h1><p class="lede">Buat definisi dan publikasikan revisi model untuk project terpilih.</p></div>
@@ -334,14 +631,18 @@ function renderModels(state: ConsoleViewState): string {
       <div class="panel-heading"><div><p class="eyebrow">Catalog</p><h2 id="model-list-title">Definisi model</h2></div></div>
       ${modelList}
     </section>
-    <section class="panel panel-form" aria-labelledby="model-create-title">
+    ${
+      canManageModels
+        ? `<section class="panel panel-form" aria-labelledby="model-create-title">
       <div><p class="eyebrow">Model baru</p><h2 id="model-create-title">Buat dan publikasikan</h2><p>Arsy membuat revisi pertama, lalu memublikasikannya.</p></div>
       <form class="form-stack" data-action="create-model">
         <label>Definisi model dalam JSON<textarea name="definition" required spellcheck="false" autocapitalize="off" autocomplete="off" placeholder='{"key":"contacts","displayName":"Contacts","fields":[{"key":"name","type":"string","required":true,"indexed":false,"unique":false}],"access":{"defaultVisibility":"private"}}'></textarea></label>
         <details class="example-details"><summary>Lihat contoh definisi</summary><pre>${escapeHtml(JSON.stringify(sampleModel, null, 2))}</pre></details>
         <button class="button button-primary" type="submit" ${state.busy ? "disabled" : ""}>Buat model dan publikasikan</button>
       </form>
-    </section>`;
+    </section>`
+        : ""
+    }`;
 }
 
 function renderAddonCard(addon: Addon, state: ConsoleViewState): string {
@@ -426,6 +727,12 @@ function renderContent(state: ConsoleViewState): string {
       return renderOverview(state);
     case "models":
       return renderModels(state);
+    case "records":
+      return renderRecords(state);
+    case "access":
+      return renderProjectAccess(state);
+    case "audit":
+      return renderAudit(state);
     case "addons":
       return renderAddons(state);
   }
@@ -460,7 +767,7 @@ function renderConsole(state: ConsoleViewState): string {
 }
 
 export function renderConsoleApp(
-  root: HTMLElement,
+  root: Pick<HTMLElement, "innerHTML">,
   state: ConsoleViewState,
 ): void {
   root.innerHTML = state.account

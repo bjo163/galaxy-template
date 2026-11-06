@@ -87,9 +87,12 @@ The v1 API includes:
 - Workspace and project creation/listing, memberships, project users, scoped
   project credentials, email invitations, and audit reads.
 - Model definition creation, revision creation, validation/publication, and a
-  record API at `/api/v1/data/:modelKey`.
+  record API at `/api/v1/data/:modelKey`. Record queries use bounded keyset
+  pagination (`limit` 1–100, default 50) and an opaque `nextCursor`.
 - Declarative add-on manifest creation, validation, installation, capability
   grants, configuration, enable/disable, and uninstall routes.
+- Workspace audit reads at `/api/v1/workspaces/:workspaceId/audit`, with exact
+  action/project filters and bounded cursor pagination.
 
 Arsy accounts use password-based sessions. Project credentials are bearer
 tokens with explicit scopes; the add-on manager requires `addons:manage`.
@@ -164,6 +167,21 @@ arsy build` builds both the API server and the production console bundle, and
 The browser keeps the account access token in memory. Reloading the page
 requires signing in again; the console does not persist the token in browser
 storage.
+
+The standalone console includes project member/invitation management, scoped
+credential creation, rotation and revocation, model-aware record browsing, and
+workspace audit filtering. Credential lists show only metadata and prefixes;
+the full secret is shown once after creation or rotation. Rotation creates a
+replacement before revoking the old credential, so a failed revoke is reported
+explicitly and both credentials remain visible for recovery. Record and audit
+lists load at most 50 rows per request and fetch later pages with server-issued
+cursors. Project-only members can browse models and authorized records but do
+not see workspace audit, add-on, or administration controls.
+
+Audit queries accept `projectId`, an exact `action` value, `limit` (1–100,
+default 50), and an opaque `cursor`. The workspace-scoped audit read policy is
+applied through the Knex migration runner; the route separately enforces
+workspace membership before returning events.
 
 ### Account lifecycle and email
 

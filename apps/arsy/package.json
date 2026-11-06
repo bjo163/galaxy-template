@@ -20,7 +20,7 @@
     "db:status": "pnpm build && node --env-file-if-exists=../../.env dist/cli/migrations.js status",
     "db:provision-roles": "pnpm build && node --env-file-if-exists=../../.env dist/cli/postgres-roles.js",
     "start": "node --env-file-if-exists=../../.env dist/server.js",
-    "test": "tsx --test src/**/*.test.ts",
+    "test": "tsx --test \"src/**/*.test.ts\" \"console/src/**/*.test.ts\"",
     "pretypecheck": "pnpm --filter @galaxy/database build",
     "typecheck": "pnpm typecheck:server && pnpm typecheck:console",
     "typecheck:server": "tsc --noEmit -p tsconfig.json",

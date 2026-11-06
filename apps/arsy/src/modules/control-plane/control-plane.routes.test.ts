@@ -6,6 +6,7 @@ import { loadConfig } from "../../config/env.js";
 import { up as migrateControlPlane } from "../../migrations/0001_arsy_control_plane.js";
 import { up as migrateSharedQuotaBuckets } from "../../migrations/0003_shared_quota_buckets.js";
 import { up as migrateAccountLifecycle } from "../../migrations/0004_account_lifecycle.js";
+import { up as migrateWorkspaceAuditVisibility } from "../../migrations/0005_workspace_audit_visibility.js";
 import { CapturingEmailDelivery } from "../../testing/fake-email-delivery.js";
 
 describe("Arsy control plane", () => {
@@ -22,6 +23,7 @@ describe("Arsy control plane", () => {
       await migrateControlPlane(app.database.knex);
       await migrateSharedQuotaBuckets(app.database.knex);
       await migrateAccountLifecycle(app.database.knex);
+      await migrateWorkspaceAuditVisibility(app.database.knex);
 
       const registration = await app.inject({
         method: "POST",
@@ -195,6 +197,7 @@ describe("Arsy control plane", () => {
       await migrateControlPlane(app.database.knex);
       await migrateSharedQuotaBuckets(app.database.knex);
       await migrateAccountLifecycle(app.database.knex);
+      await migrateWorkspaceAuditVisibility(app.database.knex);
 
       const owner = await registerAccount(app, emailDelivery, {
         email: "owner@example.com",
@@ -247,6 +250,7 @@ describe("Arsy control plane", () => {
       await migrateControlPlane(app.database.knex);
       await migrateSharedQuotaBuckets(app.database.knex);
       await migrateAccountLifecycle(app.database.knex);
+      await migrateWorkspaceAuditVisibility(app.database.knex);
 
       const weakPasswordResponse = await app.inject({
         method: "POST",
@@ -290,6 +294,7 @@ describe("Arsy control plane", () => {
       await migrateControlPlane(app.database.knex);
       await migrateSharedQuotaBuckets(app.database.knex);
       await migrateAccountLifecycle(app.database.knex);
+      await migrateWorkspaceAuditVisibility(app.database.knex);
 
       const account = await registerAccount(app, emailDelivery, {
         email: "reset@example.com",
@@ -388,6 +393,7 @@ describe("Arsy control plane", () => {
       await migrateControlPlane(app.database.knex);
       await migrateSharedQuotaBuckets(app.database.knex);
       await migrateAccountLifecycle(app.database.knex);
+      await migrateWorkspaceAuditVisibility(app.database.knex);
 
       const owner = await registerAccount(app, emailDelivery, {
         email: "invite-owner@example.com",
@@ -548,6 +554,31 @@ describe("Arsy control plane", () => {
       });
       assert.equal(listedInvitations.statusCode, 200, listedInvitations.body);
       assert.equal(listedInvitations.body.includes("token_hash"), false);
+      const firstAuditPage = await app.inject({
+        method: "GET",
+        url: `/api/v1/workspaces/${workspaceId}/audit?projectId=${projectId}&action=project.invitation_created&limit=1`,
+        headers: ownerHeaders,
+      });
+      assert.equal(firstAuditPage.statusCode, 200, firstAuditPage.body);
+      assert.equal(firstAuditPage.json().data.length, 1);
+      assert.ok(firstAuditPage.json().nextCursor);
+      const secondAuditPage = await app.inject({
+        method: "GET",
+        url: `/api/v1/workspaces/${workspaceId}/audit?projectId=${projectId}&action=project.invitation_created&limit=1&cursor=${encodeURIComponent(firstAuditPage.json().nextCursor as string)}`,
+        headers: ownerHeaders,
+      });
+      assert.equal(secondAuditPage.statusCode, 200, secondAuditPage.body);
+      assert.equal(secondAuditPage.json().data.length, 1);
+      assert.notEqual(
+        secondAuditPage.json().data[0].id,
+        firstAuditPage.json().data[0].id,
+      );
+      const invalidAuditLimit = await app.inject({
+        method: "GET",
+        url: `/api/v1/workspaces/${workspaceId}/audit?limit=101`,
+        headers: ownerHeaders,
+      });
+      assert.equal(invalidAuditLimit.statusCode, 400);
       const audit = await app.database.knex("arsy_audit_events")
         .select("action")
         .where({ workspace_id: workspaceId, project_id: projectId });

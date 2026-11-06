@@ -24,6 +24,10 @@ import {
   withProjectTransaction,
   withWorkspaceTransaction,
 } from "../../core/tenancy/database-context.js";
+import {
+  decodeTimestampIdCursor,
+  encodeTimestampIdCursor,
+} from "../../core/pagination.js";
 
 type RegisterBody = {
   email: string;
@@ -65,6 +69,12 @@ type ProjectInvitationBody = {
 type EmailBody = { email: string };
 type TokenBody = { token: string };
 type PasswordResetBody = { token: string; password: string };
+type AuditQuery = {
+  projectId?: string;
+  action?: string;
+  limit?: number;
+  cursor?: string;
+};
 
 type ProjectRow = {
   id: string;
@@ -1763,8 +1773,27 @@ export async function registerControlPlaneRoutes(
     },
   );
 
-  app.get<{ Params: { workspaceId: string } }>(
+  app.get<{ Params: { workspaceId: string }; Querystring: AuditQuery }>(
     "/workspaces/:workspaceId/audit",
+    {
+      schema: {
+        querystring: {
+          type: "object",
+          additionalProperties: false,
+          properties: {
+            projectId: { type: "string", format: "uuid" },
+            action: {
+              type: "string",
+              minLength: 1,
+              maxLength: 80,
+              pattern: "^[a-z][a-z0-9._-]*$",
+            },
+            limit: { type: "integer", minimum: 1, maximum: 100 },
+            cursor: { type: "string", minLength: 1, maxLength: 256 },
+          },
+        },
+      },
+    },
     async (request) => {
       const account = await requireAccount(request, getKnex(app));
       await requireWorkspaceRole(
@@ -1774,11 +1803,13 @@ export async function registerControlPlaneRoutes(
         ["owner", "admin", "developer", "viewer"],
       );
       const knex = getKnex(app);
-      const workspaceRows = await withWorkspaceTransaction(
+      const limit = request.query.limit ?? 50;
+      const cursor = decodeTimestampIdCursor(request.query.cursor);
+      const fetchedRows = await withWorkspaceTransaction(
         knex,
         request.params.workspaceId,
-        (trx) =>
-          trx("arsy_audit_events")
+        async (trx) => {
+          const query = trx("arsy_audit_events")
             .select(
               "id",
               "project_id as projectId",
@@ -1789,61 +1820,47 @@ export async function registerControlPlaneRoutes(
               "metadata",
               "created_at as createdAt",
             )
-            .where({
-              workspace_id: request.params.workspaceId,
-              project_id: null,
-            })
+            .where({ workspace_id: request.params.workspaceId })
             .orderBy("created_at", "desc")
-            .limit(100),
+            .orderBy("id", "desc");
+          if (request.query.projectId) {
+            query.where({ project_id: request.query.projectId });
+          }
+          if (request.query.action) {
+            query.where({ action: request.query.action });
+          }
+          if (cursor) {
+            query.andWhere(function applyCursor() {
+              this.where("created_at", "<", cursor.createdAt).orWhere(
+                function applyCursorTieBreak() {
+                  this.where("created_at", cursor.createdAt).andWhere(
+                    "id",
+                    "<",
+                    cursor.id,
+                  );
+                },
+              );
+            });
+          }
+          return query.limit(limit + 1);
+        },
       );
-      const projects = await withWorkspaceTransaction(
-        knex,
-        request.params.workspaceId,
-        (trx) =>
-          trx("arsy_projects")
-            .select("id")
-            .where({ workspace_id: request.params.workspaceId }),
-      );
-      const projectRows = await Promise.all(
-        projects.map((project: { id: string }) =>
-          withProjectTransaction(
-            knex,
-            request.params.workspaceId,
-            project.id,
-            (trx) =>
-              trx("arsy_audit_events")
-                .select(
-                  "id",
-                  "project_id as projectId",
-                  "actor_id as actorId",
-                  "action",
-                  "resource_type as resourceType",
-                  "resource_id as resourceId",
-                  "metadata",
-                  "created_at as createdAt",
-                )
-                .where({
-                  workspace_id: request.params.workspaceId,
-                  project_id: project.id,
-                })
-                .orderBy("created_at", "desc")
-                .limit(100),
-          ),
-        ),
-      );
-      const rows = [...workspaceRows, ...projectRows.flat()]
-        .sort(
-          (left, right) =>
-            new Date(right.createdAt as string).getTime() -
-            new Date(left.createdAt as string).getTime(),
-        )
-        .slice(0, 100);
+      const hasMore = fetchedRows.length > limit;
+      const rows = fetchedRows.slice(0, limit);
+      const lastRow = rows[rows.length - 1];
 
       return {
         data: rows.map((row) => ({
           ...row,
           createdAt: new Date(row.createdAt as string).toISOString(),
         })),
+        nextCursor:
+          hasMore && lastRow
+            ? encodeTimestampIdCursor(
+                lastRow.createdAt as Date | string,
+                lastRow.id as string,
+              )
+            : null,
       };
     },
   );
