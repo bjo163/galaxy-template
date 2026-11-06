@@ -319,7 +319,7 @@ describe("Arsy model and data API", () => {
         const allowedResponse = await app.inject({
           method: "GET",
           url: "/api/v1/data/unknown-model",
-          headers: { authorization: `****** },
+          headers: { authorization: `Bearer ${credential.secret}` },
         });
         assert.equal(allowedResponse.statusCode, 404);
       }
@@ -327,7 +327,7 @@ describe("Arsy model and data API", () => {
       const response = await app.inject({
         method: "GET",
         url: "/api/v1/data/unknown-model",
-        headers: { authorization: `****** },
+        headers: { authorization: `Bearer ${credential.secret}` },
       });
       assert.equal(response.statusCode, 429);
       assert.equal(
