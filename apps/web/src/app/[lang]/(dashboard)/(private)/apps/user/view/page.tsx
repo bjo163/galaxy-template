@@ -9,13 +9,14 @@ import Grid from '@mui/material/Grid'
 
 // Type Imports
 import type { PricingPlanType } from '@/types/pages/pricingTypes'
+import type { PaymentMethodCard } from '@/types/apps/userViewTypes'
 
 // Component Imports
 import UserLeftOverview from '@views/apps/user/view/user-left-overview'
 import UserRight from '@views/apps/user/view/user-right'
 
 // Data Imports
-import { getPricingData } from '@/app/server/actions'
+import { getPricingData, getUserViewData } from '@/app/server/actions'
 
 const OverViewTab = dynamic(() => import('@views/apps/user/view/user-right/overview'))
 const SecurityTab = dynamic(() => import('@views/apps/user/view/user-right/security'))
@@ -24,10 +25,10 @@ const NotificationsTab = dynamic(() => import('@views/apps/user/view/user-right/
 const ConnectionsTab = dynamic(() => import('@views/apps/user/view/user-right/connections'))
 
 // Vars
-const tabContentList = (data?: PricingPlanType[]): { [key: string]: ReactElement } => ({
+const tabContentList = (pricingData?: PricingPlanType[], paymentMethods?: PaymentMethodCard[]): { [key: string]: ReactElement } => ({
   overview: <OverViewTab />,
   security: <SecurityTab />,
-  'billing-plans': <BillingPlans data={data} />,
+  'billing-plans': <BillingPlans data={pricingData} paymentMethods={paymentMethods} />,
   notifications: <NotificationsTab />,
   connections: <ConnectionsTab />
 })
@@ -52,7 +53,7 @@ const tabContentList = (data?: PricingPlanType[]): { [key: string]: ReactElement
 
 const UserViewTab = async () => {
   // Vars
-  const data = await getPricingData()
+  const [pricingData, userViewData] = await Promise.all([getPricingData(), getUserViewData()])
 
   return (
     <Grid container spacing={6}>
@@ -60,7 +61,7 @@ const UserViewTab = async () => {
         <UserLeftOverview />
       </Grid>
       <Grid size={{ xs: 12, lg: 8, md: 7 }}>
-        <UserRight tabContentList={tabContentList(data)} />
+        <UserRight tabContentList={tabContentList(pricingData, userViewData.paymentMethods)} />
       </Grid>
     </Grid>
   )

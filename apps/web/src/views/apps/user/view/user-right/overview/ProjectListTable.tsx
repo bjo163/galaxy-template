@@ -31,26 +31,15 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
-import type { ThemeColor } from '@core/types'
+import { CustomAvatar, CustomTextField } from '@galaxy/ui'
+
+import type { ProjectListItem } from '@/types/apps/userViewTypes'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-import CustomTextField from '@core/components/mui/TextField'
 import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
-
-type ProjectListDataType = {
-  id: number
-  img: string
-  hours: string
-  totalTask: string
-  projectType: string
-  projectTitle: string
-  progressValue: number
-  progressColor: ThemeColor
-}
 
 declare module '@tanstack/table-core' {
   interface FilterFns {
@@ -60,80 +49,6 @@ declare module '@tanstack/table-core' {
     itemRank: RankingInfo
   }
 }
-
-// Vars
-const projectTable: ProjectListDataType[] = [
-  {
-    id: 1,
-    hours: '18:42',
-    progressValue: 78,
-    totalTask: '122/240',
-    progressColor: 'success',
-    projectType: 'React Project',
-    projectTitle: 'BGC eCommerce App',
-    img: '/images/logos/react-bg.png'
-  },
-  {
-    id: 2,
-    hours: '20:42',
-    progressValue: 18,
-    totalTask: '9/56',
-    progressColor: 'error',
-    projectType: 'Figma Project',
-    projectTitle: 'Falcon Logo Design',
-    img: '/images/logos/figma-bg.png'
-  },
-  {
-    id: 3,
-    hours: '120:87',
-    progressValue: 62,
-    totalTask: '290/320',
-    progressColor: 'primary',
-    projectType: 'VueJs Project',
-    projectTitle: 'Dashboard Design',
-    img: '/images/logos/vue-bg.png'
-  },
-  {
-    id: 4,
-    hours: '89:19',
-    progressValue: 8,
-    totalTask: '7/63',
-    progressColor: 'error',
-    projectType: 'Xamarin Project',
-    projectTitle: 'Foodista Mobile App',
-    img: '/images/icons/mobile-bg.png'
-  },
-  {
-    id: 5,
-    hours: '230:10',
-    progressValue: 49,
-    totalTask: '120/186',
-    progressColor: 'warning',
-    projectType: 'Python Project',
-    projectTitle: 'Dojo React Project',
-    img: '/images/logos/python-bg.png'
-  },
-  {
-    id: 6,
-    hours: '342:41',
-    progressValue: 92,
-    totalTask: '99/109',
-    progressColor: 'success',
-    projectType: 'Sketch Project',
-    projectTitle: 'Blockchain Website',
-    img: '/images/logos/sketch-bg.png'
-  },
-  {
-    id: 7,
-    hours: '12:45',
-    progressValue: 88,
-    totalTask: '98/110',
-    progressColor: 'success',
-    projectType: 'HTML Project',
-    projectTitle: 'Hoffman Website',
-    img: '/images/logos/html-bg.png'
-  }
-]
 
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   // Rank the item
@@ -178,17 +93,17 @@ const DebouncedInput = ({
 }
 
 // Column Definitions
-const columnHelper = createColumnHelper<ProjectListDataType>()
+const columnHelper = createColumnHelper<ProjectListItem>()
 
-const ProjectListTable = () => {
+const ProjectListTable = ({ data: initialData }: { data: ProjectListItem[] }) => {
   // States
   const [rowSelection, setRowSelection] = useState({})
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [data, setData] = useState(...[projectTable])
+  const [data, setData] = useState(...[initialData])
   const [globalFilter, setGlobalFilter] = useState('')
 
   // Hooks
-  const columns = useMemo<ColumnDef<ProjectListDataType, any>[]>(
+  const columns = useMemo<ColumnDef<ProjectListItem, any>[]>(
     () => [
       columnHelper.accessor('projectTitle', {
         header: 'Project',

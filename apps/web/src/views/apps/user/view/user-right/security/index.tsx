@@ -6,7 +6,12 @@ import ChangePassword from './ChangePassword'
 import TwoStepVerification from './TwoStepVerification'
 import RecentDevice from './RecentDevice'
 
-const SecurityTab = () => {
+// Data Imports
+import { getUserViewData } from '@/app/server/actions'
+
+const SecurityTab = async () => {
+  const userViewData = await getUserViewData()
+
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
@@ -16,7 +21,7 @@ const SecurityTab = () => {
         <TwoStepVerification />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <RecentDevice />
+        <RecentDevice data={userViewData.recentDevices} />
       </Grid>
     </Grid>
   )

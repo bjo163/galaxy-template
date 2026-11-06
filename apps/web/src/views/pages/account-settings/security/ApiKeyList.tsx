@@ -6,36 +6,10 @@ import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
 
-type ApiKeyListType = {
-  title: string
-  access: string
-  date: string
-  key: string
-}
+// Type Imports
+import type { ApiKeyItem } from '@/types/pages/accountSettingsTypes'
 
-// Vars
-const apiKeyList: ApiKeyListType[] = [
-  {
-    title: 'Server Key 1',
-    access: 'Full Access',
-    date: '28 Apr 2021, 18:20 GTM+4:10',
-    key: '23eaf7f0-f4f7-495e-8b86-fad3261282ac'
-  },
-  {
-    title: 'Server Key 2',
-    access: 'Read Only',
-    date: '12 Feb 2021, 10:30 GTM+2:30',
-    key: 'bb98e571-a2e2-4de8-90a9-2e231b5e99'
-  },
-  {
-    title: 'Server Key 3',
-    access: 'Full Access',
-    date: '28 Dec 2021, 12:21 GTM+4:10',
-    key: '2e915e59-3105-47f2-8838-6e46bf83b711'
-  }
-]
-
-const ApiKeyList = () => {
+const ApiKeyList = ({ data }: { data: ApiKeyItem[] }) => {
   return (
     <Card>
       <CardHeader title='API Key List & Access' className='pbe-4' />
@@ -45,7 +19,7 @@ const ApiKeyList = () => {
           for accessing public data anonymously, and are used to associate API requests with your project for quota and
           billing.
         </Typography>
-        {apiKeyList.map((item, index) => (
+        {data.map((item, index) => (
           <div key={index} className='flex flex-col gap-2 p-4 rounded bg-actionHover'>
             <div className='flex items-center gap-3'>
               <Typography variant='h5'>{item.title}</Typography>

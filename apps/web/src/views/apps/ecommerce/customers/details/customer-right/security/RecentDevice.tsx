@@ -1,55 +1,25 @@
 // React Imports
-import type { ReactElement } from 'react'
+import type { ReactNode } from 'react'
 
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
 
+// Type Imports
+import type { RecentDeviceItem } from '@/types/apps/userViewTypes'
+
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
-type DataType = {
-  device: string
-  browser: string
-  location: string
-  recentActivity: string
-  browserIcon: ReactElement
+const browserIconMap: Record<RecentDeviceItem['browserIcon'], ReactNode> = {
+  windows: <i className='tabler-brand-windows text-[22px] text-info' />,
+  android: <i className='tabler-brand-android text-[22px] text-success' />,
+  apple: <i className='tabler-brand-apple text-[22px] text-secondary' />,
+  mobile: <i className='tabler-device-mobile text-[22px] text-error' />
 }
 
-// Vars
-const recentDeviceData: DataType[] = [
-  {
-    device: 'Dell XPS 15',
-    location: 'United States',
-    browser: 'Chrome on Windows',
-    recentActivity: '10, Jan 2020 20:07',
-    browserIcon: <i className='tabler-brand-windows text-[22px] text-info' />
-  },
-  {
-    location: 'Ghana',
-    device: 'Google Pixel 3a',
-    browser: 'Chrome on Android',
-    recentActivity: '11, Jan 2020 10:16',
-    browserIcon: <i className='tabler-brand-android text-[22px] text-success' />
-  },
-  {
-    location: 'Mayotte',
-    device: 'Apple iMac',
-    browser: 'Chrome on MacOS',
-    recentActivity: '11, Jan 2020 12:10',
-    browserIcon: <i className='tabler-brand-apple text-[22px] text-secondary' />
-  },
-  {
-    location: 'Mauritania',
-    device: 'Apple iPhone XR',
-    browser: 'Chrome on iPhone',
-    recentActivity: '12, Jan 2020 8:29',
-    browserIcon: <i className='tabler-device-mobile text-[22px] text-error' />
-  }
-]
-
-const RecentDevice = () => {
+const RecentDevice = ({ data }: { data: RecentDeviceItem[] }) => {
   return (
     <Card>
       <CardHeader title='Recent Devices' />
@@ -64,11 +34,11 @@ const RecentDevice = () => {
             </tr>
           </thead>
           <tbody>
-            {recentDeviceData.map((device, index) => (
+            {data.map((device, index) => (
               <tr key={index}>
                 <td>
                   <div className='flex items-center gap-4'>
-                    {device.browserIcon}
+                    {browserIconMap[device.browserIcon]}
                     <Typography color='text.primary'>{device.browser}</Typography>
                   </div>
                 </td>

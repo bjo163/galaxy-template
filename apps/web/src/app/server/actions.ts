@@ -16,6 +16,10 @@ import { db as permissionData } from '@galaxy/fake-db/apps/permissions'
 import { db as reactTableData } from '@galaxy/fake-db/apps/reactTable'
 import { db as rolesData } from '@galaxy/fake-db/apps/roles'
 import { db as dashboardData } from '@galaxy/fake-db/apps/dashboard'
+import { db as userViewData } from '@galaxy/fake-db/apps/userView'
+import { db as brandingData, dbShortcuts, dbNotifications } from '@galaxy/fake-db/pages/branding'
+import { db as accountSettingsData } from '@galaxy/fake-db/pages/accountSettings'
+import { db as frontPagesData } from '@galaxy/fake-db/pages/frontPages'
 import { db as profileData } from '@galaxy/fake-db/pages/userProfile'
 import { db as faqData } from '@galaxy/fake-db/pages/faq'
 import { db as pricingData } from '@galaxy/fake-db/pages/pricing'
@@ -77,6 +81,30 @@ export const getDashboardData = async () => {
 
 export const getEcommerceDashboardData = async () => {
   return ecommerceDashboardData
+}
+
+export const getBrandingData = async () => {
+  return brandingData
+}
+
+export const getHeaderShortcuts = async () => {
+  return dbShortcuts
+}
+
+export const getHeaderNotifications = async () => {
+  return dbNotifications
+}
+
+export const getUserViewData = async () => {
+  return userViewData
+}
+
+export const getAccountSettingsData = async () => {
+  return accountSettingsData
+}
+
+export const getFrontPagesData = async () => {
+  return frontPagesData
 }
 
 export const getWidgetExamplesAdvancedData = async () => {

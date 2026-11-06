@@ -1,69 +1,25 @@
 // React Imports
-import type { ReactElement } from 'react'
+import type { ReactNode } from 'react'
 
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
 
+// Type Imports
+import type { RecentDeviceItem } from '@/types/apps/userViewTypes'
+
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
-type RecentDeviceDataType = {
-  browserIcon: ReactElement
-  browserName: string
-  device: string
-  location: string
-  date: string
+const browserIconMap: Record<RecentDeviceItem['browserIcon'], ReactNode> = {
+  windows: <i className='tabler-brand-windows text-[22px] text-info' />,
+  android: <i className='tabler-brand-android text-[22px] text-success' />,
+  apple: <i className='tabler-brand-apple text-[22px] text-secondary' />,
+  mobile: <i className='tabler-device-mobile text-[22px] text-error' />
 }
 
-// Vars
-const recentDeviceData: RecentDeviceDataType[] = [
-  {
-    location: 'Switzerland',
-    device: 'HP Spectre 360',
-    date: '10, Sept 20:07',
-    browserName: 'Chrome on Windows',
-    browserIcon: <i className='tabler-brand-windows text-[22px] text-info' />
-  },
-  {
-    location: 'Los Angeles, CA',
-    device: 'Google Pixel 3a',
-    date: '20 Apr 2022, 10:20',
-    browserName: 'Chrome on Android',
-    browserIcon: <i className='tabler-brand-android text-[22px] text-success' />
-  },
-  {
-    location: 'San Francisco, CA',
-    device: 'iPhone 12x',
-    date: '16 Apr 2022, 04:20',
-    browserName: 'Chrome on iPhone',
-    browserIcon: <i className='tabler-device-mobile text-[22px] text-error' />
-  },
-  {
-    location: 'India',
-    device: 'Apple iMac',
-    date: '28 Apr 2022, 18:20',
-    browserName: 'Chrome on MacOS',
-    browserIcon: <i className='tabler-brand-apple text-[22px] text-secondary' />
-  },
-  {
-    location: 'Switzerland',
-    device: 'Macbook Pro',
-    date: '20 Apr 2022, 10:20',
-    browserName: 'Chrome on Windows',
-    browserIcon: <i className='tabler-brand-apple text-[22px] text-warning' />
-  },
-  {
-    location: 'Dubai',
-    device: 'Oneplus 9 Pro',
-    date: '16 Apr 2022, 04:20',
-    browserName: 'Chrome on Android',
-    browserIcon: <i className='tabler-brand-android text-[22px] text-success' />
-  }
-]
-
-const RecentDevicesTable = () => {
+const RecentDevicesTable = ({ data }: { data: RecentDeviceItem[] }) => {
   return (
     <Card>
       <CardHeader title='Recent Devices' />
@@ -78,13 +34,13 @@ const RecentDevicesTable = () => {
             </tr>
           </thead>
           <tbody>
-            {recentDeviceData.map((device, index) => (
+            {data.map((device, index) => (
               <tr key={index}>
                 <td>
                   <div className='flex items-center gap-2.5'>
-                    {device.browserIcon}
+                    {browserIconMap[device.browserIcon]}
                     <Typography className='font-medium' color='text.primary'>
-                      {device.browserName}
+                      {device.browser}
                     </Typography>
                   </div>
                 </td>
@@ -95,7 +51,7 @@ const RecentDevicesTable = () => {
                   <Typography>{device.location}</Typography>
                 </td>
                 <td>
-                  <Typography>{device.date}</Typography>
+                  <Typography>{device.recentActivity}</Typography>
                 </td>
               </tr>
             ))}

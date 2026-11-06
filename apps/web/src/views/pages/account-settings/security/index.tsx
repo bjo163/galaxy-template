@@ -8,7 +8,12 @@ import CreateApiKey from './CreateApiKey'
 import ApiKeyList from './ApiKeyList'
 import RecentDevicesTable from './RecentDevicesTable'
 
-const Security = () => {
+// Data Imports
+import { getAccountSettingsData } from '@/app/server/actions'
+
+const Security = async () => {
+  const data = await getAccountSettingsData()
+
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
@@ -21,10 +26,10 @@ const Security = () => {
         <CreateApiKey />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <ApiKeyList />
+        <ApiKeyList data={data.apiKeys} />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <RecentDevicesTable />
+        <RecentDevicesTable data={data.recentDevices} />
       </Grid>
     </Grid>
   )

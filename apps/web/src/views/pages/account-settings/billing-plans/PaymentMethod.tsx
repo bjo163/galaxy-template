@@ -18,47 +18,15 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
-import type { ThemeColor } from '@core/types'
+import { CustomTextField } from '@galaxy/ui'
+
+import type { PaymentMethodCard } from '@/types/apps/userViewTypes'
 
 // Component Imports
 import BillingCard from '@components/dialogs/billing-card'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
-import CustomTextField from '@core/components/mui/TextField'
 
-type DataType = {
-  cardNumber?: string
-  name?: string
-  expiryDate?: string
-  cardCvv?: string
-  imgSrc?: string
-  imgAlt?: string
-  cardStatus?: string
-  badgeColor?: ThemeColor
-}
-
-// Vars
-const data: DataType[] = [
-  {
-    cardCvv: '587',
-    name: 'Tom McBride',
-    expiryDate: '12/24',
-    imgAlt: 'Mastercard',
-    badgeColor: 'primary',
-    cardStatus: 'Primary',
-    cardNumber: '5577 0000 5577 9865',
-    imgSrc: '/images/logos/mastercard.png'
-  },
-  {
-    cardCvv: '681',
-    name: 'Mildred Wagner',
-    expiryDate: '02/24',
-    imgAlt: 'Visa card',
-    cardNumber: '4532 3616 2070 5678',
-    imgSrc: '/images/logos/visa.png'
-  }
-]
-
-const PaymentMethod = () => {
+const PaymentMethod = ({ data }: { data: PaymentMethodCard[] }) => {
   // States
   const [paymentMethod, setPaymentMethod] = useState<'credit' | 'cod'>('credit')
   const [creditCard, setCreditCard] = useState(0)
@@ -182,7 +150,7 @@ const PaymentMethod = () => {
             <Typography color='text.primary' className='font-medium'>
               My Cards
             </Typography>
-            {data.map((item: DataType, index: number) => (
+            {data.map((item, index) => (
               <div
                 key={index}
                 className='flex flex-col rounded bg-actionHover sm:flex-row items-start sm:justify-between max-sm:gap-4 p-6'
