@@ -11,11 +11,12 @@ import TabContext from '@mui/lab/TabContext'
 import TabPanel from '@mui/lab/TabPanel'
 
 // Type Imports
+import { CustomTabList } from '@galaxy/ui'
+
 import type { Data } from '@/types/pages/profileTypes'
 
 // Component Imports
 import UserProfileHeader from './UserProfileHeader'
-import CustomTabList from '@core/components/mui/TabList'
 
 const UserProfile = ({ tabContentList, data }: { tabContentList: { [key: string]: ReactElement }; data?: Data }) => {
   // States

@@ -15,7 +15,7 @@ import AlertTitle from '@mui/material/AlertTitle'
 import Button from '@mui/material/Button'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
 
 const ChangePassword = () => {
   // States

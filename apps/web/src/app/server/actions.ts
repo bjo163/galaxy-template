@@ -30,6 +30,7 @@ import { invoiceKPI } from '@galaxy/fake-db/apps/invoiceKPI'
 import { invoicePreview } from '@galaxy/fake-db/apps/invoicePreview'
 import { ecommerceOrderKPI } from '@galaxy/fake-db/apps/ecommerceOrderKPI'
 import { userListCards } from '@galaxy/fake-db/apps/userListCards'
+import { activityTimeline } from '@galaxy/fake-db/apps/activityTimeline'
 
 export const getEcommerceData = async () => {
   return eCommerceData
@@ -49,6 +50,10 @@ export const getEcommerceOrderKPIData = async () => {
 
 export const getUserListCardsData = async () => {
   return userListCards
+}
+
+export const getActivityTimelineData = async () => {
+  return activityTimeline
 }
 
 export const getAcademyData = async () => {

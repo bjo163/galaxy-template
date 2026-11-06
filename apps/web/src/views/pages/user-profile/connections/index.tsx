@@ -8,12 +8,13 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 
 // Type Imports
+import { CustomIconButton } from '@galaxy/ui'
+
 import type { ConnectionsTabType } from '@/types/pages/profileTypes'
 
 // Component Imports
 import OptionMenu from '@core/components/option-menu'
 import Link from '@components/Link'
-import CustomIconButton from '@core/components/mui/IconButton'
 
 const Connections = ({ data }: { data?: ConnectionsTabType[] }) => {
   return (

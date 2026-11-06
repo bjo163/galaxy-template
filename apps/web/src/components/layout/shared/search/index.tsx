@@ -16,6 +16,8 @@ import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, C
 import { Title, Description } from '@radix-ui/react-dialog'
 
 // Type Imports
+import { db as data } from '@galaxy/fake-db/navigation/searchData'
+
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
@@ -33,7 +35,6 @@ import { getLocalizedUrl } from '@/utils/i18n'
 import './styles.css'
 
 // Data Imports
-import data from '@/data/searchData'
 
 type Item = {
   id: string

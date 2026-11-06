@@ -13,11 +13,11 @@ import Divider from '@mui/material/Divider'
 import { useForm, Controller } from 'react-hook-form'
 
 // Types Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { UsersType } from '@/types/apps/userTypes'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
-
 type Props = {
   open: boolean
   handleClose: () => void

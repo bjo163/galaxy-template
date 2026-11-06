@@ -11,7 +11,7 @@ import styled from '@emotion/styled'
 import type { VerticalNavContextProps } from '@menu/contexts/verticalNavContext'
 
 // Component Imports
-import VuexyLogo from '@core/svg/Logo'
+import GalaxyLogo from '@core/svg/Logo'
 
 // Config Imports
 import themeConfig from '@configs/themeConfig'
@@ -30,7 +30,7 @@ type LogoTextProps = {
 
 const LogoText = styled.span<LogoTextProps>`
   color: ${({ color }) => color ?? 'var(--mui-palette-text-primary)'};
-  font-size: 1.375rem;
+  font-size: 1.125rem;
   line-height: 1.09091;
   font-weight: 700;
   letter-spacing: 0.25px;
@@ -40,7 +40,7 @@ const LogoText = styled.span<LogoTextProps>`
   ${({ isHovered, isCollapsed, isBreakpointReached }) =>
     !isBreakpointReached && isCollapsed && !isHovered
       ? 'opacity: 0; margin-inline-start: 0;'
-      : 'opacity: 1; margin-inline-start: 12px;'}
+      : 'opacity: 1; margin-inline-start: 8px;'}
 `
 
 const Logo = ({ color }: { color?: CSSProperties['color'] }) => {
@@ -71,7 +71,7 @@ const Logo = ({ color }: { color?: CSSProperties['color'] }) => {
 
   return (
     <div className='flex items-center'>
-      <VuexyLogo className='text-2xl text-primary' />
+      <GalaxyLogo className='text-[1.8rem] text-primary' />
       <LogoText
         color={color}
         ref={logoTextRef}

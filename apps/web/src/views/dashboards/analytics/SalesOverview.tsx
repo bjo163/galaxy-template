@@ -9,7 +9,7 @@ import MuiLinearProgress from '@mui/material/LinearProgress'
 import { styled } from '@mui/material/styles'
 
 // Custom Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
 
 const LinearProgress = styled(MuiLinearProgress)(() => ({
   '&.MuiLinearProgress-colorInfo': { backgroundColor: 'var(--mui-palette-primary-main)' },

@@ -11,7 +11,7 @@ import TabPanel from '@mui/lab/TabPanel'
 import Grid from '@mui/material/Grid'
 
 // Component Imports
-import CustomTabList from '@core/components/mui/TabList'
+import { CustomTabList } from '@galaxy/ui'
 
 const CustomerRight = ({ tabContentList }: { tabContentList: { [key: string]: ReactElement } }) => {
   // States

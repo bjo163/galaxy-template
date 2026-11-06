@@ -7,11 +7,12 @@ import Typography from '@mui/material/Typography'
 // Third-party Imports
 import classnames from 'classnames'
 
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
-import CustomAvatar from '@core/components/mui/Avatar'
 
 type DataType = {
   title: string

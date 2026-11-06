@@ -28,8 +28,8 @@ import { toast } from 'react-toastify'
 import classnames from 'classnames'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomAvatar, CustomTextField } from '@galaxy/ui'
+
 import DirectionalIcon from '@components/DirectionalIcon'
 
 // Styled Component Imports

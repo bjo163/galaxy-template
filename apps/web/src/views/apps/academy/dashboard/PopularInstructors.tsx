@@ -6,7 +6,8 @@ import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
+
 import OptionMenu from '@core/components/option-menu'
 
 type DataType = {

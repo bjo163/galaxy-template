@@ -46,14 +46,14 @@ const columns = [
   })
 ]
 
-const BasicDataTables = ({ data: defaultData }: { data: DataType[] }) => {
+const BasicDataTables = ({ data }: { data?: DataType[] }) => {
   // States
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [data, setData] = useState(() => [...defaultData])
+  const [rows, setRows] = useState(() => [...(data ?? [])])
 
   // Hooks
   const table = useReactTable({
-    data,
+    data: rows,
     columns,
     getCoreRowModel: getCoreRowModel(),
     filterFns: {

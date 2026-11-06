@@ -25,9 +25,9 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 
 // Component Imports
+import { CustomTabList, CustomTextField } from '@galaxy/ui'
+
 import Link from '@components/Link'
-import CustomTabList from '@core/components/mui/TabList'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Styled Component Imports
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'

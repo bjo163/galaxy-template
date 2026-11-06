@@ -13,8 +13,8 @@ import Chip from '@mui/material/Chip'
 import classnames from 'classnames'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomAvatar, CustomTextField } from '@galaxy/ui'
+
 
 // Hook Imports
 import { useIntersection } from '@/hooks/useIntersection'

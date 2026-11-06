@@ -32,12 +32,12 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
+import { CustomAvatar, CustomTextField } from '@galaxy/ui'
+
 import type { ProjectTableRowType } from '@/types/pages/profileTypes'
 
 // Component Imports
 import OptionMenu from '@core/components/option-menu'
-import CustomAvatar from '@core/components/mui/Avatar'
-import CustomTextField from '@core/components/mui/TextField'
 import TablePaginationComponent from '@/components/TablePaginationComponent'
 
 // Style Imports

@@ -2,6 +2,8 @@
 import Button from '@mui/material/Button'
 
 // Type Imports
+import { ScrollToTop } from '@galaxy/ui'
+
 import type { ChildrenType } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
@@ -18,7 +20,6 @@ import Navbar from '@components/layout/vertical/Navbar'
 import VerticalFooter from '@components/layout/vertical/Footer'
 import HorizontalFooter from '@components/layout/horizontal/Footer'
 import Customizer from '@core/components/customizer'
-import ScrollToTop from '@core/components/scroll-to-top'
 import AuthGuard from '@/hocs/AuthGuard'
 
 // Config Imports

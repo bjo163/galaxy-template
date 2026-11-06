@@ -17,7 +17,8 @@ import MuiTimeline from '@mui/lab/Timeline'
 import type { TimelineProps } from '@mui/lab/Timeline'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
+
 
 // Styled Timeline component
 const Timeline = styled(MuiTimeline)<TimelineProps>({

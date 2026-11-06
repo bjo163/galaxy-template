@@ -208,6 +208,114 @@ input[autocomplete='one-time-code'][data-input-otp='true'] {
   inline-size: 100% !important;
 }
 
+.galaxy-dashboard-intro {
+  position: relative;
+  display: flex;
+  min-block-size: 148px;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  margin-block-end: 20px;
+  padding: 20px 24px;
+  border: 1px solid var(--mui-palette-divider);
+  border-radius: 10px;
+  background: linear-gradient(112deg, var(--mui-palette-background-paper) 40%, var(--mui-palette-primary-lighterOpacity));
+}
+
+.galaxy-dashboard-kicker {
+  color: var(--mui-palette-primary-main);
+  letter-spacing: .12em;
+}
+
+.galaxy-dashboard-title {
+  margin-block: 2px 6px;
+  font-weight: 650;
+  letter-spacing: -.035em;
+}
+
+.galaxy-orbit-art {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  display: grid;
+  inline-size: min(42%, 360px);
+  min-inline-size: 220px;
+  place-items: center;
+  color: var(--mui-palette-primary-main);
+  opacity: .9;
+  pointer-events: none;
+}
+
+.galaxy-orbit-art svg {
+  inline-size: 100%;
+  max-block-size: 100%;
+  overflow: visible;
+}
+
+.galaxy-auth-artwork {
+  position: relative;
+  inline-size: min(76%, 540px);
+  aspect-ratio: 1.45;
+  border: 1px solid var(--mui-palette-divider);
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--mui-palette-background-paper), var(--mui-palette-primary-lighterOpacity));
+  box-shadow: 0 24px 60px rgb(var(--mui-mainColorChannels-shadow) / 0.1);
+}
+
+.galaxy-auth-artwork::before,
+.galaxy-auth-artwork::after {
+  position: absolute;
+  inset-inline: 12%;
+  block-size: 1px;
+  content: '';
+  background: var(--mui-palette-divider);
+}
+
+.galaxy-auth-artwork::before {
+  inset-block-start: 27%;
+}
+
+.galaxy-auth-artwork::after {
+  inset-block-end: 23%;
+}
+
+.galaxy-auth-artwork .galaxy-orbit-art {
+  inline-size: 100%;
+  min-inline-size: 0;
+  opacity: .95;
+}
+
+@media (prefers-color-scheme: dark) {
+  .galaxy-dashboard-intro,
+  .galaxy-auth-artwork {
+    background-color: var(--mui-palette-background-paper);
+  }
+}
+
+@media (max-width: 600px) {
+  .galaxy-dashboard-intro {
+    min-block-size: 132px;
+    padding: 16px;
+  }
+
+  .galaxy-orbit-art {
+    inline-size: 46%;
+    min-inline-size: 150px;
+    opacity: .45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
 code {
   font-family: inherit;
   padding-block: 2px;

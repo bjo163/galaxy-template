@@ -18,7 +18,8 @@ import { TextAlign } from '@tiptap/extension-text-align'
 import type { Editor } from '@tiptap/react'
 
 // Component Imports
-import CustomIconButton from '@core/components/mui/IconButton'
+import { CustomIconButton } from '@galaxy/ui'
+
 
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'

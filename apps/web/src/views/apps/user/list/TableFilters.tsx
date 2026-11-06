@@ -7,11 +7,11 @@ import Grid from '@mui/material/Grid'
 import MenuItem from '@mui/material/MenuItem'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { UsersType } from '@/types/apps/userTypes'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
-
 const TableFilters = ({ setData, tableData }: { setData: (data: UsersType[]) => void; tableData?: UsersType[] }) => {
   // States
   const [role, setRole] = useState<UsersType['role']>('')

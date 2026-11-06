@@ -37,13 +37,17 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
+import { CustomAvatar } from '@galaxy/ui'
+
+import { CustomTextField } from '@galaxy/ui'
+
 import type { ReviewType } from '@/types/apps/ecommerceTypes'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
-import CustomTextField from '@core/components/mui/TextField'
+
+
 import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Util Imports

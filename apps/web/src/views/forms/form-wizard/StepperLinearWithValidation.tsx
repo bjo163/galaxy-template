@@ -27,7 +27,8 @@ import { valibotResolver } from '@hookform/resolvers/valibot'
 import { email, object, minLength, string, array, forward, pipe, nonEmpty, check } from 'valibot'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
+
 import StepperWrapper from '@core/styles/stepper'
 import StepperCustomDot from '@components/stepper-dot'
 import DirectionalIcon from '@components/DirectionalIcon'

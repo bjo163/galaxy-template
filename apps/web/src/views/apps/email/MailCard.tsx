@@ -9,10 +9,11 @@ import IconButton from '@mui/material/IconButton'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { Email } from '@/types/apps/emailTypes'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
 
 // Styles Imports

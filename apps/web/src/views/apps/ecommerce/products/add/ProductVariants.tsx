@@ -13,8 +13,7 @@ import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
 
 // Components Imports
-import CustomIconButton from '@core/components/mui/IconButton'
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomIconButton, CustomTextField } from '@galaxy/ui'
 
 const ProductVariants = () => {
   // States

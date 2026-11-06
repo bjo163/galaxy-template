@@ -1,39 +1,23 @@
 // Next Imports
 import { NextResponse } from 'next/server'
 
-import type { UserTable } from './users'
-
-type ResponseUser = Omit<UserTable, 'password'>
-
-// Mock data for demo purpose
-import { users } from './users'
-
 export async function POST(req: Request) {
-  // Vars
-  const { email, password } = await req.json()
-  const user = users.find(u => u.email === email && u.password === password)
-  let response: null | ResponseUser = null
+  const arsyApiUrl = process.env.ARSY_API_URL?.replace(/\/$/, '')
 
-  if (user) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...filteredUserData } = user
+  if (!arsyApiUrl) {
+    return NextResponse.json({ message: ['Arsy authentication is not configured.'] }, { status: 503 })
+  }
 
-    response = {
-      ...filteredUserData
-    }
+  try {
+    const response = await fetch(`${arsyApiUrl}/api/v1/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: await req.text()
+    })
+    const result = await response.json().catch(() => ({ message: ['Authentication failed.'] }))
 
-    return NextResponse.json(response)
-  } else {
-    // We return 401 status code and error message if user is not found
-    return NextResponse.json(
-      {
-        // We create object here to separate each error message for each field in case of multiple errors
-        message: ['Email or Password is invalid']
-      },
-      {
-        status: 401,
-        statusText: 'Unauthorized Access'
-      }
-    )
+    return NextResponse.json(result, { status: response.status })
+  } catch {
+    return NextResponse.json({ message: ['The Arsy authentication service could not be reached.'] }, { status: 502 })
   }
 }

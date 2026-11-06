@@ -1,0 +1,44 @@
+{
+  "name": "@galaxy/ui",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "clean": "rimraf .turbo"
+  },
+  "dependencies": {
+    "@galaxy/types": "workspace:*",
+    "classnames": "2.5.1"
+  },
+  "peerDependencies": {
+    "@mui/lab": "^7.0.0",
+    "@mui/material": "^7.0.0",
+    "@tanstack/react-table": "^8.0.0",
+    "apexcharts": "^3.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "apexcharts": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@galaxy/eslint-config": "workspace:*",
+    "@galaxy/tsconfig": "workspace:*",
+    "@mui/lab": "7.0.1-beta.19",
+    "@mui/material": "7.3.6",
+    "@tanstack/react-table": "8.21.3",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "apexcharts": "3.49.0",
+    "eslint": "8.57.1",
+    "rimraf": "5.0.7",
+    "typescript": "5.9.3"
+  }
+}

@@ -27,12 +27,12 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 // Type Imports
 import { getInitials } from '@galaxy/utils'
 
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { CustomAvatarProps } from '@core/components/mui/Avatar'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-
 // Config Imports
 import themeConfig from '@configs/themeConfig'
 

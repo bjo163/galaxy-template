@@ -32,9 +32,10 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Component Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import AddCategoryDrawer from './AddCategoryDrawer'
 import OptionMenu from '@core/components/option-menu'
-import CustomTextField from '@core/components/mui/TextField'
 import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Style Imports

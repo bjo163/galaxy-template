@@ -21,6 +21,8 @@ import { minLength, nonEmpty, object, pipe, string } from 'valibot'
 import type { InferInput } from 'valibot'
 
 // Type Imports
+import { CustomAvatar, CustomTextField } from '@galaxy/ui'
+
 import type { ColumnType, TaskType } from '@/types/apps/kanbanTypes'
 import type { AppDispatch } from '@/redux-store'
 
@@ -28,8 +30,6 @@ import type { AppDispatch } from '@/redux-store'
 import { editTask, deleteTask } from '@/redux-store/slices/kanban'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-import CustomTextField from '@core/components/mui/TextField'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 // Data Imports

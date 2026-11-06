@@ -22,12 +22,13 @@ import Divider from '@mui/material/Divider'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { SystemMode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
 import Logo from '@components/layout/shared/Logo'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'

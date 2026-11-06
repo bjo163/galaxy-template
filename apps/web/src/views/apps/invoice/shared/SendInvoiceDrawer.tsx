@@ -11,7 +11,7 @@ import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
 
 type Props = {
   open: boolean

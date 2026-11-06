@@ -1,4 +1,4 @@
-# Arsy API and Console
+# Arsy API
 
 Arsy is the Fastify API app in the Galaxy pnpm monorepo. It uses a module-first
 layout so each domain can own its routes, service, repository, and schemas as
@@ -6,28 +6,25 @@ the product requirements become known.
 
 ## Run locally
 
-Use Node.js 22.12 or newer and run commands from the repository root:
+Use Node.js 22.12 or newer and Docker Desktop, then run commands from the
+repository root:
 
 ```sh
 pnpm install
+Copy-Item .env.example .env.development
 pnpm dev:arsy
 ```
 
-The root `pnpm dev` starts every workspace development task through Turbo;
-use `pnpm dev:arsy` to run only Arsy.
+The root `pnpm dev` starts PostgreSQL, applies Arsy migrations, and starts the
+web and API apps. Use `pnpm dev:arsy` to start PostgreSQL, migrate the schema,
+and run only Arsy.
 
-The API listens on `http://localhost:3001` by default. Arsy's `dev`, `start`,
-and database migration commands load the monorepo-root `.env` file. Copy
-settings from `apps/arsy/.env.example` into that root file; do not overwrite
-other workspace settings already there. Variables set in the process
-environment take precedence over values in `.env`.
-
-Arsy uses PGlite by default. Development stores data under `./data/arsy`;
-tests use an ephemeral database. Set `PGLITE_DATA_DIR` to choose a different
-local data directory. Arsy creates the directory and any missing parent
-directories automatically on startup. Production defaults to PostgreSQL and
-requires `DATABASE_URL`; Arsy rejects PGlite in production because it is an
-embedded, single-process database. The shared Knex/Objection
+The API listens on `http://localhost:3001`; the web app runs on
+`http://localhost:3000`. Development configuration is in the ignored root
+`.env.development`, copied from root `.env.example`. A PostgreSQL 18 container
+persists data in the `galaxy_arsy-postgres-data` Docker volume. The API requires
+`DATABASE_ADAPTER=postgres` and `DATABASE_URL`; it no longer initializes a
+PGlite database or a separate browser console. The shared Knex/Objection
 adapters live in `packages/database`.
 
 ### PostgreSQL roles and tenant isolation
@@ -118,8 +115,8 @@ the shared `galaxy_migrations` history and lock tables. The initial control-plan
 migration defines the account, workspace, project, model, record, add-on, and
 audit tables; later domain changes get separate reversible migrations.
 
-The service validates all environment settings on startup. See `.env.example`
-for the supported variables and defaults. CORS origins must be explicit HTTP(S)
+The service validates all environment settings on startup. See the repository
+root `.env.example` for supported variables and defaults. CORS origins must be explicit HTTP(S)
 origins; wildcard CORS is rejected in production. Set `TRUST_PROXY` to explicit
 trusted proxy IP addresses or CIDRs only when Arsy is behind those proxies;
 leave it `false` when clients can connect directly.
@@ -144,23 +141,12 @@ production. The example environment opts out explicitly; set
 `OPENAPI_ENABLED=true` for local interactive docs or only when the production
 contract should be publicly available.
 
-## Console
+## Account onboarding
 
-Arsy serves its standalone console at `/` through the Fastify-Vite plugin. The
-console calls the same-origin `/api/v1` API; it does not use `apps/web` or a
-Next.js BFF. Run `pnpm --filter arsy dev` for local development. `pnpm --filter
-arsy build` builds both the API server and the production console bundle, and
-`pnpm --filter arsy start` serves them together.
-
-The browser keeps the account access token in memory. Reloading the page
-requires signing in again; the console does not persist the token in browser
-storage.
-
-The interface remains a draft without Arsy brand direction. Its current dials
-are ENERGY 1 / RHYTHM 1 / MOTION 1. The light/dark themes and green accent make
-interactive states visible across the console; the workspace/project selectors
-stay beside the section navigation so users can see which data scope they are
-managing.
+Create Arsy accounts through the Galaxy web app at `/register`. The form sends
+registration to Arsy's `/api/v1/auth/register` endpoint and signs the user into
+the web app after account creation. Arsy itself exposes only the API and API
+documentation; its root path does not host a management UI.
 
 Prometheus metrics are disabled by default. To enable them, set
 `METRICS_ENABLED=true` and provide `METRICS_TOKEN` with 32 to 256 safe

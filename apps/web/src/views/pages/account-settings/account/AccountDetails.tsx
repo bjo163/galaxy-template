@@ -15,7 +15,7 @@ import Chip from '@mui/material/Chip'
 import type { SelectChangeEvent } from '@mui/material/Select'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
 
 type Data = {
   firstName: string

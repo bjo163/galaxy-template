@@ -14,11 +14,11 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 // Type Imports
 import { getInitials } from '@galaxy/utils'
 
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { ChatType, ChatDataType, UserChatType, ProfileUserType } from '@/types/apps/chatTypes'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-
 // Util Imports
 
 type MsgGroupType = {

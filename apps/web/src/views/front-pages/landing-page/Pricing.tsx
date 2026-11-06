@@ -19,55 +19,21 @@ import InputLabel from '@mui/material/InputLabel'
 import classnames from 'classnames'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
+
 
 // Styles Imports
+import { db } from '@galaxy/fake-db/pages/frontPages'
+
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 import styles from './styles.module.css'
 
-const pricingPlans = [
-  {
-    title: 'Basic',
-    img: '/images/front-pages/landing-page/pricing-basic.png',
-    monthlyPay: 19,
-    annualPay: 14,
-    perYearPay: 168,
-    features: ['Timeline', 'Basic search', 'Live chat widget', 'Email marketing', 'Custom Forms', 'Traffic analytics'],
-    current: false
-  },
-  {
-    title: 'Team',
-    img: '/images/front-pages/landing-page/pricing-team.png',
-    monthlyPay: 29,
-    annualPay: 22,
-    perYearPay: 264,
-    features: [
-      'Everything in basic',
-      'Timeline with database',
-      'Advanced search',
-      'Marketing automation',
-      'Advanced chatbot',
-      'Campaign management'
-    ],
-    current: true
-  },
-  {
-    title: 'Enterprise',
-    img: '/images/front-pages/landing-page/pricing-enterprise.png',
-    monthlyPay: 49,
-    annualPay: 37,
-    perYearPay: 444,
-    features: [
-      'Campaign management',
-      'Timeline with database',
-      'Fuzzy search',
-      'A/B testing sanbox',
-      'Custom permissions',
-      'Social media automation'
-    ],
-    current: false
-  }
-]
+// Type Imports
+import type { LandingPricingPlan } from '@/types/pages/frontPagesTypes'
+
+// Data Imports
+
+const pricingPlans: LandingPricingPlan[] = db.landing.pricingPlans
 
 const PricingPlan = () => {
   // States

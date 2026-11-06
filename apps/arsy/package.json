@@ -8,23 +8,21 @@
   },
   "scripts": {
     "predev": "pnpm --filter @galaxy/database build",
-    "dev": "node --env-file-if-exists=../../.env ./node_modules/tsx/dist/cli.mjs watch --exclude \"**/node_modules/.vite-temp/**\" src/server.ts",
+    "dev": "node ../../.scripts/load-env.mjs . node_modules/tsx/dist/cli.mjs watch src/server.ts",
     "prebuild": "pnpm --filter @galaxy/database build",
-    "build": "pnpm build:server && pnpm build:console",
+    "build": "pnpm build:server",
     "build:server": "tsc -p tsconfig.build.json",
-    "build:console": "vite build",
     "pretest": "pnpm --filter @galaxy/database build",
     "prestart": "pnpm --filter @galaxy/database build",
-    "db:migrate": "pnpm build && node --env-file-if-exists=../../.env dist/cli/migrations.js up",
-    "db:rollback": "pnpm build && node --env-file-if-exists=../../.env dist/cli/migrations.js down",
-    "db:status": "pnpm build && node --env-file-if-exists=../../.env dist/cli/migrations.js status",
-    "db:provision-roles": "pnpm build && node --env-file-if-exists=../../.env dist/cli/postgres-roles.js",
-    "start": "node --env-file-if-exists=../../.env dist/server.js",
+    "db:migrate": "pnpm build && node ../../.scripts/load-env.mjs . node dist/cli/migrations.js up",
+    "db:rollback": "pnpm build && node ../../.scripts/load-env.mjs . node dist/cli/migrations.js down",
+    "db:status": "pnpm build && node ../../.scripts/load-env.mjs . node dist/cli/migrations.js status",
+    "db:provision-roles": "pnpm build && node ../../.scripts/load-env.mjs . node dist/cli/postgres-roles.js",
+    "start": "node ../../.scripts/load-env.mjs . node dist/server.js",
     "test": "tsx --test src/**/*.test.ts",
     "pretypecheck": "pnpm --filter @galaxy/database build",
-    "typecheck": "pnpm typecheck:server && pnpm typecheck:console",
-    "typecheck:server": "tsc --noEmit -p tsconfig.json",
-    "typecheck:console": "tsc --noEmit -p tsconfig.console.json"
+    "typecheck": "pnpm typecheck:server",
+    "typecheck:server": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@fastify/cors": "11.4.1",
@@ -32,11 +30,9 @@
     "@fastify/rate-limit": "11.2.2",
     "@fastify/swagger": "9.9.3",
     "@fastify/swagger-ui": "5.2.6",
-    "@fastify/vite": "10.0.0",
     "@galaxy/database": "workspace:*",
     "@prometheus-io/client": "0.16.1",
-    "fastify": "5.12.8",
-    "vite": "8.3.6"
+    "fastify": "5.12.8"
   },
   "devDependencies": {
     "@galaxy/tsconfig": "workspace:^",

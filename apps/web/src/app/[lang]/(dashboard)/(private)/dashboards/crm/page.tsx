@@ -1,5 +1,6 @@
 // MUI Imports
 import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 
 // Component Imports
 import DistributedBarChartOrder from '@views/dashboards/crm/DistributedBarChartOrder'
@@ -13,18 +14,31 @@ import ProjectStatus from '@views/dashboards/crm/ProjectStatus'
 import ActiveProjects from '@views/dashboards/crm/ActiveProjects'
 import LastTransaction from '@views/dashboards/crm/LastTransaction'
 import ActivityTimeline from '@views/dashboards/crm/ActivityTimeline'
+import GalaxyOrbitArtwork from '@/components/brand/GalaxyOrbitArtwork'
 
 // Server Action Imports
 import { getServerMode } from '@core/utils/serverHelpers'
-import { getDashboardData } from '@/app/server/actions'
+import { getDashboardData, getActivityTimelineData } from '@/app/server/actions'
 
 const DashboardCRM = async () => {
   // Vars
   const serverMode = await getServerMode()
   const data = await getDashboardData()
+  const activityTimelineData = await getActivityTimelineData()
 
   return (
-    <Grid container spacing={6}>
+    <>
+      <section className='galaxy-dashboard-intro' aria-labelledby='galaxy-dashboard-title'>
+        <div>
+          <Typography variant='overline' className='galaxy-dashboard-kicker'>Workspace / Overview</Typography>
+          <Typography id='galaxy-dashboard-title' variant='h4' className='galaxy-dashboard-title'>
+            Control plane
+          </Typography>
+          <Typography color='text.secondary'>A live view of the work moving through your Galaxy workspace.</Typography>
+        </div>
+        <GalaxyOrbitArtwork />
+      </section>
+      <Grid container spacing={3}>
       <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
         <DistributedBarChartOrder />
       </Grid>
@@ -81,9 +95,10 @@ const DashboardCRM = async () => {
         <LastTransaction data={data.lastTransactions} serverMode={serverMode} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
-        <ActivityTimeline />
+        <ActivityTimeline data={activityTimelineData} />
       </Grid>
-    </Grid>
+      </Grid>
+    </>
   )
 }
 

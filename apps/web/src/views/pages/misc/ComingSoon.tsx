@@ -10,11 +10,11 @@ import Typography from '@mui/material/Typography'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { SystemMode } from '@core/types'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
-
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
 

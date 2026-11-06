@@ -21,11 +21,11 @@ import styles from '@core/styles/table.module.css'
 // Column Definitions
 const columnHelper = createColumnHelper<DataType>()
 
-const RowSelection = ({ data: defaultData }: { data: DataType[] }) => {
+const RowSelection = ({ data }: { data?: DataType[] }) => {
   // States
   const [rowSelection, setRowSelection] = useState({})
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [data, setData] = useState(() => defaultData)
+  const [rows, setRows] = useState(() => data ?? [])
 
   // Hooks
   const columns = useMemo<ColumnDef<DataType, any>[]>(
@@ -82,7 +82,7 @@ const RowSelection = ({ data: defaultData }: { data: DataType[] }) => {
   )
 
   const table = useReactTable({
-    data,
+    data: rows,
     columns,
     state: {
       rowSelection

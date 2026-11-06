@@ -8,11 +8,12 @@ import type { TypographyProps } from '@mui/material/Typography'
 // Type Imports
 import { getInitials } from '@galaxy/utils'
 
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { OrderType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
 import EditUserInfo from '@components/dialogs/edit-user-info'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 

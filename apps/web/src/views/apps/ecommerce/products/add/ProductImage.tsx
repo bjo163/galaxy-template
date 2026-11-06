@@ -19,8 +19,9 @@ import type { BoxProps } from '@mui/material/Box'
 import { useDropzone } from 'react-dropzone'
 
 // Component Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import Link from '@components/Link'
-import CustomAvatar from '@core/components/mui/Avatar'
 
 // Styled Component Imports
 import AppReactDropzone from '@/libs/styles/AppReactDropzone'

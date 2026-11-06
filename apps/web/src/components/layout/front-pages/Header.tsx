@@ -17,13 +17,14 @@ import type { Theme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomIconButton } from '@galaxy/ui'
+
 import type { Mode } from '@core/types'
 
 // Component Imports
 import Logo from '@components/layout/shared/Logo'
 import ModeDropdown from '@components/layout/shared/ModeDropdown'
 import FrontMenu from './FrontMenu'
-import CustomIconButton from '@core/components/mui/IconButton'
 
 // Util Imports
 import { frontLayoutClasses } from '@layouts/utils/layoutClasses'
@@ -74,7 +75,7 @@ const Header = ({ mode }: { mode: Mode }) => {
                 variant='contained'
                 href='https://1.envato.market/vuexy_admin'
                 color='primary'
-                target='_blank'
+                {...({ target: '_blank', rel: 'noreferrer' } as any)}
               >
                 <i className='tabler-shopping-cart text-xl' />
               </CustomIconButton>
@@ -85,7 +86,7 @@ const Header = ({ mode }: { mode: Mode }) => {
                 href='https://1.envato.market/vuexy_admin'
                 startIcon={<i className='tabler-shopping-cart text-xl' />}
                 className='whitespace-nowrap'
-                target='_blank'
+                {...({ target: '_blank', rel: 'noreferrer' } as any)}
               >
                 Purchase Now
               </Button>

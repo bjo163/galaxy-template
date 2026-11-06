@@ -1,4 +1,5 @@
 // React Imports
+import type { ReactNode } from 'react'
 import { useEffect, useRef } from 'react'
 
 // MUI Imports
@@ -10,6 +11,8 @@ import Chip from '@mui/material/Chip'
 import classnames from 'classnames'
 
 // Hook Imports
+import { db } from '@galaxy/fake-db/pages/frontPages'
+
 import { useIntersection } from '@/hooks/useIntersection'
 
 // SVG Imports
@@ -23,39 +26,23 @@ import Document from '@assets/svg/front-pages/landing-page/Document'
 // Styles Imports
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 
+// Type Imports
+import type { LandingFeature } from '@/types/pages/frontPagesTypes'
+
+// Data Imports
+
 // Data
-const feature = [
-  {
-    icon: <LaptopCharging color='var(--mui-palette-primary-main)' />,
-    title: 'Quality Code',
-    description: 'Code structure that all developers will easily understand and fall in love with.'
-  },
-  {
-    icon: <Rocket color='var(--mui-palette-primary-main)' />,
-    title: 'Continuous Updates',
-    description: 'Free updates for the next 12 months, including new demos and features.'
-  },
-  {
-    icon: <Paper color='var(--mui-palette-primary-main)' />,
-    title: 'Stater-Kit',
-    description: 'Start your project quickly without having to remove unnecessary features.'
-  },
-  {
-    icon: <Check color='var(--mui-palette-primary-main)' />,
-    title: 'API Ready',
-    description: 'Just change the endpoint and see your own data loaded within seconds.'
-  },
-  {
-    icon: <User color='var(--mui-palette-primary-main)' />,
-    title: 'Excellent Support',
-    description: 'An easy-to-follow doc with lots of references and code examples.'
-  },
-  {
-    icon: <Document color='var(--mui-palette-primary-main)' />,
-    title: 'Well Documented',
-    description: 'An easy-to-follow doc with lots of references and code examples.'
-  }
-]
+const feature: LandingFeature[] = db.landing.features
+
+// Maps the fake-db icon keys to their inline SVG components
+const featureIcons: Record<LandingFeature['icon'], ReactNode> = {
+  'laptop-charging': <LaptopCharging color='var(--mui-palette-primary-main)' />,
+  rocket: <Rocket color='var(--mui-palette-primary-main)' />,
+  paper: <Paper color='var(--mui-palette-primary-main)' />,
+  check: <Check color='var(--mui-palette-primary-main)' />,
+  user: <User color='var(--mui-palette-primary-main)' />,
+  document: <Document color='var(--mui-palette-primary-main)' />
+}
 
 const UsefulFeature = () => {
   // Refs
@@ -112,7 +99,7 @@ const UsefulFeature = () => {
             {feature.map((item, index) => (
               <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={index}>
                 <div className='flex flex-col gap-2 justify-center items-center'>
-                  {item.icon}
+                  {featureIcons[item.icon]}
                   <Typography className='mbs-2' variant='h5'>
                     {item.title}
                   </Typography>

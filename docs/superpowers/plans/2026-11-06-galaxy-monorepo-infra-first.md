@@ -1,4 +1,9 @@
-# Galaxy monorepo infra-first Implementation Plan
+# Galaxy monorepo infra-first Implementation Plan (historical)
+
+> This plan is retained as a record of the original web-template extraction.
+> Its Prisma and `@galaxy/db` roadmap is not the backend plan for Arsy. Track
+> Arsy's current work and status in the
+> [canonical GitHub issue register](https://github.com/bjo163/galaxy-template/issues/1).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

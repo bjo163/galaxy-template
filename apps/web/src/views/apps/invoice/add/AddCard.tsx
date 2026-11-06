@@ -23,13 +23,14 @@ import type { Theme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { InvoiceType } from '@/types/apps/invoiceTypes'
 import type { FormDataType } from './AddCustomerDrawer'
 
 // Component Imports
 import AddCustomerDrawer, { initialFormData } from './AddCustomerDrawer'
 import Logo from '@components/layout/shared/Logo'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Styled Component Imports
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'

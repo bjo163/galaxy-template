@@ -12,6 +12,8 @@ import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
 
 // SVG Imports
+import { db } from '@galaxy/fake-db/pages/frontPages'
+
 import Gift from '@assets/svg/front-pages/help-center/Gift'
 import Rocket from '@assets/svg/front-pages/help-center/Rocket'
 import File from '@assets/svg/front-pages/help-center/File'
@@ -19,35 +21,23 @@ import File from '@assets/svg/front-pages/help-center/File'
 // Styles Imports
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 
-// Types
-type popularArticlesType = {
-  slug: string
-  title: string
-  svg: ReactNode
-  subtitle: string
-}
+// Type Imports
+import type { HelpCenterGraphicArticle } from '@/types/pages/frontPagesTypes'
+
+// Data Imports
 
 // Data
-const popularArticles: popularArticlesType[] = [
-  {
-    slug: 'getting-started',
-    title: 'Getting Started',
-    svg: <Rocket color='var(--mui-palette-text-secondary)' />,
-    subtitle: "Whether you're new or you're a power user, this article will"
-  },
-  {
-    slug: 'first-steps',
-    title: 'First Steps',
-    svg: <Gift color='var(--mui-palette-text-secondary)' />,
-    subtitle: 'Are you a new customer and wondering how to get started?'
-  },
-  {
-    slug: 'external-content',
-    title: 'Add External Content',
-    svg: <File color='var(--mui-palette-text-secondary)' />,
-    subtitle: 'Article will show you how to expand the functionality of App'
-  }
-]
+const popularArticles: HelpCenterGraphicArticle[] = db.helpCenter.popularArticles
+
+// Maps the fake-db icon keys to their inline SVG components
+const articleIcons: Record<HelpCenterGraphicArticle['icon'], ReactNode> = {
+  rocket: <Rocket color='var(--mui-palette-text-secondary)' />,
+  gift: <Gift color='var(--mui-palette-text-secondary)' />,
+  file: <File color='var(--mui-palette-text-secondary)' />,
+  laptop: <Rocket color='var(--mui-palette-text-secondary)' />,
+  bulb: <Gift color='var(--mui-palette-text-secondary)' />,
+  discord: <File color='var(--mui-palette-text-secondary)' />
+}
 
 const Articles = () => {
   return (
@@ -62,7 +52,7 @@ const Articles = () => {
               <Grid size={{ xs: 12, lg: 4 }} key={index}>
                 <Card variant='outlined'>
                   <CardContent className='flex flex-col items-center justify-center gap-3 text-center'>
-                    {article.svg}
+                    {articleIcons[article.icon]}
                     <Typography variant='h5'>{article.title}</Typography>
                     <Typography>{article.subtitle}</Typography>
                     <Button

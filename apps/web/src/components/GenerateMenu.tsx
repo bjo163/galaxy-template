@@ -1,4 +1,4 @@
-// React Imports
+﻿// React Imports
 import type { ReactNode } from 'react'
 
 // Next Imports
@@ -8,6 +8,8 @@ import { useParams } from 'next/navigation'
 import type { ChipProps } from '@mui/material/Chip'
 
 // Type Imports
+import { CustomChip } from '@galaxy/ui'
+
 import type { Locale } from '@configs/i18n'
 import type {
   VerticalMenuDataType,
@@ -22,10 +24,25 @@ import type {
 // Component Imports
 import { SubMenu as HorizontalSubMenu, MenuItem as HorizontalMenuItem } from '@menu/horizontal-menu'
 import { SubMenu as VerticalSubMenu, MenuItem as VerticalMenuItem, MenuSection } from '@menu/vertical-menu'
-import CustomChip from '@core/components/mui/Chip'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
+
+// Renders a data-only prefix/suffix: chip objects become CustomChip,
+// icon objects become tabler icons, anything else is treated as a ReactNode
+export const renderMenuAffix = (affix?: ReactNode | ChipProps | { icon: string }): ReactNode => {
+  if (!affix) return undefined
+
+  if (typeof affix === 'object' && !(affix as ChipProps).label && (affix as { icon?: string }).icon) {
+    return <i className={(affix as { icon: string }).icon} />
+  }
+
+  if (typeof affix === 'object' && (affix as ChipProps).label) {
+    return <CustomChip size='small' round='true' {...(affix as ChipProps)} />
+  }
+
+  return affix as ReactNode
+}
 
 // Generate a menu from the menu data array
 export const GenerateVerticalMenu = ({ menuData }: { menuData: VerticalMenuDataType[] }) => {
@@ -58,19 +75,9 @@ export const GenerateVerticalMenu = ({ menuData }: { menuData: VerticalMenuDataT
 
         const Icon = icon ? <i className={icon} /> : null
 
-        const subMenuPrefix: ReactNode =
-          prefix && (prefix as ChipProps).label ? (
-            <CustomChip size='small' round='true' {...(prefix as ChipProps)} />
-          ) : (
-            (prefix as ReactNode)
-          )
+        const subMenuPrefix: ReactNode = renderMenuAffix(prefix)
 
-        const subMenuSuffix: ReactNode =
-          suffix && (suffix as ChipProps).label ? (
-            <CustomChip size='small' round='true' {...(suffix as ChipProps)} />
-          ) : (
-            (suffix as ReactNode)
-          )
+        const subMenuSuffix: ReactNode = renderMenuAffix(suffix)
 
         // If it is, return a SubMenu component and call generateMenu with the current subMenuItem's children
         return (
@@ -96,19 +103,9 @@ export const GenerateVerticalMenu = ({ menuData }: { menuData: VerticalMenuDataT
 
       const Icon = icon ? <i className={icon} /> : null
 
-      const menuItemPrefix: ReactNode =
-        prefix && (prefix as ChipProps).label ? (
-          <CustomChip size='small' round='true' {...(prefix as ChipProps)} />
-        ) : (
-          (prefix as ReactNode)
-        )
+      const menuItemPrefix: ReactNode = renderMenuAffix(prefix)
 
-      const menuItemSuffix: ReactNode =
-        suffix && (suffix as ChipProps).label ? (
-          <CustomChip size='small' round='true' {...(suffix as ChipProps)} />
-        ) : (
-          (suffix as ReactNode)
-        )
+      const menuItemSuffix: ReactNode = renderMenuAffix(suffix)
 
       return (
         <VerticalMenuItem
@@ -145,19 +142,9 @@ export const GenerateHorizontalMenu = ({ menuData }: { menuData: HorizontalMenuD
 
         const Icon = icon ? <i className={icon} /> : null
 
-        const subMenuPrefix: ReactNode =
-          prefix && (prefix as ChipProps).label ? (
-            <CustomChip size='small' round='true' {...(prefix as ChipProps)} />
-          ) : (
-            (prefix as ReactNode)
-          )
+        const subMenuPrefix: ReactNode = renderMenuAffix(prefix)
 
-        const subMenuSuffix: ReactNode =
-          suffix && (suffix as ChipProps).label ? (
-            <CustomChip size='small' round='true' {...(suffix as ChipProps)} />
-          ) : (
-            (suffix as ReactNode)
-          )
+        const subMenuSuffix: ReactNode = renderMenuAffix(suffix)
 
         // If it is, return a SubMenu component and call generateMenu with the current subMenuItem's children
         return (
@@ -183,19 +170,9 @@ export const GenerateHorizontalMenu = ({ menuData }: { menuData: HorizontalMenuD
 
       const Icon = icon ? <i className={icon} /> : null
 
-      const menuItemPrefix: ReactNode =
-        prefix && (prefix as ChipProps).label ? (
-          <CustomChip size='small' round='true' {...(prefix as ChipProps)} />
-        ) : (
-          (prefix as ReactNode)
-        )
+      const menuItemPrefix: ReactNode = renderMenuAffix(prefix)
 
-      const menuItemSuffix: ReactNode =
-        suffix && (suffix as ChipProps).label ? (
-          <CustomChip size='small' round='true' {...(suffix as ChipProps)} />
-        ) : (
-          (suffix as ReactNode)
-        )
+      const menuItemSuffix: ReactNode = renderMenuAffix(suffix)
 
       return (
         <HorizontalMenuItem
@@ -214,3 +191,4 @@ export const GenerateHorizontalMenu = ({ menuData }: { menuData: HorizontalMenuD
 
   return <>{renderMenuItems(menuData)}</>
 }
+

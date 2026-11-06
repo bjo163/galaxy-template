@@ -15,11 +15,11 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { useForm, Controller } from 'react-hook-form'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { categoryType } from './ProductCategoryTable'
 
 // Components Imports
-import CustomTextField from '@core/components/mui/TextField'
-
 type Props = {
   open: boolean
   handleClose: () => void

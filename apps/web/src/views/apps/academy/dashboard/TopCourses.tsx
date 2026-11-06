@@ -6,10 +6,11 @@ import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 
 // Type Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
 
 type DataType = {

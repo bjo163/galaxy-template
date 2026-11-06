@@ -41,6 +41,8 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import { getInitials } from '@galaxy/utils'
 
+import { CustomTextField, CustomAvatar } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { UsersType } from '@/types/apps/userTypes'
 import type { Locale } from '@configs/i18n'
@@ -50,8 +52,6 @@ import TableFilters from './TableFilters'
 import AddUserDrawer from './AddUserDrawer'
 import OptionMenu from '@core/components/option-menu'
 import TablePaginationComponent from '@components/TablePaginationComponent'
-import CustomTextField from '@core/components/mui/TextField'
-import CustomAvatar from '@core/components/mui/Avatar'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

@@ -6,9 +6,9 @@ import InputLabel from '@mui/material/InputLabel'
 import Typography from '@mui/material/Typography'
 
 // Component Imports
+import { CustomIconButton, CustomTextField } from '@galaxy/ui'
+
 import Link from '@components/Link'
-import CustomIconButton from '@core/components/mui/IconButton'
-import CustomTextField from '@core/components/mui/TextField'
 
 const TwoStepVerification = () => {
   return (

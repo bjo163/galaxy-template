@@ -10,8 +10,7 @@ import CardContent from '@mui/material/CardContent'
 import MenuItem from '@mui/material/MenuItem'
 
 // Component Imports
-import CustomIconButton from '@core/components/mui/IconButton'
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomIconButton, CustomTextField } from '@galaxy/ui'
 
 const ProductOrganize = () => {
   // States

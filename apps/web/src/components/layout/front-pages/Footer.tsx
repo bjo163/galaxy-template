@@ -11,12 +11,20 @@ import IconButton from '@mui/material/IconButton'
 import classnames from 'classnames'
 
 // Type Imports
+import { db as brandingData } from '@galaxy/fake-db/pages/branding'
+
+import { CustomTextField } from '@galaxy/ui'
+
 import type { Mode } from '@core/types'
+import type { BrandingData } from '@/types/pages/brandingTypes'
+
+// Data Imports
 
 // Component Imports
 import Link from '@components/Link'
 import Logo from '@components/layout/shared/Logo'
-import CustomTextField from '@core/components/mui/TextField'
+
+
 
 // Hooks Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
@@ -32,6 +40,7 @@ const Footer = ({ mode }: { mode: Mode }) => {
   // Vars
   const footerImageLight = '/images/front-pages/footer-bg-light.png'
   const footerImageDark = '/images/front-pages/footer-bg-dark.png'
+  const branding: BrandingData = brandingData
 
   // Hooks
   const dashboardImage = useImageVariant(mode, footerImageLight, footerImageDark)
@@ -48,15 +57,14 @@ const Footer = ({ mode }: { mode: Mode }) => {
                   <Logo color='var(--mui-palette-common-white)' />
                 </Link>
                 <Typography color='white' className='md:max-is-[390px] opacity-[0.78]'>
-                  Most Powerful & Comprehensive 🤩 React NextJS Admin Template with Elegant Material Design & Unique
-                  Layouts.
+                  {branding.marketing.description}
                 </Typography>
                 <div className='flex items-end'>
                   <CustomTextField
                     size='small'
                     className={styles.inputBorder}
-                    label='Subscribe to newsletter'
-                    placeholder='Your email'
+                    label={branding.marketing.newsletter.label}
+                    placeholder={branding.marketing.newsletter.placeholder}
                     sx={{
                       '& .MuiInputBase-root': {
                         borderStartEndRadius: '0 !important',
@@ -78,88 +86,60 @@ const Footer = ({ mode }: { mode: Mode }) => {
                       borderEndStartRadius: 0
                     }}
                   >
-                    Subscribe
+                    {branding.marketing.newsletter.button}
                   </Button>
                 </div>
               </div>
             </Grid>
-            <Grid size={{ xs: 12, sm: 3, lg: 2 }}>
-              <Typography color='white' className='font-medium mbe-6 opacity-[0.92]'>
-                Pages
-              </Typography>
-              <div className='flex flex-col gap-4'>
-                <Typography component={Link} href='/front-pages/pricing' color='white' className='opacity-[0.78]'>
-                  Pricing
+            {[branding.marketing.pagesColumn, branding.marketing.productsColumn].map(column => (
+              <Grid key={column.title} size={{ xs: 12, sm: 3, lg: 2 }}>
+                <Typography color='white' className='font-medium mbe-6 opacity-[0.92]'>
+                  {column.title}
                 </Typography>
-                <Link href='/front-pages/payment' className='flex items-center gap-[10px]'>
-                  <Typography color='white' className='opacity-[0.78]'>
-                    Payment
-                  </Typography>
-                  <Chip label='New' color='primary' size='small' />
-                </Link>
-                <Typography
-                  component={Link}
-                  href='/pages/misc/under-maintenance'
-                  color='white'
-                  className='opacity-[0.78]'
-                >
-                  Maintenance
-                </Typography>
-                <Typography component={Link} href='/pages/misc/coming-soon' color='white' className='opacity-[0.78]'>
-                  Coming Soon
-                </Typography>
-              </div>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 3, lg: 2 }}>
-              <Typography color='white' className='font-medium mbe-6 opacity-[0.92]'>
-                Products
-              </Typography>
-              <div className='flex flex-col gap-4'>
-                <Typography component={Link} href='/front-pages/landing-page' color='white' className='opacity-[0.78]'>
-                  Page builder
-                </Typography>
-                <Typography component={Link} href='/front-pages/landing-page' color='white' className='opacity-[0.78]'>
-                  Admin Dashboards
-                </Typography>
-                <Typography component={Link} href='/front-pages/landing-page' color='white' className='opacity-[0.78]'>
-                  UI Kits
-                </Typography>
-                <Typography component={Link} href='/front-pages/landing-page' color='white' className='opacity-[0.78]'>
-                  Illustrations
-                </Typography>
-              </div>
-            </Grid>
+                <div className='flex flex-col gap-4'>
+                  {column.links.map(link =>
+                    link.isNew ? (
+                      <Link key={link.label} href={link.url} className='flex items-center gap-[10px]'>
+                        <Typography color='white' className='opacity-[0.78]'>
+                          {link.label}
+                        </Typography>
+                        <Chip label='New' color='primary' size='small' />
+                      </Link>
+                    ) : (
+                      <Typography
+                        key={link.label}
+                        component={Link}
+                        href={link.url}
+                        color='white'
+                        className='opacity-[0.78]'
+                      >
+                        {link.label}
+                      </Typography>
+                    )
+                  )}
+                </div>
+              </Grid>
+            ))}
             <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
               <Typography color='white' className='font-medium mbe-6 opacity-[0.92]'>
                 Download our App
               </Typography>
               <div className='flex flex-col gap-4'>
-                <Link className='bg-[#282C3E] bs-[56px] is-[211px] rounded'>
-                  <div className='flex items-center pli-5 plb-[7px] gap-6'>
-                    <img src='/images/front-pages/apple-icon.png' alt='apple store' className='bs-[34px]' />
-                    <div className='flex flex-col items-start'>
-                      <Typography variant='body2' color='white' className='opacity-75'>
-                        Download on the
-                      </Typography>
-                      <Typography color='white' className='font-medium opacity-[0.92]'>
-                        App Store
-                      </Typography>
+                {branding.marketing.appStoreLinks.map(store => (
+                  <Link key={store.title} className='bg-[#282C3E] bs-[56px] is-[211px] rounded'>
+                    <div className='flex items-center pli-5 plb-[7px] gap-6'>
+                      <img src={store.iconImg} alt={store.iconAlt} className='bs-[34px]' />
+                      <div className='flex flex-col items-start'>
+                        <Typography variant='body2' color='white' className='opacity-75'>
+                          {store.overline}
+                        </Typography>
+                        <Typography color='white' className='font-medium opacity-[0.92]'>
+                          {store.title}
+                        </Typography>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-                <Link className='bg-[#282C3E] bs-[56px] is-[211px] rounded'>
-                  <div className='flex items-center pli-5 plb-[7px] gap-6'>
-                    <img src='/images/front-pages/google-play-icon.png' alt='Google play' className='bs-[34px]' />
-                    <div className='flex flex-col items-start'>
-                      <Typography variant='body2' color='white' className='opacity-75'>
-                        Download on the
-                      </Typography>
-                      <Typography color='white' className='font-medium opacity-[0.92]'>
-                        Google Play
-                      </Typography>
-                    </div>
-                  </div>
-                </Link>
+                  </Link>
+                ))}
               </div>
             </Grid>
           </Grid>
@@ -173,31 +153,19 @@ const Footer = ({ mode }: { mode: Mode }) => {
           )}
         >
           <Typography className='text-white' variant='body2'>
-            <span>{`© ${new Date().getFullYear()}, Made with `}</span>
-            <span>{`❤️`}</span>
-            <span>{` by `}</span>
-            <Link href='https://pixinvent.com/' target='_blank' className='font-medium text-white'>
-              Pixinvent
+            <span>{branding.copyright.prefix.replace('{year}', String(new Date().getFullYear()))}</span>
+            <span>{branding.copyright.heart}</span>
+            <span>{branding.copyright.separator}</span>
+            <Link href={branding.company.url} target='_blank' className='font-medium text-white'>
+              {branding.company.name}
             </Link>
           </Typography>
           <div className='flex gap-1.5 items-center'>
-            <IconButton component={Link} size='small' href='https://github.com/pixinvent' target='_blank'>
-              <i className='tabler-brand-github-filled text-white text-lg' />
-            </IconButton>
-            <IconButton component={Link} size='small' href='https://www.facebook.com/pixinvents/' target='_blank'>
-              <i className='tabler-brand-facebook-filled text-white text-lg' />
-            </IconButton>
-            <IconButton component={Link} size='small' href='https://x.com/pixinvents' target='_blank'>
-              <i className='tabler-brand-twitter-filled text-white text-lg' />
-            </IconButton>
-            <IconButton
-              component={Link}
-              size='small'
-              href='https://www.youtube.com/channel/UClOcB3o1goJ293ri_Hxpklg'
-              target='_blank'
-            >
-              <i className='tabler-brand-youtube-filled text-white text-lg' />
-            </IconButton>
+            {branding.socialLinks.map(social => (
+              <IconButton key={social.icon} component={Link} size='small' href={social.url} target='_blank'>
+                <i className={classnames(social.icon, 'text-white text-lg')} />
+              </IconButton>
+            ))}
           </div>
         </div>
       </div>

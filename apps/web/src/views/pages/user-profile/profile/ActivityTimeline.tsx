@@ -17,7 +17,10 @@ import MuiTimeline from '@mui/lab/Timeline'
 import type { TimelineProps } from '@mui/lab/Timeline'
 
 //Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
+
+// Type Imports
+import type { ActivityTimelineItem } from '@galaxy/fake-db/apps/activityTimeline'
 
 // Styled Components
 const Timeline = styled(MuiTimeline)<TimelineProps>({
@@ -28,7 +31,11 @@ const Timeline = styled(MuiTimeline)<TimelineProps>({
   }
 })
 
-const ActivityTimeline = () => {
+interface ActivityTimelineProps {
+  data?: ActivityTimelineItem[]
+}
+
+const ActivityTimeline = ({ data = [] }: ActivityTimelineProps) => {
   return (
     <Card>
       <CardHeader
@@ -38,65 +45,47 @@ const ActivityTimeline = () => {
       />
       <CardContent>
         <Timeline>
-          <TimelineItem>
-            <TimelineSeparator>
-              <TimelineDot color='primary' />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>
-              <div className='flex items-center justify-between flex-wrap gap-x-4 pbe-[7px]'>
-                <Typography className='text-textPrimary font-medium'>12 Invoices have been paid</Typography>
-                <Typography variant='caption'>12 min ago</Typography>
-              </div>
-              <Typography className='mbe-2'>Invoices have been paid to the company.</Typography>
-              <div className='flex'>
-                <div className='flex gap-2.5 items-center pli-2.5 bg-actionHover plb-[0.3125rem] rounded'>
-                  <img alt='invoice.pdf' src='/images/icons/pdf-document.png' className='bs-5' />
-                  <Typography className='font-medium'>invoice.pdf</Typography>
+          {data.map((item) => (
+            <TimelineItem key={item.id}>
+              <TimelineSeparator>
+                <TimelineDot color={item.iconColor as 'primary' | 'success' | 'info' | 'error' | 'warning' | 'secondary'} />
+                <TimelineConnector />
+              </TimelineSeparator>
+              <TimelineContent>
+                <div className='flex items-center justify-between flex-wrap gap-x-4 pbe-[7px]'>
+                  <Typography className='text-textPrimary font-medium'>{item.title}</Typography>
+                  <Typography variant='caption'>{item.timeAgo}</Typography>
                 </div>
-              </div>
-            </TimelineContent>
-          </TimelineItem>
-          <TimelineItem>
-            <TimelineSeparator>
-              <TimelineDot color='success' />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>
-              <div className='flex items-center justify-between flex-wrap gap-x-4 pbe-[7px]'>
-                <Typography className='text-textPrimary font-medium'>Client Meeting</Typography>
-                <Typography variant='caption'>45 min ago</Typography>
-              </div>
-              <Typography className='mbe-2'>Project meeting with john @10:15am</Typography>
-              <div className='flex items-center gap-2.5'>
-                <CustomAvatar src='/images/avatars/1.png' size={32} />
-                <div>
-                  <Typography className='font-medium' variant='body2'>
-                    Lester McCarthy (Client)
-                  </Typography>
-                  <Typography variant='body2'>CEO of Pixinvent</Typography>
-                </div>
-              </div>
-            </TimelineContent>
-          </TimelineItem>
-          <TimelineItem>
-            <TimelineSeparator>
-              <TimelineDot color='info' />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>
-              <div className='flex items-center justify-between flex-wrap gap-x-4 pbe-[7px]'>
-                <Typography className='text-textPrimary font-medium'>Create a new project for client</Typography>
-                <Typography variant='caption'>2 Day Ago</Typography>
-              </div>
-              <Typography className='mbe-2'>6 team members in a project</Typography>
-              <AvatarGroup total={6}>
-                <Avatar alt='Remy Sharp' src='/images/avatars/1.png' />
-                <Avatar alt='Travis Howard' src='/images/avatars/2.png' />
-                <Avatar alt='Cindy Baker' src='/images/avatars/3.png' />
-              </AvatarGroup>
-            </TimelineContent>
-          </TimelineItem>
+                <Typography className='mbe-2'>{item.description}</Typography>
+                {item.type === 'invoice-paid' && item.attachment && (
+                  <div className='flex'>
+                    <div className='flex gap-2.5 items-center pli-2.5 bg-actionHover plb-[0.3125rem] rounded'>
+                      <img alt={item.attachment.name} src={item.attachment.src} className='bs-5' />
+                      <Typography className='font-medium'>{item.attachment.name}</Typography>
+                    </div>
+                  </div>
+                )}
+                {item.type === 'meeting' && item.avatar && (
+                  <div className='flex items-center gap-2.5'>
+                    <CustomAvatar src={item.avatar.src} size={32} />
+                    <div>
+                      <Typography className='font-medium' variant='body2'>
+                        {item.avatar.name}
+                      </Typography>
+                      <Typography variant='body2'>{item.avatar.role}</Typography>
+                    </div>
+                  </div>
+                )}
+                {item.type === 'project' && item.avatars && (
+                  <AvatarGroup total={item.totalMembers}>
+                    {item.avatars.map((avatar, index) => (
+                      <Avatar key={index} alt={avatar.name} src={avatar.src} />
+                    ))}
+                  </AvatarGroup>
+                )}
+              </TimelineContent>
+            </TimelineItem>
+          ))}
         </Timeline>
       </CardContent>
     </Card>

@@ -7,7 +7,8 @@ import CardContent from '@mui/material/CardContent'
 import InputAdornment from '@mui/material/InputAdornment'
 
 // Components Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
+
 import Form from '@components/Form'
 
 const FormLayoutsWithIcon = () => {

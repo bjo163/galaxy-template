@@ -2,7 +2,7 @@
 import Grid from '@mui/material/Grid'
 
 // Type Imports
-import type { ProfileTabType } from '@/types/pages/profileTypes'
+import type { ProfileTabType, ActivityTimelineItem } from '@/types/pages/profileTypes'
 
 // Component Imports
 import AboutOverview from './AboutOverview'
@@ -10,7 +10,7 @@ import ActivityTimeline from './ActivityTimeline'
 import ConnectionsTeams from './ConnectionsTeams'
 import ProjectsTable from './ProjectsTables'
 
-const ProfileTab = ({ data }: { data?: ProfileTabType }) => {
+const ProfileTab = ({ data, activityTimelineData }: { data?: ProfileTabType, activityTimelineData?: ActivityTimelineItem[] }) => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12, md: 5, lg: 4 }}>
@@ -19,7 +19,7 @@ const ProfileTab = ({ data }: { data?: ProfileTabType }) => {
       <Grid size={{ xs: 12, md: 7, lg: 8 }}>
         <Grid container spacing={6}>
           <Grid size={{ xs: 12 }}>
-            <ActivityTimeline />
+            <ActivityTimeline data={activityTimelineData} />
           </Grid>
           <ConnectionsTeams connections={data?.connections} teamsTech={data?.teamsTech} />
           <Grid size={{ xs: 12 }}>

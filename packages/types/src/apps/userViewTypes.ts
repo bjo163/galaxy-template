@@ -45,3 +45,9 @@ export type ProjectListItem = {
   progressValue: number
   progressColor: ThemeColor
 }
+
+export type EcommerceCustomerPaymentCard = {
+  typeOfCard: string
+  isDefaultCard: boolean
+  expiryDate: string
+}

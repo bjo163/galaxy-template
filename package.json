@@ -5,8 +5,9 @@
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "scripts": {
-    "dev": "turbo run dev",
-    "dev:arsy": "pnpm --filter arsy dev",
+    "dev": "pnpm db:up:dev && pnpm db:migrate:arsy && node .scripts/load-env.mjs . node_modules/turbo/bin/turbo run dev --env-mode=loose",
+    "dev:arsy": "pnpm db:up:dev && pnpm db:migrate:arsy && pnpm --filter arsy dev",
+    "db:up:dev": "node .scripts/load-env.mjs . docker compose -f docker-compose.dev.yml up -d --wait",
     "build": "turbo run build",
     "build:arsy": "pnpm --filter arsy build",
     "build:database": "pnpm --filter @galaxy/database build",

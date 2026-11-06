@@ -5,89 +5,102 @@ import { useState } from 'react'
 
 // Next Imports
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 // MUI Imports
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { styled, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
-import Checkbox from '@mui/material/Checkbox'
 import Button from '@mui/material/Button'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Divider from '@mui/material/Divider'
+import Alert from '@mui/material/Alert'
 
 // Third-party Imports
 import classnames from 'classnames'
+import { signIn } from 'next-auth/react'
+import { Controller, useForm } from 'react-hook-form'
+import { valibotResolver } from '@hookform/resolvers/valibot'
+import { email, minLength, object, pipe, string, nonEmpty } from 'valibot'
+import type { SubmitHandler } from 'react-hook-form'
+import type { InferInput } from 'valibot'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { SystemMode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
 import Logo from '@components/layout/shared/Logo'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Hook Imports
-import { useImageVariant } from '@core/hooks/useImageVariant'
 import { useSettings } from '@core/hooks/useSettings'
+import GalaxyOrbitArtwork from '@components/brand/GalaxyOrbitArtwork'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'
 
-// Styled Custom Components
-const RegisterIllustration = styled('img')(({ theme }) => ({
-  zIndex: 2,
-  blockSize: 'auto',
-  maxBlockSize: 600,
-  maxInlineSize: '100%',
-  margin: theme.spacing(12),
-  [theme.breakpoints.down(1536)]: {
-    maxBlockSize: 550
-  },
-  [theme.breakpoints.down('lg')]: {
-    maxBlockSize: 450
-  }
-}))
-
-const MaskImg = styled('img')({
-  blockSize: 'auto',
-  maxBlockSize: 345,
-  inlineSize: '100%',
-  position: 'absolute',
-  insetBlockEnd: 0,
-  zIndex: -1
+const schema = object({
+  displayName: pipe(string(), nonEmpty('Please enter your name.')),
+  email: pipe(string(), nonEmpty('Please enter your email.'), email('Enter a valid email address.')),
+  password: pipe(string(), minLength(12, 'Password must be at least 12 characters.'))
 })
 
+type FormData = InferInput<typeof schema>
+
+// Styled Custom Components
 const Register = ({ mode }: { mode: SystemMode }) => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorState, setErrorState] = useState<string | null>(null)
 
   // Vars
-  const darkImg = '/images/pages/auth-mask-dark.png'
-  const lightImg = '/images/pages/auth-mask-light.png'
-  const darkIllustration = '/images/illustrations/auth/v2-register-dark.png'
-  const lightIllustration = '/images/illustrations/auth/v2-register-light.png'
-  const borderedDarkIllustration = '/images/illustrations/auth/v2-register-dark-border.png'
-  const borderedLightIllustration = '/images/illustrations/auth/v2-register-light-border.png'
-
   // Hooks
   const { lang: locale } = useParams()
+  const router = useRouter()
+  const {
+    control,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<FormData>({
+    resolver: valibotResolver(schema),
+    defaultValues: { displayName: '', email: '', password: '' }
+  })
   const { settings } = useSettings()
-  const theme = useTheme()
-  const hidden = useMediaQuery(theme.breakpoints.down('md'))
-  const authBackground = useImageVariant(mode, lightImg, darkImg)
+  const onSubmit: SubmitHandler<FormData> = async data => {
+    setIsSubmitting(true)
+    setErrorState(null)
 
-  const characterIllustration = useImageVariant(
-    mode,
-    lightIllustration,
-    darkIllustration,
-    borderedLightIllustration,
-    borderedDarkIllustration
-  )
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      const result = (await response.json()) as { message?: string }
 
-  const handleClickShowPassword = () => setIsPasswordShown(show => !show)
+      if (!response.ok) {
+        setErrorState(result.message ?? 'Could not create your account. Please try again.')
+        return
+      }
+
+      const signInResult = await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false
+      })
+
+      if (signInResult?.ok && !signInResult.error) {
+        router.replace(getLocalizedUrl('/', locale as Locale))
+      } else {
+        router.replace(getLocalizedUrl('/login', locale as Locale))
+      }
+    } catch {
+      setErrorState('Could not reach the registration service. Check that Arsy is running and try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className='flex bs-full justify-center'>
@@ -99,8 +112,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
           }
         )}
       >
-        <RegisterIllustration src={characterIllustration} alt='character-illustration' />
-        {!hidden && <MaskImg alt='mask' src={authBackground} />}
+        <div className='galaxy-auth-artwork'><GalaxyOrbitArtwork /></div>
       </div>
       <div className='flex justify-center items-center bs-full bg-backgroundPaper !min-is-full p-6 md:!min-is-[unset] md:p-12 md:is-[480px]'>
         <Link
@@ -111,63 +123,79 @@ const Register = ({ mode }: { mode: SystemMode }) => {
         </Link>
         <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-8 sm:mbs-11 md:mbs-0'>
           <div className='flex flex-col gap-1'>
-            <Typography variant='h4'>Adventure starts here 🚀</Typography>
-            <Typography>Make your app management easy and fun!</Typography>
+            <Typography variant='h4'>Create your Arsy account</Typography>
+            <Typography>Register to get started with the Galaxy dashboard.</Typography>
           </div>
-          <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()} className='flex flex-col gap-6'>
-            <CustomTextField autoFocus fullWidth label='Username' placeholder='Enter your username' />
-            <CustomTextField fullWidth label='Email' placeholder='Enter your email' />
-            <CustomTextField
-              fullWidth
-              label='Password'
-              placeholder='············'
-              type={isPasswordShown ? 'text' : 'password'}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position='end'>
-                      <IconButton edge='end' onClick={handleClickShowPassword} onMouseDown={e => e.preventDefault()}>
-                        <i className={isPasswordShown ? 'tabler-eye-off' : 'tabler-eye'} />
-                      </IconButton>
-                    </InputAdornment>
-                  )
-                }
-              }}
+          <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
+            {errorState && <Alert severity='error'>{errorState}</Alert>}
+            <Controller
+              name='displayName'
+              control={control}
+              render={({ field }) => (
+                <CustomTextField
+                  {...field}
+                  autoFocus
+                  fullWidth
+                  label='Name'
+                  placeholder='Enter your name'
+                  error={Boolean(errors.displayName)}
+                  helperText={errors.displayName?.message}
+                />
+              )}
             />
-            <FormControlLabel
-              control={<Checkbox />}
-              label={
-                <>
-                  <span>I agree to </span>
-                  <Link className='text-primary' href='/' onClick={e => e.preventDefault()}>
-                    privacy policy & terms
-                  </Link>
-                </>
-              }
+            <Controller
+              name='email'
+              control={control}
+              render={({ field }) => (
+                <CustomTextField
+                  {...field}
+                  fullWidth
+                  label='Email'
+                  placeholder='Enter your email'
+                  error={Boolean(errors.email)}
+                  helperText={errors.email?.message}
+                />
+              )}
             />
-            <Button fullWidth variant='contained' type='submit'>
-              Sign Up
+            <Controller
+              name='password'
+              control={control}
+              render={({ field }) => (
+                <CustomTextField
+                  {...field}
+                  fullWidth
+                  label='Password (at least 12 characters)'
+                  placeholder='Create a password'
+                  type={isPasswordShown ? 'text' : 'password'}
+                  error={Boolean(errors.password)}
+                  helperText={errors.password?.message}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position='end'>
+                          <IconButton
+                            edge='end'
+                            aria-label={isPasswordShown ? 'Hide password' : 'Show password'}
+                            onClick={() => setIsPasswordShown(show => !show)}
+                            onMouseDown={e => e.preventDefault()}
+                          >
+                            <i className={isPasswordShown ? 'tabler-eye-off' : 'tabler-eye'} />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }
+                  }}
+                />
+              )}
+            />
+            <Button fullWidth variant='contained' type='submit' disabled={isSubmitting}>
+              {isSubmitting ? 'Creating account…' : 'Create account'}
             </Button>
             <div className='flex justify-center items-center flex-wrap gap-2'>
               <Typography>Already have an account?</Typography>
               <Typography component={Link} href={getLocalizedUrl('/login', locale as Locale)} color='primary.main'>
                 Sign in instead
               </Typography>
-            </div>
-            <Divider className='gap-2'>or</Divider>
-            <div className='flex justify-center items-center gap-1.5'>
-              <IconButton className='text-facebook' size='small'>
-                <i className='tabler-brand-facebook-filled' />
-              </IconButton>
-              <IconButton className='text-twitter' size='small'>
-                <i className='tabler-brand-twitter-filled' />
-              </IconButton>
-              <IconButton className='text-textPrimary' size='small'>
-                <i className='tabler-brand-github-filled' />
-              </IconButton>
-              <IconButton className='text-error' size='small'>
-                <i className='tabler-brand-google-filled' />
-              </IconButton>
             </div>
           </form>
         </div>

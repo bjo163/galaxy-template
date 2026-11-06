@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography'
 import classnames from 'classnames'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
 
 type DataType = {
   icon: string

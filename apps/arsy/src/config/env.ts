@@ -192,16 +192,17 @@ export function loadConfig(
     );
   }
 
-  const requestedPort = environment.PORT ?? "3001";
+  const portVariableName = environment.ARSY_PORT !== undefined ? "ARSY_PORT" : "PORT";
+  const requestedPort = environment.ARSY_PORT ?? environment.PORT ?? "3001";
 
   if (!/^\d+$/.test(requestedPort)) {
-    throw new Error("PORT must be an integer between 1 and 65535");
+    throw new Error(`${portVariableName} must be an integer between 1 and 65535`);
   }
 
   const port = Number(requestedPort);
 
   if (port < 1 || port > 65535) {
-    throw new Error("PORT must be an integer between 1 and 65535");
+    throw new Error(`${portVariableName} must be an integer between 1 and 65535`);
   }
 
   const host = environment.HOST ?? "0.0.0.0";

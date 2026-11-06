@@ -19,6 +19,9 @@ import type { TimelineProps } from '@mui/lab/Timeline'
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
 
+// Type Imports
+import type { ActivityTimelineItem } from '@galaxy/fake-db/apps/activityTimeline'
+
 // Styled Timeline component
 const Timeline = styled(MuiTimeline)<TimelineProps>({
   paddingLeft: 0,
@@ -31,7 +34,11 @@ const Timeline = styled(MuiTimeline)<TimelineProps>({
   }
 })
 
-const ActivityTimeline = () => {
+interface ActivityTimelineProps {
+  data?: ActivityTimelineItem[]
+}
+
+const ActivityTimeline = ({ data = [] }: ActivityTimelineProps) => {
   return (
     <Card>
       <CardHeader
@@ -43,71 +50,47 @@ const ActivityTimeline = () => {
       />
       <CardContent className='flex flex-col gap-6 pbe-5'>
         <Timeline>
-          <TimelineItem>
-            <TimelineSeparator>
-              <TimelineDot color='primary' />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>
-              <div className='flex flex-wrap items-center justify-between gap-x-2 mbe-2.5'>
-                <Typography className='font-medium' color='text.primary'>
-                  12 Invoices have been paid
-                </Typography>
-                <Typography variant='caption'>12 min ago</Typography>
-              </div>
-              <Typography className='mbe-2'>Invoices have been paid to the company</Typography>
-              <div className='flex items-center gap-2.5 is-fit rounded bg-actionHover plb-[5px] pli-2.5'>
-                <img height={20} alt='invoice.pdf' src='/images/icons/pdf-document.png' />
-                <Typography className='font-medium'>invoices.pdf</Typography>
-              </div>
-            </TimelineContent>
-          </TimelineItem>
-
-          <TimelineItem>
-            <TimelineSeparator>
-              <TimelineDot color='success' />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>
-              <div className='flex flex-wrap items-center justify-between gap-x-2 mbe-2.5'>
-                <Typography className='font-medium' color='text.primary'>
-                  Client Meeting
-                </Typography>
-                <Typography variant='caption'>45 min ago</Typography>
-              </div>
-              <Typography className='mbe-2'>Project meeting with john @10:15am</Typography>
-              <div className='flex items-center gap-2.5'>
-                <Avatar src='/images/avatars/1.png' className='is-8 bs-8' />
-                <div className='flex flex-col flex-wrap'>
-                  <Typography variant='body2' className='font-medium'>
-                    Lester McCarthy (Client)
+          {data.map((item) => (
+            <TimelineItem key={item.id}>
+              <TimelineSeparator>
+                <TimelineDot color={item.iconColor as 'primary' | 'success' | 'info' | 'error' | 'warning' | 'secondary'} />
+                <TimelineConnector />
+              </TimelineSeparator>
+              <TimelineContent>
+                <div className='flex flex-wrap items-center justify-between gap-x-2 mbe-2.5'>
+                  <Typography className='font-medium' color='text.primary'>
+                    {item.title}
                   </Typography>
-                  <Typography variant='body2'>CEO of Pixinvent</Typography>
+                  <Typography variant='caption'>{item.timeAgo}</Typography>
                 </div>
-              </div>
-            </TimelineContent>
-          </TimelineItem>
-
-          <TimelineItem>
-            <TimelineSeparator>
-              <TimelineDot color='info' />
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent>
-              <div className='flex flex-wrap items-center justify-between gap-x-2 mbe-2.5'>
-                <Typography className='font-medium' color='text.primary'>
-                  Create a new project for client
-                </Typography>
-                <Typography variant='caption'>2 Day Ago</Typography>
-              </div>
-              <Typography className='mbe-2'>6 team members in a project</Typography>
-              <AvatarGroup total={6} className='pull-up'>
-                <Avatar alt='Travis Howard' src='/images/avatars/1.png' />
-                <Avatar alt='Agnes Walker' src='/images/avatars/4.png' />
-                <Avatar alt='John Doe' src='/images/avatars/2.png' />
-              </AvatarGroup>
-            </TimelineContent>
-          </TimelineItem>
+                <Typography className='mbe-2'>{item.description}</Typography>
+                {item.type === 'invoice-paid' && item.attachment && (
+                  <div className='flex items-center gap-2.5 is-fit rounded bg-actionHover plb-[5px] pli-2.5'>
+                    <img height={20} alt={item.attachment.name} src={item.attachment.src} />
+                    <Typography className='font-medium'>{item.attachment.name}</Typography>
+                  </div>
+                )}
+                {item.type === 'meeting' && item.avatar && (
+                  <div className='flex items-center gap-2.5'>
+                    <Avatar src={item.avatar.src} className='is-8 bs-8' />
+                    <div className='flex flex-col flex-wrap'>
+                      <Typography variant='body2' className='font-medium'>
+                        {item.avatar.name}
+                      </Typography>
+                      <Typography variant='body2'>{item.avatar.role}</Typography>
+                    </div>
+                  </div>
+                )}
+                {item.type === 'project' && item.avatars && (
+                  <AvatarGroup total={item.totalMembers} className='pull-up'>
+                    {item.avatars.map((avatar, index) => (
+                      <Avatar key={index} alt={avatar.name} src={avatar.src} />
+                    ))}
+                  </AvatarGroup>
+                )}
+              </TimelineContent>
+            </TimelineItem>
+          ))}
         </Timeline>
       </CardContent>
     </Card>

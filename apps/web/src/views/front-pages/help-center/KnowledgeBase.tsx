@@ -11,94 +11,22 @@ import Grid from '@mui/material/Grid'
 import classnames from 'classnames'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
+
+import { db } from '@galaxy/fake-db/pages/frontPages'
+
 import DirectionalIcon from '@components/DirectionalIcon'
 
 // Styles Imports
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 
-// Types
-type popularArticlesType = {
-  title: string
-  icon: string
-  articles: { title: string }[]
-}
+// Type Imports
+import type { HelpCenterArticleCategory } from '@/types/pages/frontPagesTypes'
+
+// Data Imports
 
 // Data
-const allArticles: popularArticlesType[] = [
-  {
-    title: 'Buying',
-    icon: 'tabler-shopping-cart',
-    articles: [
-      { title: 'What are Favourites?' },
-      { title: 'How do I purchase an item?' },
-      { title: 'How do i add or change my details?' },
-      { title: 'How do refunds work?' },
-      { title: 'Can I Get A Refund?' },
-      { title: "I'm trying to find a specific item" }
-    ]
-  },
-  {
-    title: 'Item Support',
-    icon: 'tabler-help',
-    articles: [
-      { title: 'What is Item Support?' },
-      { title: 'How to contact an author?' },
-      { title: 'Where Is My Purchase Code?' },
-      { title: 'Extend or renew Item Support' },
-      { title: 'Item Support FAQ' },
-      { title: 'Why has my item been removed?' }
-    ]
-  },
-  {
-    title: 'Licenses',
-    icon: 'tabler-currency-dollar',
-    articles: [
-      { title: 'Can I use the same license for the...' },
-      { title: 'How to contact an author?' },
-      { title: "I'm making a test site - it's not for ..." },
-      { title: 'which license do I need?' },
-      { title: 'I want to make multiple end prod ...' },
-      { title: 'For logo what license do I need?' }
-    ]
-  },
-  {
-    title: 'Template Kits',
-    icon: 'tabler-color-swatch',
-    articles: [
-      { title: 'Template Kits' },
-      { title: 'Elementor Template Kits: PHP Zip ...' },
-      { title: 'Template Kits - Imported template ...' },
-      { title: 'Troubleshooting Import Problems' },
-      { title: 'How to use the WordPress Plugin ...' },
-      { title: 'How to use the Template Kit Import ...' }
-    ]
-  },
-  {
-    title: 'Account & Password',
-    icon: 'tabler-lock-open',
-    articles: [
-      { title: 'Signing in with a social account' },
-      { title: 'Locked Out of Account' },
-      { title: "I'm not receiving the verification email" },
-      { title: 'Forgotten Username Or Password' },
-      { title: 'New password not accepted' },
-      { title: 'What is Sign In Verification?' }
-    ]
-  },
-  {
-    title: 'Account Settings',
-    icon: 'tabler-user',
-    articles: [
-      { title: 'How do I change my password?' },
-      { title: 'How do I change my username?' },
-      { title: 'How do I close my account?' },
-      { title: 'How do I change my email address?' },
-      { title: 'How can I regain access to my a ...' },
-      { title: 'Are RSS feeds available on Market?' }
-    ]
-  }
-]
+const allArticles: HelpCenterArticleCategory[] = db.helpCenter.articleCategories
 
 const KnowledgeBase = () => {
   return (

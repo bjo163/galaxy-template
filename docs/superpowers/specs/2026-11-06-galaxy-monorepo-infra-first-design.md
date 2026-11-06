@@ -1,9 +1,15 @@
-# Galaxy monorepo — infra-first extraction
+# Galaxy monorepo infra-first extraction (historical)
 
 - **Date:** 2026-11-06
-- **Status:** Approved design, pending spec review
+- **Status:** Historical extraction design. Superseded for Arsy and backend direction.
 - **Path taken:** Architectural (brainstorming → this spec → writing-plans)
 - **Chosen approach:** A — infra-first, extract only clearly-reusable leaves
+
+> This document records the original web-template extraction scope. Its future
+> backend references to Prisma and `@galaxy/db` do not define Arsy's current
+> direction. Arsy uses `@galaxy/database` with Knex and Objection. Track its
+> current work in the
+> [canonical GitHub issue register](https://github.com/bjo163/galaxy-template/issues/1).
 
 ## 1. Goal & end-state
 

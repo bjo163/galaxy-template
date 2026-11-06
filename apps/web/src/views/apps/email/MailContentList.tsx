@@ -14,6 +14,8 @@ import classnames from 'classnames'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Type Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { AppDispatch } from '@/redux-store'
 import type { Email, EmailState } from '@/types/apps/emailTypes'
 
@@ -21,8 +23,6 @@ import type { Email, EmailState } from '@/types/apps/emailTypes'
 import { getCurrentEmail, moveEmailsToFolder } from '@/redux-store/slices/email'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-
 // Styles Imports
 import styles from './styles.module.css'
 

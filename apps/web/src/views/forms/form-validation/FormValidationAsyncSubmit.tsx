@@ -18,7 +18,7 @@ import { toast } from 'react-toastify'
 import { useForm, Controller } from 'react-hook-form'
 
 // Components Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
 
 type FormValues = {
   firstName: string

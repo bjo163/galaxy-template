@@ -1,0 +1,8 @@
+# Tasks
+
+- [x] [M] Rebrand defaults and density in `apps/web/src/configs/themeConfig.ts`, `apps/web/src/configs/primaryColorConfig.ts`, and `apps/web/src/@core/theme/colorSchemes.ts`. Keep the settings cookie and user-selectable colors/modes; use a grounded, compact Galaxy default.
+- [x] [M] Replace Vuexy identity in `apps/web/src/@core/svg/Logo.tsx` and `apps/web/src/components/layout/shared/Logo.tsx` with an inline orbital Galaxy mark and Galaxy wordmark. Acceptance: collapsed and expanded nav states still work.
+- [x] [M] Compact shared navigation and cards in `apps/web/src/@core/styles/vertical/navigationCustomStyles.ts`, `apps/web/src/@core/theme/overrides/card.ts`, and `apps/web/src/@layouts/styles/shared/StyledMain.tsx`. Acceptance: denser spacing, grounded surfaces, responsive behavior preserved.
+- [x] [M] Add a decorative inline SVG artwork component at `apps/web/src/components/brand/GalaxyOrbitArtwork.tsx`, use it in `apps/web/src/app/[lang]/(dashboard)/(private)/dashboards/crm/page.tsx`, and add restrained/reduced-motion styling in `apps/web/src/app/globals.css`. Preserve existing CRM data wiring.
+- [x] [M] Retain and refine the live color/mode picker in `apps/web/src/@core/components/customizer/index.tsx` and `apps/web/src/@core/components/customizer/styles.module.css`. Acceptance: preset/custom colors, light/dark, layout, reset, keyboard operation, and selected-state feedback remain available.
+- [x] [S] Verify `pnpm --filter web typecheck`, inspect changed files, and visually check desktop/mobile plus light/dark and color switching. Acceptance: no broken controls, no clipped mobile content, reduced-motion supported, and no unrelated WIP is reverted.

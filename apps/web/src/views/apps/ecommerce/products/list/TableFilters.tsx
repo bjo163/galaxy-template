@@ -7,11 +7,11 @@ import CardContent from '@mui/material/CardContent'
 import MenuItem from '@mui/material/MenuItem'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { ProductType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
-
 type ProductStockType = { [key: string]: boolean }
 
 // Vars

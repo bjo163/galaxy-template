@@ -13,7 +13,7 @@ import MenuItem from '@mui/material/MenuItem'
 import InputAdornment from '@mui/material/InputAdornment'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
 
 const Address = () => {
   // States

@@ -4,7 +4,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
 
 const FaqFooter = () => {
   return (

@@ -11,9 +11,10 @@ import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 
 // Component Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import Link from '@components/Link'
 import Form from '@components/Form'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'

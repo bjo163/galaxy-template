@@ -20,8 +20,9 @@ import IconButton from '@mui/material/IconButton'
 import { toast } from 'react-toastify'
 
 // Component Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import DirectionalIcon from '@components/DirectionalIcon'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Styled Component Imports
 import StepperWrapper from '@core/styles/stepper'

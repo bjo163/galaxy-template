@@ -6,6 +6,8 @@ import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 
 // SVG Imports
+import { db } from '@galaxy/fake-db/pages/frontPages'
+
 import Check from '@assets/svg/front-pages/landing-page/Check'
 import User from '@assets/svg/front-pages/landing-page/User'
 import LaptopCharging from '@assets/svg/front-pages/landing-page/LaptopCharging'
@@ -14,46 +16,21 @@ import Diamond from '@assets/svg/front-pages/landing-page/Diamond'
 // Styles Imports
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 
-// Type
-type StatData = {
-  title: string
-  value: string
-  svg: ReactNode
-  color: string
-  isHover: boolean
-}
+// Type Imports
+import type { LandingProductStat } from '@/types/pages/frontPagesTypes'
+
+// Data Imports
 
 // Data
-const statData: StatData[] = [
-  {
-    title: 'Support Tickets Resolved',
-    value: '7.1k+',
-    svg: <LaptopCharging color='var(--mui-palette-primary-main)' />,
-    color: 'var(--mui-palette-primary-darkerOpacity)',
-    isHover: false
-  },
-  {
-    title: 'Join creatives community',
-    value: '50k+',
-    svg: <User color='var(--mui-palette-success-main)' />,
-    color: 'var(--mui-palette-success-darkerOpacity)',
-    isHover: false
-  },
-  {
-    title: 'Highly Rated Products',
-    value: '4.8/5',
-    svg: <Diamond color='var(--mui-palette-info-main)' />,
-    color: 'var(--mui-palette-info-darkerOpacity)',
-    isHover: false
-  },
-  {
-    title: 'Money Back Guarantee',
-    value: '100%',
-    svg: <Check color='var(--mui-palette-warning-main)' />,
-    color: 'var(--mui-palette-warning-darkerOpacity)',
-    isHover: false
-  }
-]
+const statData: LandingProductStat[] = db.landing.productStats
+
+// Maps the fake-db icon keys to their inline SVG components
+const statIcons: Record<LandingProductStat['icon'], ReactNode> = {
+  'laptop-charging': <LaptopCharging color='var(--mui-palette-primary-main)' />,
+  user: <User color='var(--mui-palette-success-main)' />,
+  diamond: <Diamond color='var(--mui-palette-info-main)' />,
+  check: <Check color='var(--mui-palette-warning-main)' />
+}
 
 const ProductStat = () => {
   return (
@@ -68,7 +45,7 @@ const ProductStat = () => {
                   borderColor: stat.color
                 }}
               >
-                {stat.svg}
+                {statIcons[stat.icon]}
                 <div className='text-center'>
                   <Typography variant='h3' className='font-medium'>
                     {stat.value}

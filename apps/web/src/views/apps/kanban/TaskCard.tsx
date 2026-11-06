@@ -16,6 +16,8 @@ import MenuItem from '@mui/material/MenuItem'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { ColumnType, TaskType } from '@/types/apps/kanbanTypes'
 import type { AppDispatch } from '@/redux-store'
 import type { ThemeColor } from '@core/types'
@@ -24,8 +26,6 @@ import type { ThemeColor } from '@core/types'
 import { getCurrentTask, deleteTask } from '@/redux-store/slices/kanban'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-
 // Styles Imports
 import styles from './styles.module.css'
 
