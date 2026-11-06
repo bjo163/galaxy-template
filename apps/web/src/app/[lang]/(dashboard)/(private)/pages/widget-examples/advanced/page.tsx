@@ -23,11 +23,13 @@ import WebsiteAnalyticsSlider from '@views/pages/widget-examples/advanced/Websit
 import Congratulations from '@/views/pages/widget-examples/advanced/Congratulations'
 
 // Server Action Imports
+import { getEcommerceDashboardData } from '@/app/server/actions'
 import { getServerMode } from '@core/utils/serverHelpers'
 
 const Advanced = async () => {
   // Vars
   const serverMode = await getServerMode()
+  const ecommerceDashboardData = await getEcommerceDashboardData()
 
   return (
     <Grid container spacing={6}>
@@ -56,7 +58,7 @@ const Advanced = async () => {
         <Transactions />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <PopularProducts />
+        <PopularProducts data={ecommerceDashboardData.popularProducts} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <TopCourses />
