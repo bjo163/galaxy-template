@@ -67,9 +67,9 @@ it(
 
       const role = await knex.raw(
         `SELECT r.rolsuper, r.rolbypassrls, r.rolcreatedb, r.rolcreaterole,
-          has_schema_privilege(current_user::name, 'public'::name, 'CREATE'::text) AS can_create_schema,
-          has_database_privilege(current_user::name, current_database()::name, 'CREATE'::text) AS can_create_database,
-          pg_has_role(current_user::name, 'arsy_migrator'::name, 'MEMBER'::text) AS can_assume_migrator,
+          has_schema_privilege(current_user, 'public', 'CREATE') AS can_create_schema,
+          has_database_privilege(current_user, current_database(), 'CREATE') AS can_create_database,
+          pg_has_role(current_user, 'arsy_migrator', 'MEMBER') AS can_assume_migrator,
           c.relowner = r.oid AS owns_tenant_table
         FROM pg_roles r
         JOIN pg_class c ON c.relname = 'arsy_projects'
