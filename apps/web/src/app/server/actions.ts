@@ -20,6 +20,7 @@ import { db as profileData } from '@galaxy/fake-db/pages/userProfile'
 import { db as faqData } from '@galaxy/fake-db/pages/faq'
 import { db as pricingData } from '@galaxy/fake-db/pages/pricing'
 import { db as statisticsData } from '@galaxy/fake-db/pages/widgetExamples'
+import { db as widgetExamplesAdvancedData } from '@galaxy/fake-db/pages/widgetExamplesAdvanced'
 
 export const getEcommerceData = async () => {
   return eCommerceData
@@ -75,4 +76,8 @@ export const getDashboardData = async () => {
 
 export const getEcommerceDashboardData = async () => {
   return ecommerceDashboardData
+}
+
+export const getWidgetExamplesAdvancedData = async () => {
+  return widgetExamplesAdvancedData
 }

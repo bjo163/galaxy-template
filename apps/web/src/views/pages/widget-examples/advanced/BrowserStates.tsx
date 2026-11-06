@@ -7,66 +7,13 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
 
-import type { ThemeColor } from '@core/types'
-
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
 
-type DataType = {
-  title: string
-  imgSrc: string
-  progress: number
-  percentage: string
-  progressColor: ThemeColor
-}
+// Type Imports
+import type { WidgetBrowserState } from '@/types/pages/widgetExamplesAdvancedTypes'
 
-// Vars
-const data: DataType[] = [
-  {
-    title: 'Google Chrome',
-    progress: 67,
-    percentage: '54.4%',
-    progressColor: 'primary',
-    imgSrc: '/images/logos/google-chrome.png'
-  },
-  {
-    title: 'Apple Safari',
-    progress: 40,
-    percentage: '14.6%',
-    progressColor: 'success',
-    imgSrc: '/images/logos/safari.png'
-  },
-  {
-    title: 'Mozilla Firefox',
-    progress: 30,
-    percentage: '6.1%',
-    progressColor: 'secondary',
-    imgSrc: '/images/logos/mozilla-firefox.png'
-  },
-  {
-    title: 'Opera Mini',
-    progress: 20,
-    percentage: '8.0%',
-    progressColor: 'info',
-    imgSrc: '/images/logos/opera-mini.png'
-  },
-  {
-    title: 'Internet Explorer',
-    progress: 15,
-    percentage: '4.2%',
-    progressColor: 'warning',
-    imgSrc: '/images/logos/internet-explorer.png'
-  },
-  {
-    title: 'Brave',
-    progress: 15,
-    percentage: '0.3%',
-    progressColor: 'error',
-    imgSrc: '/images/logos/brave.png'
-  }
-]
-
-const BrowserStates = () => {
+const BrowserStates = ({ data }: { data: WidgetBrowserState[] }) => {
   return (
     <Card>
       <CardHeader

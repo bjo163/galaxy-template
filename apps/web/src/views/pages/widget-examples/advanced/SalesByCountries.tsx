@@ -10,57 +10,10 @@ import classnames from 'classnames'
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
 
-type DataType = {
-  title: string
-  imgSrc: string
-  subtitle: string
-  trendNumber: number
-  trend?: 'positive' | 'negative'
-}
+// Type Imports
+import type { AdvancedSalesByCountry } from '@/types/pages/widgetExamplesAdvancedTypes'
 
-// Vars
-const data: DataType[] = [
-  {
-    title: '$8.45k',
-    subtitle: 'United States',
-    trendNumber: 25.8,
-    imgSrc: '/images/cards/us.png'
-  },
-  {
-    title: '$7.78k',
-    subtitle: 'Brazil',
-    trendNumber: 16.2,
-    trend: 'negative',
-    imgSrc: '/images/cards/brazil.png'
-  },
-  {
-    title: '$6.48k',
-    subtitle: 'India',
-    trendNumber: 12.3,
-    imgSrc: '/images/cards/india.png'
-  },
-  {
-    title: '$5.12k',
-    subtitle: 'Australia',
-    trendNumber: 11.9,
-    trend: 'negative',
-    imgSrc: '/images/cards/australia.png'
-  },
-  {
-    title: '$4.45k',
-    subtitle: 'France',
-    trendNumber: 16.2,
-    imgSrc: '/images/cards/france.png'
-  },
-  {
-    title: '$3.90k',
-    subtitle: 'China',
-    trendNumber: 14.8,
-    imgSrc: '/images/cards/china.png'
-  }
-]
-
-const SalesByCountries = () => {
+const SalesByCountries = ({ data }: { data: AdvancedSalesByCountry[] }) => {
   return (
     <Card>
       <CardHeader

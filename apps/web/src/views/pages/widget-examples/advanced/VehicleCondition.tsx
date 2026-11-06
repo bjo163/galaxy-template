@@ -6,30 +6,13 @@ import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
 import Chip from '@mui/material/Chip'
 
-// Type Imports
-import type { ThemeColor } from '@core/types'
-
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
 
-type DataType = {
-  title: string
-  subtitle: string
-  progress: number
-  color: ThemeColor
-  chipLabel?: string
-}
+// Type Imports
+import type { WidgetVehicleCondition } from '@/types/pages/widgetExamplesAdvancedTypes'
 
-// Vars
-const data: DataType[] = [
-  { title: 'Incorrect address', subtitle: 'All exceptions', progress: 83, color: 'success', chipLabel: '+10' },
-  { title: 'Good', subtitle: '24 Vehicles', progress: 11, color: 'info', chipLabel: '+9.1' },
-  { title: 'Average', subtitle: '14 Vehicles', progress: 8, color: 'primary', chipLabel: '+2.5' },
-  { title: 'Bad', subtitle: '8 Vehicles', progress: 6, color: 'warning', chipLabel: '-3.4' },
-  { title: 'Not Working', subtitle: '4 Vehicles', progress: 2, color: 'error', chipLabel: '-12.6' }
-]
-
-const VehicleCondition = () => {
+const VehicleCondition = ({ data }: { data: WidgetVehicleCondition[] }) => {
   return (
     <Card>
       <CardHeader title='Vehicles Condition' action={<OptionMenu options={['Refresh', 'Update', 'Share']} />} />

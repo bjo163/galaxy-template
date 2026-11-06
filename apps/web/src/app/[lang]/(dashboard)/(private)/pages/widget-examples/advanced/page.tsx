@@ -23,7 +23,7 @@ import WebsiteAnalyticsSlider from '@views/pages/widget-examples/advanced/Websit
 import Congratulations from '@/views/pages/widget-examples/advanced/Congratulations'
 
 // Server Action Imports
-import { getDashboardData, getEcommerceDashboardData } from '@/app/server/actions'
+import { getDashboardData, getEcommerceDashboardData, getWidgetExamplesAdvancedData } from '@/app/server/actions'
 import { getServerMode } from '@core/utils/serverHelpers'
 
 const Advanced = async () => {
@@ -31,6 +31,7 @@ const Advanced = async () => {
   const serverMode = await getServerMode()
   const dashboardData = await getDashboardData()
   const ecommerceDashboardData = await getEcommerceDashboardData()
+  const widgetExamplesAdvancedData = await getWidgetExamplesAdvancedData()
 
   return (
     <Grid container spacing={6}>
@@ -44,13 +45,13 @@ const Advanced = async () => {
         <SourceVisits />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <SalesByCountries />
+        <SalesByCountries data={widgetExamplesAdvancedData.salesByCountries} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <EarningReports />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <BrowserStates />
+        <BrowserStates data={widgetExamplesAdvancedData.browserStates} />
       </Grid>
       <Grid size={{ xs: 12, lg: 4 }}>
         <Orders />
@@ -74,7 +75,7 @@ const Advanced = async () => {
         <DeliveryPerformance />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <VehicleCondition />
+        <VehicleCondition data={widgetExamplesAdvancedData.vehicleConditions} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <PopularInstructors />
