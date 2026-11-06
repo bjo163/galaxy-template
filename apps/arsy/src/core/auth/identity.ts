@@ -40,6 +40,7 @@ declare module "fastify" {
   interface FastifyRequest {
     authenticatedAccount: AuthenticatedAccount | null;
     sessionTokenHash: string | null;
+    sessionId: string | null;
   }
 }
 
@@ -56,9 +57,11 @@ export class HttpError extends Error {
 export function registerIdentityDecorators(app: {
   decorateRequest(name: "authenticatedAccount", value: null): void;
   decorateRequest(name: "sessionTokenHash", value: null): void;
+  decorateRequest(name: "sessionId", value: null): void;
 }): void {
   app.decorateRequest("authenticatedAccount", null);
   app.decorateRequest("sessionTokenHash", null);
+  app.decorateRequest("sessionId", null);
 }
 
 export function normalizeEmail(email: string): string {
@@ -128,6 +131,7 @@ export async function requireAccount(
       "arsy_accounts.email",
       "arsy_accounts.display_name as displayName",
       "arsy_sessions.token_hash as tokenHash",
+      "arsy_sessions.id as sessionId",
     )
     .where("arsy_sessions.token_hash", tokenHash)
     .andWhere("arsy_sessions.expires_at", ">", now)
@@ -139,6 +143,7 @@ export async function requireAccount(
   }
 
   request.sessionTokenHash = row.tokenHash as string;
+  request.sessionId = row.sessionId as string;
   const account: AuthenticatedAccount = {
     id: row.id as string,
     email: row.email as string,

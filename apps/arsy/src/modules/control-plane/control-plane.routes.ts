@@ -277,6 +277,67 @@ export async function registerControlPlaneRoutes(
     return { account: publicAccount(account) };
   });
 
+  app.get("/auth/sessions", async (request) => {
+    const account = await requireAccount(request, getKnex(app));
+    const rows = await getKnex(app)("arsy_sessions")
+      .select("id", "created_at as createdAt", "expires_at as expiresAt")
+      .where({ account_id: account.id })
+      .andWhere("expires_at", ">", new Date())
+      .orderBy("created_at", "desc")
+      .limit(100);
+    return {
+      data: rows.map((row) => ({
+        id: row.id,
+        createdAt: new Date(row.createdAt as string).toISOString(),
+        expiresAt: new Date(row.expiresAt as string).toISOString(),
+        current: row.id === request.sessionId,
+      })),
+    };
+  });
+
+  app.delete<{ Params: { sessionId: string } }>(
+    "/auth/sessions/:sessionId",
+    {
+      schema: {
+        params: {
+          type: "object",
+          required: ["sessionId"],
+          properties: { sessionId: { type: "string", format: "uuid" } },
+        },
+      },
+    },
+    async (request, reply) => {
+      const account = await requireAccount(request, getKnex(app));
+      const deleted = await getKnex(app)("arsy_sessions")
+        .where({ id: request.params.sessionId, account_id: account.id })
+        .delete();
+      if (deleted === 0) {
+        throw new HttpError(404, "The session was not found.");
+      }
+      return reply.code(204).send();
+    },
+  );
+
+  app.delete("/auth/sessions", async (request, reply) => {
+    const account = await requireAccount(request, getKnex(app));
+    if (!request.sessionId) {
+      throw new HttpError(401, "Authentication is required.");
+    }
+    await getKnex(app)("arsy_sessions")
+      .where({ account_id: account.id })
+      .whereNot({ id: request.sessionId })
+      .delete();
+    return reply.code(204).send();
+  });
+
+  app.delete("/auth/sessions/all", async (request, reply) => {
+    const account = await requireAccount(request, getKnex(app));
+    await getKnex(app)("arsy_sessions")
+      .where({ account_id: account.id })
+      .delete();
+    return reply.code(204).send();
+  });
+
   app.get("/workspaces", async (request) => {
     const account = await requireAccount(request, getKnex(app));
     const memberships = await withAccountTransaction(

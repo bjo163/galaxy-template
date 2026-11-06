@@ -121,6 +121,75 @@ describe("Arsy control plane", () => {
     }
   });
 
+  it("lists sessions and supports per-session and global revocation", async () => {
+    const app = createApp(loadConfig({ NODE_ENV: "test", LOG_LEVEL: "silent" }));
+    try {
+      await app.ready();
+      assert.ok(app.database);
+      await migrateControlPlane(app.database.knex);
+      const registration = await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/register",
+        payload: {
+          email: "sessions@example.com",
+          displayName: "Sessions",
+          password: "session-test-password-long",
+        },
+      });
+      assert.equal(registration.statusCode, 201);
+      const registered = registration.json() as { accessToken: string };
+      const login = await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/login",
+        payload: {
+          email: "sessions@example.com",
+          password: "session-test-password-long",
+        },
+      });
+      assert.equal(login.statusCode, 200);
+      const loggedIn = login.json() as { accessToken: string };
+
+      const listed = await app.inject({
+        method: "GET",
+        url: "/api/v1/auth/sessions",
+        headers: { authorization: `Bearer ${registered.accessToken}` },
+      });
+      assert.equal(listed.statusCode, 200);
+      assert.equal(listed.json().data.length, 2);
+      const current = listed.json().data.find((session: { current: boolean }) => session.current);
+      assert.ok(current);
+
+      const revokeOthers = await app.inject({
+        method: "DELETE",
+        url: "/api/v1/auth/sessions",
+        headers: { authorization: `Bearer ${registered.accessToken}` },
+      });
+      assert.equal(revokeOthers.statusCode, 204);
+      const remaining = await app.inject({
+        method: "GET",
+        url: "/api/v1/auth/sessions",
+        headers: { authorization: `Bearer ${registered.accessToken}` },
+      });
+      assert.equal(remaining.json().data.length, 1);
+
+      const revokeAll = await app.inject({
+        method: "DELETE",
+        url: "/api/v1/auth/sessions/all",
+        headers: { authorization: `Bearer ${registered.accessToken}` },
+      });
+      assert.equal(revokeAll.statusCode, 204);
+      const invalidated = await app.inject({
+        method: "GET",
+        url: "/api/v1/auth/me",
+        headers: { authorization: `Bearer ${registered.accessToken}` },
+      });
+      assert.equal(invalidated.statusCode, 401);
+      assert.match(loggedIn.accessToken, /^arsy_sess_/);
+    } finally {
+      await app.close();
+    }
+  });
+
   it("does not grant workspace access to another account", async () => {
     const app = createApp(
       loadConfig({ NODE_ENV: "test", LOG_LEVEL: "silent" }),
