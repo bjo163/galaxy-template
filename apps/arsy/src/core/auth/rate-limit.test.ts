@@ -23,7 +23,10 @@ describe("distributed authentication rate limit", () => {
       }
       await assert.rejects(
         () => enforceAuthRateLimit(database.knex, "login-email", "user@example.com", 3, now),
-        (error: unknown) => error instanceof HttpError && error.statusCode === 429,
+        (error: unknown) =>
+          error instanceof HttpError &&
+          error.statusCode === 429 &&
+          error.headers["retry-after"] === "900",
       );
       const rows = await database.knex("arsy_auth_rate_limits")
         .select("key_hash", "attempts")
