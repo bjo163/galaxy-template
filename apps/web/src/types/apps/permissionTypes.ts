@@ -1,6 +1,1 @@
-export type PermissionRowType = {
-  id: number
-  name: string
-  createdDate: string
-  assignedTo: string | string[]
-}
+export * from '@galaxy/types/apps/permissionTypes'

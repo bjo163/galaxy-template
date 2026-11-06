@@ -37,6 +37,7 @@
     "@fullcalendar/react": "6.1.20",
     "@fullcalendar/timegrid": "6.1.20",
     "@galaxy/utils": "workspace:*",
+    "@galaxy/types": "workspace:*",
     "@hookform/resolvers": "5.2.2",
     "@mui/lab": "7.0.1-beta.19",
     "@mui/material": "7.3.6",

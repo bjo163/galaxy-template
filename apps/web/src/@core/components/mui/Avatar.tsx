@@ -6,16 +6,13 @@ import { forwardRef } from 'react'
 // MUI Imports
 import MuiAvatar from '@mui/material/Avatar'
 import { lighten, styled } from '@mui/material/styles'
-import type { AvatarProps } from '@mui/material/Avatar'
 
 // Type Imports
+import type { CustomAvatarProps } from '@galaxy/types/base'
+
 import type { ThemeColor } from '@core/types'
 
-export type CustomAvatarProps = AvatarProps & {
-  color?: ThemeColor
-  skin?: 'filled' | 'light' | 'light-static'
-  size?: number
-}
+export type { CustomAvatarProps }
 
 const Avatar = styled(MuiAvatar)<CustomAvatarProps>(({ skin, color, size, theme }) => {
   return {
