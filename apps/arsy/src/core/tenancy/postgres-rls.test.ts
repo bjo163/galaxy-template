@@ -56,7 +56,9 @@ it(
     const workspaceIds = [workspaceId, otherWorkspaceId];
 
     try {
+      console.log("postgres RLS checkpoint: starting");
       await app.ready();
+      console.log("postgres RLS checkpoint: app ready");
       assert.ok(app.database);
       const knex = app.database.knex;
       poolDatabase = await createDatabase({
@@ -85,6 +87,7 @@ it(
       assert.equal(role.rows[0].can_create_database, false);
       assert.equal(role.rows[0].can_assume_migrator, false);
       assert.equal(role.rows[0].owns_tenant_table, false);
+      console.log("postgres RLS checkpoint: runtime role verified");
 
       const rlsStatus = await knex("pg_class as c")
         .join("pg_namespace as n", "n.oid", "c.relnamespace")
@@ -195,6 +198,7 @@ it(
             updated_at: now,
           }),
       );
+      console.log("postgres RLS checkpoint: tenant rows inserted");
 
       assert.deepEqual(
         await knex("arsy_workspaces").select("id").where({ id: workspaceId }),
@@ -230,6 +234,7 @@ it(
             .where({ workspace_id: workspaceId, account_id: accountId }),
       );
       assert.equal(ownMembership.length, 1);
+      console.log("postgres RLS checkpoint: tenant isolation verified");
 
       await assert.rejects(
         knex("arsy_workspaces").insert({
@@ -337,6 +342,7 @@ it(
         await poolDatabase.knex("arsy_projects").select("id"),
         [],
       );
+      console.log("postgres RLS checkpoint: transaction cleanup verified");
       await assert.rejects(
         withProjectTransaction(
           poolDatabase.knex,
@@ -365,6 +371,7 @@ it(
         `rls-member-${randomUUID()}@example.test`,
       );
       accountIds.push(owner.accountId, member.accountId);
+      console.log("postgres RLS checkpoint: api accounts registered");
 
       const workspaceResponse = await app.inject({
         method: "POST",
@@ -418,6 +425,7 @@ it(
         200,
         invitationAcceptanceResponse.body,
       );
+      console.log("postgres RLS checkpoint: invitation accepted");
 
       const credentialResponse = await app.inject({
         method: "POST",
@@ -429,6 +437,7 @@ it(
         },
       });
       assert.equal(credentialResponse.statusCode, 201, credentialResponse.body);
+      console.log("postgres RLS checkpoint: credential created");
       const credentialId = credentialResponse.json().id as string;
       assert.deepEqual(
         await knex("arsy_project_credentials")
@@ -492,7 +501,9 @@ it(
         },
       });
       assert.equal(privateRecordRead.statusCode, 404);
+      console.log("postgres RLS checkpoint: private record isolation verified");
     } finally {
+      console.log("postgres RLS checkpoint: cleanup starting");
       await poolDatabase?.close();
       if (
         app.database &&
@@ -510,6 +521,7 @@ it(
           .delete();
       }
       await app.close();
+      console.log("postgres RLS checkpoint: cleanup complete");
     }
   },
 );
