@@ -178,8 +178,12 @@ describe("Arsy model and data API", () => {
       const mismatchedCursor = await app.inject({
         method: "POST",
         url: "/api/v1/data/contacts/query",
-        headers: { authorization: `Bearer ${readOnly.secret}` },
-        payload: { limit: 1, cursor: firstPageBody.nextCursor },
+        headers: dataHeaders,
+        payload: {
+          limit: 1,
+          filter: { field: "score", op: "gt", value: 0 },
+          cursor: firstPageBody.nextCursor,
+        },
       });
       assert.equal(mismatchedCursor.statusCode, 400);
 
