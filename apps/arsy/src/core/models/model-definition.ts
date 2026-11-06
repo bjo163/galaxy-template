@@ -281,6 +281,67 @@ function isValidFieldValue(type: ModelFieldType, value: unknown): boolean {
   }
 }
 
+const recordPayloadLimits = {
+  bytes: 256 * 1024,
+  depth: 16,
+  nodes: 10_000,
+  objectProperties: 500,
+  arrayItems: 1_000,
+  stringBytes: 64 * 1024,
+} as const;
+
+function validateJsonComplexity(value: unknown): void {
+  let nodes = 0;
+  const ancestors = new WeakSet<object>();
+
+  const visit = (current: unknown, depth: number): void => {
+    nodes += 1;
+    if (nodes > recordPayloadLimits.nodes || depth > recordPayloadLimits.depth) {
+      throw new HttpError(400, "The record payload exceeds its complexity limits.");
+    }
+    if (typeof current === "string") {
+      if (Buffer.byteLength(current, "utf8") > recordPayloadLimits.stringBytes) {
+        throw new HttpError(400, "A record payload string exceeds the size limit.");
+      }
+      return;
+    }
+    if (current === null || typeof current !== "object") return;
+    if (ancestors.has(current)) {
+      throw new HttpError(400, "The record payload must not contain circular references.");
+    }
+    ancestors.add(current);
+    if (Array.isArray(current)) {
+      if (current.length > recordPayloadLimits.arrayItems) {
+        throw new HttpError(400, "A record payload array exceeds the item limit.");
+      }
+      for (const item of current) visit(item, depth + 1);
+    } else {
+      const entries = Object.entries(current);
+      if (entries.length > recordPayloadLimits.objectProperties) {
+        throw new HttpError(400, "A record payload object exceeds the property limit.");
+      }
+      for (const [key, item] of entries) {
+        if (Buffer.byteLength(key, "utf8") > 256) {
+          throw new HttpError(400, "A record payload property name is too long.");
+        }
+        visit(item, depth + 1);
+      }
+    }
+    ancestors.delete(current);
+  };
+
+  visit(value, 0);
+  let serialized: string;
+  try {
+    serialized = JSON.stringify(value);
+  } catch {
+    throw new HttpError(400, "The record payload must be valid JSON.");
+  }
+  if (Buffer.byteLength(serialized, "utf8") > recordPayloadLimits.bytes) {
+    throw new HttpError(413, "The record payload exceeds the 256 KB limit.");
+  }
+}
+
 export function validateRecordPayload(
   definition: ModelDefinition,
   input: unknown,
@@ -289,6 +350,7 @@ export function validateRecordPayload(
   if (!isObject(input)) {
     throw new HttpError(400, "A record payload must be a JSON object.");
   }
+  validateJsonComplexity(input);
 
   const values = { ...(previous ?? {}), ...input };
   const allowed = new Set(definition.fields.map((field) => field.key));

@@ -243,28 +243,36 @@ async function resolveProjectActor(
         })
         .first();
       if (!project) {
-        return false;
+        return null;
       }
-      return Boolean(
-        await trx("arsy_project_users")
-          .select("id")
-          .where({
-            workspace_id: workspaceId,
-            project_id: projectId,
-            account_id: account.id,
-          })
-          .first(),
-      );
+      return trx("arsy_project_users")
+        .select("role")
+        .where({
+          workspace_id: workspaceId,
+          project_id: projectId,
+          account_id: account.id,
+        })
+        .first();
     },
   );
   if (!membership) {
     throw new HttpError(404, "The requested project was not found.");
   }
 
+  const roleScopes: Record<string, readonly string[]> = {
+    admin: ["models:read", "models:manage", "records:read", "records:write", "addons:manage"],
+    developer: ["models:read", "models:manage", "records:read", "records:write"],
+    member: ["records:read", "records:write"],
+  };
+  const scopes = roleScopes[membership.role as string];
+  if (!scopes) {
+    throw new HttpError(403, "The project membership role is not supported.");
+  }
+
   return {
     accountId: account.id,
     credentialId: null,
-    scopes: ["models:read", "records:read", "records:write"],
+    scopes,
     workspaceId,
     projectId,
   };
@@ -511,11 +519,9 @@ async function resolveDataActor(
   request: FastifyRequest,
   knex: Knex,
 ): Promise<ProjectActor> {
-  const actor = await resolveProjectActor(request, knex);
-  if (actor.credentialId) {
-    requireCredentialScope(actor, "records:read");
-  }
-  return actor;
+  // Authentication resolves identity and tenant context only. Each route
+  // enforces the scope required by its own operation.
+  return resolveProjectActor(request, knex);
 }
 
 export async function registerModelRoutes(

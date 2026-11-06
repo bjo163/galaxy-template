@@ -90,6 +90,50 @@ describe("Arsy model and data API", () => {
       const record = recordResponse.json() as { id: string; name: string };
       assert.equal(record.name, "Ada");
 
+      const writeOnly = await createCredential(
+        app,
+        owner.accessToken,
+        workspace.id,
+        project.id,
+        ["records:write"],
+      );
+      const writeOnlyCreate = await app.inject({
+        method: "POST",
+        url: "/api/v1/data/contacts",
+        headers: { authorization: `Bearer ${writeOnly.secret}` },
+        payload: { name: "Grace", score: 43 },
+      });
+      assert.equal(writeOnlyCreate.statusCode, 201, writeOnlyCreate.body);
+      const writeOnlyRead = await app.inject({
+        method: "POST",
+        url: "/api/v1/data/contacts/query",
+        headers: { authorization: `Bearer ${writeOnly.secret}` },
+        payload: {},
+      });
+      assert.equal(writeOnlyRead.statusCode, 403);
+
+      const readOnly = await createCredential(
+        app,
+        owner.accessToken,
+        workspace.id,
+        project.id,
+        ["records:read"],
+      );
+      const readOnlyQuery = await app.inject({
+        method: "POST",
+        url: "/api/v1/data/contacts/query",
+        headers: { authorization: `Bearer ${readOnly.secret}` },
+        payload: {},
+      });
+      assert.equal(readOnlyQuery.statusCode, 200, readOnlyQuery.body);
+      const readOnlyCreate = await app.inject({
+        method: "POST",
+        url: "/api/v1/data/contacts",
+        headers: { authorization: `Bearer ${readOnly.secret}` },
+        payload: { name: "Katherine", score: 44 },
+      });
+      assert.equal(readOnlyCreate.statusCode, 403);
+
       const duplicateResponse = await app.inject({
         method: "POST",
         url: "/api/v1/data/contacts",
