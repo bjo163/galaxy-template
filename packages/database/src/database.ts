@@ -17,9 +17,6 @@ export type DatabaseOptions =
       pool?: {
         min?: number;
         max?: number;
-        acquireTimeoutMillis?: number;
-        idleTimeoutMillis?: number;
-        createTimeoutMillis?: number;
       };
     };
 

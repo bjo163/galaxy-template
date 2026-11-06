@@ -20,17 +20,7 @@ export type AppConfig = {
   nodeEnv: "development" | "test" | "production";
   database:
     | { adapter: "pglite"; dataDir?: string }
-    | {
-        adapter: "postgres";
-        connectionString: string;
-        pool: {
-          min: number;
-          max: number;
-          acquireTimeoutMillis: number;
-          idleTimeoutMillis: number;
-          createTimeoutMillis: number;
-        };
-      };
+    | { adapter: "postgres"; connectionString: string };
   host: string;
   port: number;
   logLevel: LogLevel;
@@ -156,38 +146,7 @@ export function loadConfig(
       throw new Error("DATABASE_URL must be a PostgreSQL URL with a hostname");
     }
 
-    const poolMin = positiveInteger(environment.DB_POOL_MIN, 2, "DB_POOL_MIN", 50);
-    const poolMax = positiveInteger(environment.DB_POOL_MAX, 10, "DB_POOL_MAX", 100);
-    if (poolMin > poolMax) {
-      throw new Error("DB_POOL_MIN must not exceed DB_POOL_MAX");
-    }
-
-    database = {
-      adapter: "postgres",
-      connectionString,
-      pool: {
-        min: poolMin,
-        max: poolMax,
-        acquireTimeoutMillis: positiveInteger(
-          environment.DB_POOL_ACQUIRE_TIMEOUT_MS,
-          30_000,
-          "DB_POOL_ACQUIRE_TIMEOUT_MS",
-          120_000,
-        ),
-        idleTimeoutMillis: positiveInteger(
-          environment.DB_POOL_IDLE_TIMEOUT_MS,
-          10_000,
-          "DB_POOL_IDLE_TIMEOUT_MS",
-          120_000,
-        ),
-        createTimeoutMillis: positiveInteger(
-          environment.DB_POOL_CREATE_TIMEOUT_MS,
-          30_000,
-          "DB_POOL_CREATE_TIMEOUT_MS",
-          120_000,
-        ),
-      },
-    };
+    database = { adapter: "postgres", connectionString };
   } else {
     if (nodeEnv === "production") {
       throw new Error("PGlite is not supported as Arsy's production database");
