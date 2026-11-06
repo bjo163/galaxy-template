@@ -25,6 +25,7 @@ const tenantTables = [
   "arsy_addon_definitions",
   "arsy_addon_installations",
   "arsy_audit_events",
+  "arsy_idempotency_keys",
 ];
 
 it(
