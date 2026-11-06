@@ -7,7 +7,7 @@ const database = await createDatabase(config.database);
 const batchSize = 500;
 
 async function deleteExpiredRows(
-  table: "arsy_sessions" | "arsy_auth_rate_limits",
+  table: "arsy_sessions" | "arsy_auth_rate_limits" | "arsy_idempotency_keys",
   timestampColumn: "expires_at" | "window_started_at",
   cutoff: Date,
 ): Promise<number> {
@@ -41,8 +41,13 @@ try {
     "window_started_at",
     new Date(now.getTime() - 48 * 60 * 60 * 1000),
   );
+  const expiredIdempotencyKeys = await deleteExpiredRows(
+    "arsy_idempotency_keys",
+    "expires_at",
+    now,
+  );
   process.stdout.write(
-    JSON.stringify({ expiredSessions, staleRateLimitBuckets }) + "\n",
+    JSON.stringify({ expiredSessions, staleRateLimitBuckets, expiredIdempotencyKeys }) + "\n",
   );
 } finally {
   await database.close();
