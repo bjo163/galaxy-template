@@ -14,6 +14,7 @@ export async function POST(req: Request) {
       headers: { 'Content-Type': 'application/json' },
       body: await req.text()
     })
+
     const result = await response.json().catch(() => ({ message: ['Authentication failed.'] }))
 
     return NextResponse.json(result, { status: response.status })

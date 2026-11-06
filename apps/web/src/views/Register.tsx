@@ -67,6 +67,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
     resolver: valibotResolver(schema),
     defaultValues: { displayName: '', email: '', password: '' }
   })
+
   const { settings } = useSettings()
 
   const onSubmit: SubmitHandler<FormData> = async data => {
