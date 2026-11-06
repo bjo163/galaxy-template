@@ -5,7 +5,7 @@ import { createApp } from "../../app.js";
 import { loadConfig } from "../../config/env.js";
 import { up as migrateControlPlane } from "../../migrations/0001_arsy_control_plane.js";
 import { up as migrateAuthRateLimits } from "../../migrations/0003_auth_rate_limits.js";
-import { up as migrateIdempotency } from "../../migrations/0006_idempotency_keys.js";
+import { up as migrateIdempotency } from "../../migrations/0005_idempotency_keys.js";
 
 describe("Arsy model and data API", () => {
   it("publishes tenant-scoped models and validates record CRUD and filters", async () => {
