@@ -4,6 +4,7 @@ import { describe, it } from "node:test";
 import { createApp } from "../../app.js";
 import { loadConfig } from "../../config/env.js";
 import { up as migrateControlPlane } from "../../migrations/0001_arsy_control_plane.js";
+import { up as migrateSharedQuotaBuckets } from "../../migrations/0003_shared_quota_buckets.js";
 
 describe("Arsy model and data API", () => {
   it("publishes tenant-scoped models and validates record CRUD and filters", async () => {
@@ -15,6 +16,7 @@ describe("Arsy model and data API", () => {
       await app.ready();
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
+      await migrateSharedQuotaBuckets(app.database.knex);
       const owner = await register(app, "model-owner@example.com");
       const workspace = await createWorkspace(app, owner.accessToken);
       const project = await createProject(app, owner.accessToken, workspace.id);
@@ -167,6 +169,7 @@ describe("Arsy model and data API", () => {
       await app.ready();
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
+      await migrateSharedQuotaBuckets(app.database.knex);
       const owner = await register(app, "model-tenant@example.com");
       const workspace = await createWorkspace(app, owner.accessToken);
       const firstProject = await createProject(
@@ -239,6 +242,57 @@ describe("Arsy model and data API", () => {
     }
   });
 
+  it("enforces the shared credential quota on authenticated data requests", async () => {
+    const app = createApp(
+      loadConfig({
+        NODE_ENV: "test",
+        LOG_LEVEL: "silent",
+        RATE_LIMIT_MAX: "1000",
+      }),
+    );
+
+    try {
+      await app.ready();
+      assert.ok(app.database);
+      await migrateControlPlane(app.database.knex);
+      await migrateSharedQuotaBuckets(app.database.knex);
+      const owner = await register(app, "quota-owner@example.com");
+      const workspace = await createWorkspace(app, owner.accessToken);
+      const project = await createProject(app, owner.accessToken, workspace.id);
+      const credential = await createCredential(
+        app,
+        owner.accessToken,
+        workspace.id,
+        project.id,
+        ["records:read"],
+      );
+      for (let request = 0; request < 100; request += 1) {
+        const allowedResponse = await app.inject({
+          method: "GET",
+          url: "/api/v1/data/unknown-model",
+          headers: { authorization: `****** },
+        });
+        assert.equal(allowedResponse.statusCode, 404);
+      }
+
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/v1/data/unknown-model",
+        headers: { authorization: `****** },
+      });
+      assert.equal(response.statusCode, 429);
+      assert.equal(
+        response.headers["content-type"]?.split(";")[0],
+        "application/problem+json",
+      );
+      assert.equal(response.headers["ratelimit-limit"], "100");
+      assert.ok(response.headers["retry-after"]);
+      assert.equal(response.body.includes(credential.secret), false);
+    } finally {
+      await app.close();
+    }
+  });
+
   it("isolates private records by authenticated project user", async () => {
     const app = createApp(
       loadConfig({ NODE_ENV: "test", LOG_LEVEL: "silent" }),
@@ -248,6 +302,7 @@ describe("Arsy model and data API", () => {
       await app.ready();
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
+      await migrateSharedQuotaBuckets(app.database.knex);
       const owner = await register(app, "private-owner@example.com");
       const user = await register(app, "private-user@example.com");
       const workspace = await createWorkspace(app, owner.accessToken);

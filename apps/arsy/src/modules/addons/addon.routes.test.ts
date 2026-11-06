@@ -5,6 +5,8 @@ import { createApp } from "../../app.js";
 import { loadConfig } from "../../config/env.js";
 import { down as rollbackControlPlane } from "../../migrations/0001_arsy_control_plane.js";
 import { up as migrateControlPlane } from "../../migrations/0001_arsy_control_plane.js";
+import { down as rollbackSharedQuotaBuckets } from "../../migrations/0003_shared_quota_buckets.js";
+import { up as migrateSharedQuotaBuckets } from "../../migrations/0003_shared_quota_buckets.js";
 
 describe("Arsy add-on API", () => {
   it("validates and manages declarative add-ons with project-scoped grants", async () => {
@@ -16,6 +18,7 @@ describe("Arsy add-on API", () => {
       await app.ready();
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
+      await migrateSharedQuotaBuckets(app.database.knex);
 
       const owner = await register(app, "addon-owner@example.com");
       const workspace = await createWorkspace(app, owner.token);
@@ -230,12 +233,14 @@ describe("Arsy add-on API", () => {
       });
       assert.equal(otherProjectAccess.statusCode, 404);
 
+      await rollbackSharedQuotaBuckets(app.database.knex);
       await rollbackControlPlane(app.database.knex);
       assert.equal(
         await app.database.knex.schema.hasTable("arsy_addon_definitions"),
         false,
       );
       await migrateControlPlane(app.database.knex);
+      await migrateSharedQuotaBuckets(app.database.knex);
       assert.equal(
         await app.database.knex.schema.hasTable("arsy_addon_definitions"),
         true,

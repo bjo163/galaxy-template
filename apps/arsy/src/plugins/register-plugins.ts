@@ -21,6 +21,8 @@ export function registerPlugins(
     global: true,
     max: config.rateLimitMax,
     timeWindow: config.rateLimitWindowMs,
+    allowList: (request) =>
+      request.routeOptions.url?.startsWith("/api/v1/") === true,
   });
 
   if (config.metricsEnabled && metrics) {

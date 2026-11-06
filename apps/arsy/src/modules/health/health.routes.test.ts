@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 
 import { createApp } from "../../app.js";
 import { loadConfig } from "../../config/env.js";
+import { up as migrateSharedQuotaBuckets } from "../../migrations/0003_shared_quota_buckets.js";
 
 describe("health routes", () => {
   it("reports liveness, readiness, and API health", async () => {
@@ -198,7 +199,72 @@ describe("health routes", () => {
     }
   });
 
-  it("applies the configured global rate limit", async () => {
+  it("applies the shared IP quota to versioned API routes", async () => {
+    const app = createApp(
+      loadConfig({
+        NODE_ENV: "test",
+        LOG_LEVEL: "silent",
+        RATE_LIMIT_MAX: "1",
+      }),
+    );
+    app.get("/api/v1/quota-test", async () => ({ status: "ok" }));
+
+    try {
+      await app.ready();
+      assert.ok(app.database);
+      await migrateSharedQuotaBuckets(app.database.knex);
+
+      const firstResponse = await app.inject({
+        method: "GET",
+        url: "/api/v1/quota-test",
+      });
+      const secondResponse = await app.inject({
+        method: "GET",
+        url: "/api/v1/quota-test",
+      });
+
+      assert.equal(firstResponse.statusCode, 200);
+      assert.equal(secondResponse.statusCode, 429);
+      assert.equal(secondResponse.json().title, "Too Many Requests");
+      assert.equal(
+        secondResponse.headers["content-type"]?.split(";")[0],
+        "application/problem+json",
+      );
+      assert.equal(
+        secondResponse.json().detail,
+        "The request rate limit was exceeded.",
+      );
+      assert.equal(
+        typeof secondResponse.json().requestId,
+        "string",
+      );
+      assert.equal(secondResponse.body.includes("127.0.0.1"), false);
+      const retryAfter = Number(secondResponse.headers["retry-after"]);
+      assert.ok(retryAfter >= 1 && retryAfter <= 60);
+      assert.equal(secondResponse.headers["ratelimit-limit"], "1");
+      assert.equal(secondResponse.headers["ratelimit-remaining"], "0");
+      assert.ok(secondResponse.headers["ratelimit-reset"]);
+
+      await app.database.knex.schema.dropTable("arsy_shared_quota_buckets");
+      const unavailableResponse = await app.inject({
+        method: "GET",
+        url: "/api/v1/quota-test",
+      });
+      assert.equal(unavailableResponse.statusCode, 503);
+      assert.equal(
+        unavailableResponse.headers["content-type"]?.split(";")[0],
+        "application/problem+json",
+      );
+      assert.equal(
+        unavailableResponse.json().detail,
+        "The shared request quota backend is unavailable.",
+      );
+    } finally {
+      await app.close();
+    }
+  });
+
+  it("exempts versioned API health from shared quotas", async () => {
     const app = createApp(
       loadConfig({
         NODE_ENV: "test",
@@ -210,18 +276,13 @@ describe("health routes", () => {
     try {
       await app.ready();
 
-      const firstResponse = await app.inject({
-        method: "GET",
-        url: "/api/v1/health",
-      });
-      const secondResponse = await app.inject({
-        method: "GET",
-        url: "/api/v1/health",
-      });
-
-      assert.equal(firstResponse.statusCode, 200);
-      assert.equal(secondResponse.statusCode, 429);
-      assert.equal(secondResponse.json().title, "Too Many Requests");
+      for (let request = 0; request < 2; request += 1) {
+        const response = await app.inject({
+          method: "GET",
+          url: "/api/v1/health",
+        });
+        assert.equal(response.statusCode, 200);
+      }
     } finally {
       await app.close();
     }

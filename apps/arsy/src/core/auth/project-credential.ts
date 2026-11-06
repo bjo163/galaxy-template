@@ -1,12 +1,16 @@
 import type { FastifyRequest } from "fastify";
 import type { Knex } from "@galaxy/database";
 
-import { HttpError } from "./identity.js";
-import { hashOpaqueToken } from "./identity.js";
+import { HttpError, hashOpaqueToken } from "./identity.js";
+import { enforceSharedQuota } from "../rate-limiting/shared-quota.js";
 import {
   withCredentialHashTransaction,
   withWorkspaceTransaction,
 } from "../tenancy/database-context.js";
+
+const credentialRequestsPerMinute = 100;
+const projectRequestsPerMinute = 1_000;
+const quotaWindowMs = 60_000;
 
 export type ResolvedProjectCredential = {
   id: string;
@@ -74,6 +78,23 @@ export async function requireProjectCredential(
   if (!project) {
     throw new HttpError(401, "The project credential is invalid or expired.");
   }
+
+  await enforceSharedQuota(
+    knex,
+    [
+      {
+        dimension: "credential",
+        subject: credential.id as string,
+        limit: credentialRequestsPerMinute,
+      },
+      {
+        dimension: "project",
+        subject: credential.projectId as string,
+        limit: projectRequestsPerMinute,
+      },
+    ],
+    quotaWindowMs,
+  );
 
   return {
     id: credential.id as string,

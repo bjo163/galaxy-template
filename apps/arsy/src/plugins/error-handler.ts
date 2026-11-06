@@ -1,6 +1,10 @@
 import type { FastifyInstance } from "fastify";
 
 import { createProblemDetails } from "../core/http/problem-details.js";
+import {
+  SharedQuotaBackendUnavailableError,
+  SharedQuotaExceededError,
+} from "../core/rate-limiting/shared-quota.js";
 
 export function registerErrorHandling(app: FastifyInstance): void {
   app.setNotFoundHandler((request, reply) => {
@@ -25,9 +29,13 @@ export function registerErrorHandling(app: FastifyInstance): void {
         ? error.statusCode
         : 500;
     const statusCode =
-      errorStatusCode >= 400 && errorStatusCode < 500 ? errorStatusCode : 500;
+      error instanceof SharedQuotaBackendUnavailableError
+        ? 503
+        : errorStatusCode >= 400 && errorStatusCode < 500
+          ? errorStatusCode
+          : 500;
 
-    if (statusCode === 500) {
+    if (statusCode >= 500) {
       request.log.error({ err: error }, "request failed");
     } else {
       request.log.warn({ err: error }, "request rejected");
@@ -36,11 +44,21 @@ export function registerErrorHandling(app: FastifyInstance): void {
     const detail =
       statusCode === 500
         ? "An unexpected error occurred."
-        : statusCode === 429
-          ? "The request rate limit was exceeded."
-          : error instanceof Error
-            ? error.message
-            : "The request could not be processed.";
+        : error instanceof SharedQuotaBackendUnavailableError
+          ? "The shared request quota backend is unavailable."
+          : statusCode === 429
+            ? "The request rate limit was exceeded."
+            : error instanceof Error
+              ? error.message
+              : "The request could not be processed.";
+
+    if (error instanceof SharedQuotaExceededError) {
+      reply
+        .header("retry-after", String(error.quota.retryAfterSeconds))
+        .header("ratelimit-limit", String(error.quota.limit))
+        .header("ratelimit-remaining", "0")
+        .header("ratelimit-reset", String(error.quota.resetAtEpochSeconds));
+    }
 
     return reply
       .code(statusCode)

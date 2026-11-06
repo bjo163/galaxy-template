@@ -1,6 +1,5 @@
 import type { FastifyInstance } from "fastify";
 
-import { problemDetailsSchema } from "../../core/http/problem-details.js";
 import {
   apiHealthResponseSchema,
   healthResponseSchema,
@@ -67,10 +66,7 @@ export async function registerApiHealthRoutes(
         tags: ["health"],
         summary: "Get API service status",
         description: "Returns a minimal status response for the versioned API.",
-        response: {
-          200: apiHealthResponseSchema,
-          429: problemDetailsSchema,
-        },
+        response: { 200: apiHealthResponseSchema },
       },
     },
     async () => ({ status: "ok", service: "arsy" }),

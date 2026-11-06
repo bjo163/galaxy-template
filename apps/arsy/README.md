@@ -129,11 +129,20 @@ and `application/problem+json` content type. Internal errors are logged with
 request context and return a generic response without implementation details.
 Incoming request IDs are accepted only when they use a bounded, safe character
 set; otherwise Arsy generates one. Logs redact common credential fields and
-record the route template instead of query strings. Requests are rate-limited
-by client IP; the default in-memory
-limiter is per process, so multi-replica deployments must use a shared
-rate-limit store before relying on a global quota. Health probes are excluded
-from rate limiting.
+record the route template instead of query strings.
+
+Versioned API requests use PostgreSQL-backed fixed-window quotas shared across
+Arsy replicas. By default, the API allows 100 requests per IP per minute,
+100 requests per project credential per minute, and 1,000 requests per project
+per minute. `RATE_LIMIT_MAX` and `RATE_LIMIT_WINDOW_MS` configure the shared IP
+quota and the in-process IP limiter on non-versioned routes; the project and
+credential limits are fixed at one minute. Requests to
+`/health/live`, `/health/ready`, and `/api/v1/health` are exempt. Other
+non-versioned routes retain the in-process IP limiter. Quota keys are hashed
+before storage and are not emitted in logs or metrics. A quota rejection
+returns problem details with `Retry-After` and rate-limit headers; if the
+shared quota backend is unavailable, versioned API requests fail closed with
+`503 Service Unavailable`.
 
 The runtime applies a request timeout, request-body size limit, and bounded
 graceful shutdown. SIGINT and SIGTERM trigger an idempotent close; active

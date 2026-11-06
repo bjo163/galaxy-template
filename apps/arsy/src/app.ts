@@ -5,6 +5,10 @@ import type { FastifyInstance } from "fastify";
 
 import { loadConfig, type AppConfig } from "./config/env.js";
 import { HttpMetrics } from "./core/observability/http-metrics.js";
+import {
+  enforceSharedQuota,
+  SharedQuotaBackendUnavailableError,
+} from "./core/rate-limiting/shared-quota.js";
 import { registerModules } from "./modules/register-modules.js";
 import { registerIdentityDecorators } from "./core/auth/identity.js";
 import { registerDatabase } from "./plugins/database.js";
@@ -69,6 +73,33 @@ export function createApp(config: AppConfig = loadConfig()): FastifyInstance {
   registerIdentityDecorators(app);
   registerPlugins(app, config, metrics);
   registerErrorHandling(app);
+  app.addHook("onRequest", async (request) => {
+    const route = request.routeOptions.url;
+    if (
+      !route?.startsWith("/api/v1/") ||
+      route === "/api/v1/health"
+    ) {
+      return;
+    }
+
+    const database = request.server.database;
+    if (!database) {
+      throw new SharedQuotaBackendUnavailableError(
+        new Error("The database is not initialized."),
+      );
+    }
+    await enforceSharedQuota(
+      database.knex,
+      [
+        {
+          dimension: "ip",
+          subject: request.ip,
+          limit: config.rateLimitMax,
+        },
+      ],
+      config.rateLimitWindowMs,
+    );
+  });
   registerModules(app);
 
   return app;
