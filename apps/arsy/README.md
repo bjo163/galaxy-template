@@ -22,7 +22,9 @@ and run only Arsy.
 The API listens on `http://localhost:3001`; the web app runs on
 `http://localhost:3000`. Development configuration is in the ignored root
 `.env.development`, copied from root `.env.example`. A PostgreSQL 18 container
-persists data in the `galaxy_arsy-postgres-data` Docker volume. The API requires
+persists data in the `galaxy_arsy-postgres-data` Docker volume. PostgreSQL 17
+and 18 are supported and exercised by CI; local development currently uses
+PostgreSQL 18. The API requires
 `DATABASE_ADAPTER=postgres` and `DATABASE_URL`; it no longer initializes a
 PGlite database or a separate browser console. The shared Knex/Objection
 adapters live in `packages/database`.
@@ -133,7 +135,11 @@ rate-limit store before relying on a global quota. Health probes are excluded
 from rate limiting.
 
 The runtime applies a request timeout, request-body size limit, and bounded
-graceful shutdown. SIGINT and SIGTERM trigger an idempotent close; active
+graceful shutdown. PostgreSQL pool capacity and acquire/idle/create timeouts are
+configurable with `DB_POOL_MIN`, `DB_POOL_MAX`,
+`DB_POOL_ACQUIRE_TIMEOUT_MS`, `DB_POOL_IDLE_TIMEOUT_MS`, and
+`DB_POOL_CREATE_TIMEOUT_MS`. The maximum pool size must fit the PostgreSQL
+connection budget across application replicas and migration jobs. SIGINT and SIGTERM trigger an idempotent close; active
 connections are closed if the graceful period expires.
 
 OpenAPI and Swagger UI default to enabled outside production and disabled in

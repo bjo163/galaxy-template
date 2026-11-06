@@ -15,10 +15,15 @@ on:
 
 jobs:
   postgres-rls:
+    name: PostgreSQL ${{ matrix.postgres-version }} RLS
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        postgres-version: ["17", "18"]
     services:
       postgres:
-        image: postgres:17
+        image: postgres:${{ matrix.postgres-version }}
         env:
           POSTGRES_DB: arsy_test
           POSTGRES_USER: postgres
