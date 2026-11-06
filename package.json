@@ -1,0 +1,31 @@
+﻿{
+  "name": "galaxy-monorepo",
+  "version": "5.0.1",
+  "license": "Commercial",
+  "private": true,
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "lint": "pnpm --filter web lint",
+    "lint:fix": "pnpm --filter web lint:fix",
+    "format": "pnpm --filter web format",
+    "build:icons": "pnpm --filter web build:icons",
+    "migrate": "pnpm --filter web migrate",
+    "removeI18n": "pnpm --filter web removeI18n",
+    "clean": "pnpm -r run clean",
+    "clear": "pnpm -r exec rm -rf node_modules .next && rm -rf node_modules"
+  },
+  "pnpm": {
+    "overrides": {
+      "rimraf": "5.0.7",
+      "unicorn-magic": "0.1.0",
+      "react": "19.2.3",
+      "react-dom": "19.2.3",
+      "eslint": "8.57.1",
+      "eslint-config-next": "15.1.2",
+      "@emoji-mart/react>react": "19.2.3"
+    }
+  }
+}
