@@ -1,54 +1,15 @@
 {
+  "extends": "@galaxy/tsconfig/next.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "downlevelIteration": true,
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ESNext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@core/*": [
-        "./src/@core/*"
-      ],
-      "@layouts/*": [
-        "./src/@layouts/*"
-      ],
-      "@menu/*": [
-        "./src/@menu/*"
-      ],
-      "@assets/*": [
-        "./src/assets/*"
-      ],
-      "@components/*": [
-        "./src/components/*"
-      ],
-      "@configs/*": [
-        "./src/configs/*"
-      ],
-      "@views/*": [
-        "./src/views/*"
-      ]
+      "@/*": ["./src/*"],
+      "@core/*": ["./src/@core/*"],
+      "@layouts/*": ["./src/@layouts/*"],
+      "@menu/*": ["./src/@menu/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@components/*": ["./src/components/*"],
+      "@configs/*": ["./src/configs/*"],
+      "@views/*": ["./src/views/*"]
     }
   },
   "include": [
@@ -59,7 +20,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

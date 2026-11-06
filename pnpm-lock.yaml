@@ -215,6 +215,9 @@ importers:
         specifier: 1.2.0
         version: 1.2.0(typescript@5.9.3)
     devDependencies:
+      '@galaxy/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/config/tsconfig
       '@iconify/json':
         specifier: 2.2.408
         version: 2.2.408
@@ -317,6 +320,8 @@ importers:
       typescript:
         specifier: 5.9.3
         version: 5.9.3
+
+  packages/config/tsconfig: {}
 
 packages:
 

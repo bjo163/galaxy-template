@@ -85,6 +85,7 @@
     "valibot": "1.2.0"
   },
   "devDependencies": {
+    "@galaxy/tsconfig": "workspace:*",
     "@iconify/json": "2.2.408",
     "@iconify/tools": "4.1.4",
     "@iconify/types": "2.0.0",
