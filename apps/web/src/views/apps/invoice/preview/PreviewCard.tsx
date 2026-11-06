@@ -7,6 +7,7 @@ import Divider from '@mui/material/Divider'
 
 // Type Imports
 import type { InvoiceType } from '@/types/apps/invoiceTypes'
+import type { invoicePreview } from '@galaxy/fake-db/apps/invoicePreview'
 
 // Component Imports
 import Logo from '@components/layout/shared/Logo'
@@ -15,39 +16,7 @@ import Logo from '@components/layout/shared/Logo'
 import tableStyles from '@core/styles/table.module.css'
 import './print.css'
 
-// Vars
-const data = [
-  {
-    Item: 'Premium Branding Package',
-    Description: 'Branding & Promotion',
-    Hours: 48,
-    Qty: 1,
-    Total: '$32'
-  },
-  {
-    Item: 'Social Media',
-    Description: 'Social media templates',
-    Hours: 42,
-    Qty: 1,
-    Total: '$28'
-  },
-  {
-    Item: 'Web Design',
-    Description: 'Web designing package',
-    Hours: 46,
-    Qty: 1,
-    Total: '$24'
-  },
-  {
-    Item: 'SEO',
-    Description: 'Search engine optimization',
-    Hours: 40,
-    Qty: 1,
-    Total: '$22'
-  }
-]
-
-const PreviewCard = ({ invoiceData, id }: { invoiceData?: InvoiceType; id: string }) => {
+const PreviewCard = ({ invoiceData, id, previewData }: { invoiceData?: InvoiceType; id: string; previewData: typeof invoicePreview }) => {
   return (
     <Card className='previewCard'>
       <CardContent className='sm:!p-12'>
@@ -135,7 +104,7 @@ const PreviewCard = ({ invoiceData, id }: { invoiceData?: InvoiceType; id: strin
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((item, index) => (
+                  {previewData.map((item, index) => (
                     <tr key={index}>
                       <td>
                         <Typography color='text.primary'>{item.Item}</Typography>

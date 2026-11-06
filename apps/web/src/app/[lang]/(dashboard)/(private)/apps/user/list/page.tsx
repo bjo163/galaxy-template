@@ -2,7 +2,7 @@
 import UserList from '@views/apps/user/list'
 
 // Data Imports
-import { getUserData } from '@/app/server/actions'
+import { getUserData, getUserListCardsData } from '@/app/server/actions'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -25,8 +25,9 @@ import { getUserData } from '@/app/server/actions'
 const UserListApp = async () => {
   // Vars
   const data = await getUserData()
+  const cardsData = await getUserListCardsData()
 
-  return <UserList userData={data} />
+  return <UserList userData={data} cardsData={cardsData} />
 }
 
 export default UserListApp

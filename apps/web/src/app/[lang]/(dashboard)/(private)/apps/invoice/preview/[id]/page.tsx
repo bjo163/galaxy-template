@@ -8,7 +8,7 @@ import type { InvoiceType } from '@/types/apps/invoiceTypes'
 import Preview from '@views/apps/invoice/preview'
 
 // Data Imports
-import { getInvoiceData } from '@/app/server/actions'
+import { getInvoiceData, getInvoicePreviewData } from '@/app/server/actions'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -33,6 +33,7 @@ const PreviewPage = async (props: { params: Promise<{ id: string }> }) => {
 
   // Vars
   const data = await getInvoiceData()
+  const previewData = await getInvoicePreviewData()
 
   const filteredData = data?.filter((invoice: InvoiceType) => invoice.id === params.id)[0]
 
@@ -40,7 +41,9 @@ const PreviewPage = async (props: { params: Promise<{ id: string }> }) => {
     redirect('/not-found')
   }
 
-  return filteredData ? <Preview invoiceData={filteredData} id={params.id} /> : null
+  return filteredData ? (
+    <Preview invoiceData={filteredData} id={params.id} previewData={previewData} />
+  ) : null
 }
 
 export default PreviewPage

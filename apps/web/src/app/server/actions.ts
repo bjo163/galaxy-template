@@ -26,9 +26,29 @@ import { db as pricingData } from '@galaxy/fake-db/pages/pricing'
 import { db as statisticsData } from '@galaxy/fake-db/pages/widgetExamples'
 import { db as widgetExamplesAdvancedData } from '@galaxy/fake-db/pages/widgetExamplesAdvanced'
 import { db as widgetExamplesChartsData } from '@galaxy/fake-db/pages/widgetExamplesCharts'
+import { invoiceKPI } from '@galaxy/fake-db/apps/invoiceKPI'
+import { invoicePreview } from '@galaxy/fake-db/apps/invoicePreview'
+import { ecommerceOrderKPI } from '@galaxy/fake-db/apps/ecommerceOrderKPI'
+import { userListCards } from '@galaxy/fake-db/apps/userListCards'
 
 export const getEcommerceData = async () => {
   return eCommerceData
+}
+
+export const getInvoiceKPIData = async () => {
+  return invoiceKPI
+}
+
+export const getInvoicePreviewData = async () => {
+  return invoicePreview
+}
+
+export const getEcommerceOrderKPIData = async () => {
+  return ecommerceOrderKPI
+}
+
+export const getUserListCardsData = async () => {
+  return userListCards
 }
 
 export const getAcademyData = async () => {

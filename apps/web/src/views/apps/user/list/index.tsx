@@ -3,16 +3,17 @@ import Grid from '@mui/material/Grid'
 
 // Type Imports
 import type { UsersType } from '@/types/apps/userTypes'
+import type { userListCards } from '@galaxy/fake-db/apps/userListCards'
 
 // Component Imports
 import UserListTable from './UserListTable'
 import UserListCards from './UserListCards'
 
-const UserList = ({ userData }: { userData?: UsersType[] }) => {
+const UserList = ({ userData, cardsData }: { userData?: UsersType[]; cardsData: typeof userListCards }) => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
-        <UserListCards />
+        <UserListCards data={cardsData} />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <UserListTable tableData={userData} />

@@ -13,31 +13,11 @@ import type { Theme } from '@mui/material/styles'
 // Third-party Imports
 import classnames from 'classnames'
 
-// Vars
-const data = [
-  {
-    title: 24,
-    subtitle: 'Clients',
-    icon: 'tabler-user'
-  },
-  {
-    title: 165,
-    subtitle: 'Invoices',
-    icon: 'tabler-file-invoice'
-  },
-  {
-    title: '$2.46k',
-    subtitle: 'Paid',
-    icon: 'tabler-checks'
-  },
-  {
-    title: '$876',
-    subtitle: 'Unpaid',
-    icon: 'tabler-circle-off'
-  }
-]
+// Type Imports
+import type { invoiceKPI } from '@galaxy/fake-db/apps/invoiceKPI'
 
-const InvoiceCard = () => {
+// Vars
+const InvoiceCard = ({ data }: { data: typeof invoiceKPI }) => {
   // Hooks
   const isBelowMdScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
   const isBelowSmScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
