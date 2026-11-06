@@ -16,10 +16,12 @@ import ActivityTimeline from '@views/dashboards/crm/ActivityTimeline'
 
 // Server Action Imports
 import { getServerMode } from '@core/utils/serverHelpers'
+import { getDashboardData } from '@/app/server/actions'
 
 const DashboardCRM = async () => {
   // Vars
   const serverMode = await getServerMode()
+  const data = await getDashboardData()
 
   return (
     <Grid container spacing={6}>
@@ -67,16 +69,16 @@ const DashboardCRM = async () => {
         <RadarSalesChart />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <SalesByCountries />
+        <SalesByCountries data={data.salesByCountries} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <ProjectStatus />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <ActiveProjects />
+        <ActiveProjects data={data.activeProjects} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
-        <LastTransaction serverMode={serverMode} />
+        <LastTransaction data={data.lastTransactions} serverMode={serverMode} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
         <ActivityTimeline />

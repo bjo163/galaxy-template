@@ -5,66 +5,13 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import LinearProgress from '@mui/material/LinearProgress'
 
-import type { ThemeColor } from '@core/types'
+// Type Imports
+import type { ActiveProject } from '@/types/apps/dashboardTypes'
 
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
 
-type DataType = {
-  title: string
-  imgSrc: string
-  progress: number
-  subtitle: string
-  progressColor: ThemeColor
-}
-
-// Vars
-const data: DataType[] = [
-  {
-    title: 'Laravel',
-    subtitle: 'eCommerce',
-    progress: 54,
-    progressColor: 'error',
-    imgSrc: '/images/logos/laravel.png'
-  },
-  {
-    title: 'Figma',
-    subtitle: 'App UI Kit',
-    progress: 85,
-    progressColor: 'primary',
-    imgSrc: '/images/logos/figma.png'
-  },
-  {
-    title: 'VusJs',
-    subtitle: 'Calendar App',
-    progress: 64,
-    progressColor: 'success',
-    imgSrc: '/images/logos/vue.png'
-  },
-  {
-    title: 'React',
-    subtitle: 'Dashboard',
-    progress: 40,
-    progressColor: 'info',
-    imgSrc: '/images/logos/react.png'
-  },
-  {
-    title: 'Bootstrap',
-    subtitle: 'Website',
-    progress: 17,
-    progressColor: 'primary',
-    imgSrc: '/images/logos/bootstrap.png'
-  },
-  {
-    title: 'Sketch',
-    subtitle: 'Website Design',
-    progress: 30,
-    progressColor: 'warning',
-    imgSrc: '/images/logos/sketch.png'
-  }
-]
-
-const ActiveProjects = () => {
+const ActiveProjects = ({ data }: { data: ActiveProject[] }) => {
   return (
     <Card>
       <CardHeader

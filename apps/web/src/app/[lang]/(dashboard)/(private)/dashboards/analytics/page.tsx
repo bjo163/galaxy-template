@@ -14,7 +14,7 @@ import SourceVisits from '@views/dashboards/analytics/SourceVisits'
 import ProjectsTable from '@views/dashboards/analytics/ProjectsTable'
 
 // Data Imports
-import { getProfileData } from '@/app/server/actions'
+import { getDashboardData, getProfileData } from '@/app/server/actions'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -37,6 +37,7 @@ import { getProfileData } from '@/app/server/actions'
 const DashboardAnalytics = async () => {
   // Vars
   const data = await getProfileData()
+  const dashboardData = await getDashboardData()
 
   return (
     <Grid container spacing={6}>
@@ -56,7 +57,7 @@ const DashboardAnalytics = async () => {
         <SupportTracker />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <SalesByCountries />
+        <SalesByCountries data={dashboardData.salesByCountries} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <TotalEarning />

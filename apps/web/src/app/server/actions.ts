@@ -14,6 +14,7 @@ import { db as userData } from '@galaxy/fake-db/apps/userList'
 import { db as permissionData } from '@galaxy/fake-db/apps/permissions'
 import { db as reactTableData } from '@galaxy/fake-db/apps/reactTable'
 import { db as rolesData } from '@galaxy/fake-db/apps/roles'
+import { db as dashboardData } from '@galaxy/fake-db/apps/dashboard'
 import { db as profileData } from '@galaxy/fake-db/pages/userProfile'
 import { db as faqData } from '@galaxy/fake-db/pages/faq'
 import { db as pricingData } from '@galaxy/fake-db/pages/pricing'
@@ -65,4 +66,8 @@ export const getReactTableData = async () => {
 
 export const getRolesData = async () => {
   return rolesData
+}
+
+export const getDashboardData = async () => {
+  return dashboardData
 }
