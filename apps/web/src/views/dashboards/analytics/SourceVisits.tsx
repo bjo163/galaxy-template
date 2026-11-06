@@ -8,67 +8,14 @@ import Chip from '@mui/material/Chip'
 // Third-party Imports
 import classnames from 'classnames'
 
+// Type Imports
+import type { SourceVisit } from '@/types/apps/dashboardTypes'
+
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
 import CustomAvatar from '@core/components/mui/Avatar'
 
-type DataType = {
-  icon: string
-  title: string
-  amount: string
-  subtitle: string
-  trendNumber: number
-  trend?: 'positive' | 'negative'
-}
-
-// Vars
-const data: DataType[] = [
-  {
-    title: 'Direct Source',
-    subtitle: 'Direct link click',
-    amount: '1.2k',
-    trendNumber: 4.2,
-    icon: 'tabler-shadow'
-  },
-  {
-    title: 'Social Networks',
-    subtitle: 'Social Channels',
-    amount: '31.5k',
-    trendNumber: 8.2,
-    icon: 'tabler-globe'
-  },
-  {
-    title: 'Email Newsletter',
-    subtitle: 'Mail Campaigns',
-    amount: '893',
-    trendNumber: 2.4,
-    icon: 'tabler-mail'
-  },
-  {
-    title: 'Referrals',
-    subtitle: 'Impact Radius Visits',
-    amount: '342',
-    trendNumber: 0.4,
-    trend: 'negative',
-    icon: 'tabler-external-link'
-  },
-  {
-    title: 'ADVT',
-    subtitle: 'Google ADVT',
-    amount: '2.15k',
-    trendNumber: 9.1,
-    icon: 'tabler-ad'
-  },
-  {
-    title: 'Other',
-    subtitle: 'Many Sources',
-    amount: '12.5k',
-    trendNumber: 6.2,
-    icon: 'tabler-star'
-  }
-]
-
-const SourceVisits = () => {
+const SourceVisits = ({ data }: { data: SourceVisit[] }) => {
   return (
     <Card>
       <CardHeader

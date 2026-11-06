@@ -15,55 +15,18 @@ import classnames from 'classnames'
 import { useKeenSlider } from 'keen-slider/react'
 import type { KeenSliderPlugin } from 'keen-slider/react'
 
+// Type Imports
+import type { WebsiteAnalyticsSlide } from '@/types/apps/dashboardTypes'
+
 // Components Imports
 import CustomAvatar from '@core/components/mui/Avatar'
 
 import AppKeenSlider from '@/libs/styles/AppKeenSlider'
 
-type DataType = {
-  img: string
-  title: string
-  details: { [key: string]: string }
-}
-
-// Vars
-const data: DataType[] = [
-  {
-    title: 'Traffic',
-    img: '/images/cards/graphic-illustration-1.png',
-    details: {
-      Sessions: '28%',
-      'Page Views': '3.1k',
-      Leads: '1.2k',
-      Conversions: '12%'
-    }
-  },
-  {
-    title: 'Spending',
-    img: '/images/cards/graphic-illustration-2.png',
-    details: {
-      Spend: '12h',
-      Orders: '18',
-      Order: '127',
-      Items: '2.3k'
-    }
-  },
-  {
-    title: 'Revenue Sources',
-    img: '/images/cards/graphic-illustration-3.png',
-    details: {
-      Direct: '268',
-      Organic: '890',
-      Referral: '62',
-      Campaign: '1.2k'
-    }
-  }
-]
-
-const Slides = () => {
+const Slides = ({ data }: { data: WebsiteAnalyticsSlide[] }) => {
   return (
     <>
-      {data.map((slide: DataType, index: number) => {
+      {data.map((slide: WebsiteAnalyticsSlide, index: number) => {
         return (
           <div key={index} className={classnames('keen-slider__slide p-6 pbe-3 is-full')}>
             <Typography variant='h5' className='mbe-0.5 text-[var(--mui-palette-common-white)]'>
@@ -113,7 +76,7 @@ const Slides = () => {
   )
 }
 
-const WebsiteAnalyticsSlider = () => {
+const WebsiteAnalyticsSlider = ({ data }: { data: WebsiteAnalyticsSlide[] }) => {
   // States
   const [loaded, setLoaded] = useState<boolean>(false)
   const [currentSlide, setCurrentSlide] = useState<number>(0)
@@ -216,7 +179,7 @@ const WebsiteAnalyticsSlider = () => {
               })}
             </div>
           )}
-          <Slides />
+          <Slides data={data} />
         </div>
       </Card>
     </AppKeenSlider>

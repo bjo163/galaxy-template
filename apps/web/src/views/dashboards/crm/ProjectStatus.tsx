@@ -13,6 +13,9 @@ import { useTheme } from '@mui/material/styles'
 // Third Party Imports
 import type { ApexOptions } from 'apexcharts'
 
+// Type Imports
+import type { ProjectStatusItem } from '@/types/apps/dashboardTypes'
+
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
 import CustomAvatar from '@core/components/mui/Avatar'
@@ -20,33 +23,12 @@ import CustomAvatar from '@core/components/mui/Avatar'
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
-type DataType = {
-  title: string
-  amount: string
-  trendDiff: number
-  trend?: 'positive' | 'negative'
-}
-
 // Vars
 const series = [
   { data: [2000, 2000, 4000, 4000, 3050, 3050, 2050, 2050, 3050, 3050, 4700, 4700, 2750, 2750, 5700, 5700] }
 ]
 
-const data: DataType[] = [
-  {
-    title: 'Donates',
-    trend: 'negative',
-    amount: '$756.26',
-    trendDiff: 139.34
-  },
-  {
-    title: 'Podcasts',
-    trendDiff: 576.24,
-    amount: '$2,207.03'
-  }
-]
-
-const ProjectStatus = () => {
+const ProjectStatus = ({ data }: { data: ProjectStatusItem[] }) => {
   // Hooks
   const theme = useTheme()
 
@@ -137,7 +119,7 @@ const ProjectStatus = () => {
         </div>
         <AppReactApexCharts type='area' height={198} width='100%' series={series} options={options} />
         <div className='flex flex-col gap-4'>
-          {data.map((item: DataType, index: number) => (
+          {data.map((item: ProjectStatusItem, index: number) => (
             <div key={index} className='flex items-center justify-between gap-4'>
               <Typography className='font-medium' color='text.primary'>
                 {item.title}

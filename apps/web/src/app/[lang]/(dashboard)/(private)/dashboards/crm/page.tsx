@@ -72,7 +72,7 @@ const DashboardCRM = async () => {
         <SalesByCountries data={data.salesByCountries} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <ProjectStatus />
+        <ProjectStatus data={data.projectStatuses} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <ActiveProjects data={data.activeProjects} />

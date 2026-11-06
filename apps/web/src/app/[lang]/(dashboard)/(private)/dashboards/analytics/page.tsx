@@ -42,7 +42,7 @@ const DashboardAnalytics = async () => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12, lg: 6 }}>
-        <WebsiteAnalyticsSlider />
+        <WebsiteAnalyticsSlider data={dashboardData.websiteAnalyticsSlides} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
         <LineAreaDailySalesChart />
@@ -51,22 +51,22 @@ const DashboardAnalytics = async () => {
         <SalesOverview />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
-        <EarningReports />
+        <EarningReports data={dashboardData.earningReports} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
-        <SupportTracker />
+        <SupportTracker data={dashboardData.supportTracker} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <SalesByCountries data={dashboardData.salesByCountries} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <TotalEarning />
+        <TotalEarning data={dashboardData.totalEarnings} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <MonthlyCampaignState />
+        <MonthlyCampaignState data={dashboardData.monthlyCampaignStates} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <SourceVisits />
+        <SourceVisits data={dashboardData.sourceVisits} />
       </Grid>
       <Grid size={{ xs: 12, lg: 8 }}>
         <ProjectsTable projectTable={data?.users.profile.projectTable} />

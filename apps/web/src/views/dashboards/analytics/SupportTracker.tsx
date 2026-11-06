@@ -15,7 +15,7 @@ import classnames from 'classnames'
 import type { ApexOptions } from 'apexcharts'
 
 // Types Imports
-import type { ThemeColor } from '@core/types'
+import type { SupportTrackerItem } from '@/types/apps/dashboardTypes'
 
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
@@ -24,36 +24,7 @@ import CustomAvatar from '@core/components/mui/Avatar'
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
-type DataType = {
-  title: string
-  subtitle: string
-  avatarIcon: string
-  avatarColor?: ThemeColor
-}
-
-// Vars
-const data: DataType[] = [
-  {
-    title: 'New Tickets',
-    subtitle: '142',
-    avatarColor: 'primary',
-    avatarIcon: 'tabler-ticket'
-  },
-  {
-    title: 'Open Tickets',
-    subtitle: '28',
-    avatarColor: 'info',
-    avatarIcon: 'tabler-check'
-  },
-  {
-    title: 'Response Time',
-    subtitle: '1 Day',
-    avatarColor: 'warning',
-    avatarIcon: 'tabler-clock'
-  }
-]
-
-const SupportTracker = () => {
+const SupportTracker = ({ data }: { data: SupportTrackerItem[] }) => {
   // Hooks
   const theme = useTheme()
 
