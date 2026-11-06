@@ -5,6 +5,8 @@ import { createApp } from "../../app.js";
 import { loadConfig } from "../../config/env.js";
 import { up as migrateControlPlane } from "../../migrations/0001_arsy_control_plane.js";
 import { up as migrateAuthRateLimits } from "../../migrations/0003_auth_rate_limits.js";
+import { up as migrateTenantRls } from "../../migrations/0002_postgres_tenant_rls.js";
+import { up as migrateWorkspaceListingPolicy } from "../../migrations/0004_workspace_account_listing.js";
 
 describe("Arsy control plane", () => {
   it("creates accounts, workspaces, projects, and revocable project credentials", async () => {
@@ -17,6 +19,8 @@ describe("Arsy control plane", () => {
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
       await migrateAuthRateLimits(app.database.knex);
+      await migrateTenantRls(app.database.knex);
+      await migrateWorkspaceListingPolicy(app.database.knex);
 
       const registration = await app.inject({
         method: "POST",
@@ -130,6 +134,8 @@ describe("Arsy control plane", () => {
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
       await migrateAuthRateLimits(app.database.knex);
+      await migrateTenantRls(app.database.knex);
+      await migrateWorkspaceListingPolicy(app.database.knex);
       const registration = await app.inject({
         method: "POST",
         url: "/api/v1/auth/register",
@@ -203,6 +209,8 @@ describe("Arsy control plane", () => {
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
       await migrateAuthRateLimits(app.database.knex);
+      await migrateTenantRls(app.database.knex);
+      await migrateWorkspaceListingPolicy(app.database.knex);
 
       const ownerResponse = await app.inject({
         method: "POST",
@@ -256,6 +264,62 @@ describe("Arsy control plane", () => {
     }
   });
 
+  it("paginates workspace memberships without per-workspace queries", async () => {
+    const app = createApp(loadConfig({ NODE_ENV: "test", LOG_LEVEL: "silent" }));
+    try {
+      await app.ready();
+      assert.ok(app.database);
+      await migrateControlPlane(app.database.knex);
+      await migrateAuthRateLimits(app.database.knex);
+      await migrateTenantRls(app.database.knex);
+      await migrateWorkspaceListingPolicy(app.database.knex);
+
+      const registration = await app.inject({
+        method: "POST",
+        url: "/api/v1/auth/register",
+        payload: {
+          email: "workspace-pages@example.com",
+          displayName: "Workspace Pages",
+          password: "workspace-pages-password",
+        },
+      });
+      assert.equal(registration.statusCode, 201);
+      const session = registration.json() as { accessToken: string };
+      const headers = { authorization: `Bearer ${session.accessToken}` };
+
+      for (const [name, slug] of [["First", "workspace-first"], ["Second", "workspace-second"]]) {
+        const created = await app.inject({
+          method: "POST",
+          url: "/api/v1/workspaces",
+          headers,
+          payload: { name, slug },
+        });
+        assert.equal(created.statusCode, 201, created.body);
+      }
+
+      const firstPage = await app.inject({
+        method: "GET",
+        url: "/api/v1/workspaces?limit=1",
+        headers,
+      });
+      assert.equal(firstPage.statusCode, 200, firstPage.body);
+      assert.equal(firstPage.json().data.length, 1);
+      assert.equal(firstPage.json().nextOffset, 1);
+
+      const secondPage = await app.inject({
+        method: "GET",
+        url: "/api/v1/workspaces?limit=1&offset=1",
+        headers,
+      });
+      assert.equal(secondPage.statusCode, 200, secondPage.body);
+      assert.equal(secondPage.json().data.length, 1);
+      assert.notEqual(secondPage.json().data[0].id, firstPage.json().data[0].id);
+      assert.equal(secondPage.json().nextOffset, null);
+    } finally {
+      await app.close();
+    }
+  });
+
   it("rejects weak passwords and malformed workspace requests", async () => {
     const app = createApp(
       loadConfig({ NODE_ENV: "test", LOG_LEVEL: "silent" }),
@@ -266,6 +330,8 @@ describe("Arsy control plane", () => {
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
       await migrateAuthRateLimits(app.database.knex);
+      await migrateTenantRls(app.database.knex);
+      await migrateWorkspaceListingPolicy(app.database.knex);
 
       const weakPasswordResponse = await app.inject({
         method: "POST",
