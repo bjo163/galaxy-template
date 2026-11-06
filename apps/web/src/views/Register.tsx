@@ -58,6 +58,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
   // Hooks
   const { lang: locale } = useParams()
   const router = useRouter()
+
   const {
     control,
     handleSubmit,
@@ -67,8 +68,10 @@ const Register = ({ mode }: { mode: SystemMode }) => {
     defaultValues: { displayName: '', email: '', password: '' }
   })
   const { settings } = useSettings()
+
   const onSubmit: SubmitHandler<FormData> = async data => {
     setIsSubmitting(true)
+
     setErrorState(null)
 
     try {
@@ -77,10 +80,12 @@ const Register = ({ mode }: { mode: SystemMode }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       })
+
       const result = (await response.json()) as { message?: string }
 
       if (!response.ok) {
         setErrorState(result.message ?? 'Could not create your account. Please try again.')
+
         return
       }
 
@@ -103,7 +108,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
   }
 
   return (
-    <div className='flex bs-full justify-center'>
+    <div className='flex bs-full justify-center' data-mode={mode}>
       <div
         className={classnames(
           'flex bs-full items-center justify-center flex-1 min-bs-[100dvh] relative p-6 max-md:hidden',
