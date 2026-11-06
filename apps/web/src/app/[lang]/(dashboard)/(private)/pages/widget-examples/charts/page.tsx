@@ -14,7 +14,13 @@ import DeliveryExceptions from '@views/pages/widget-examples/charts/DeliveryExce
 import VehicleOverview from '@views/pages/widget-examples/charts/VehicleOverview'
 import InterestedTopics from '@views/pages/widget-examples/charts/InterestedTopics'
 
-const Charts = () => {
+// Data Imports
+import { getWidgetExamplesChartsData } from '@/app/server/actions'
+
+const Charts = async () => {
+  // Vars
+  const chartsData = await getWidgetExamplesChartsData()
+
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12, md: 6 }}>
@@ -45,7 +51,7 @@ const Charts = () => {
         <DeliveryExceptions />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 8 }}>
-        <VehicleOverview />
+        <VehicleOverview data={chartsData.vehicleOverview} />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <InterestedTopics />
