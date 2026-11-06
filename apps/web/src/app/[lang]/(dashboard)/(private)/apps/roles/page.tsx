@@ -2,7 +2,7 @@
 import Roles from '@views/apps/roles'
 
 // Data Imports
-import { getUserData } from '@/app/server/actions'
+import { getRolesData, getUserData } from '@/app/server/actions'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -25,8 +25,9 @@ import { getUserData } from '@/app/server/actions'
 const RolesApp = async () => {
   // Vars
   const data = await getUserData()
+  const rolesData = await getRolesData()
 
-  return <Roles userData={data} />
+  return <Roles userData={data} roleCards={rolesData.roleCards} />
 }
 
 export default RolesApp

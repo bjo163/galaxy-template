@@ -12,27 +12,15 @@ import Button from '@mui/material/Button'
 import type { TypographyProps } from '@mui/material/Typography'
 import type { CardProps } from '@mui/material/Card'
 
+// Type Imports
+import type { RoleCard } from '@/types/apps/rolesTypes'
+
 // Component Imports
 import RoleDialog from '@components/dialogs/role-dialog'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import Link from '@components/Link'
 
-type CardDataType = {
-  title: string
-  avatars: string[]
-  totalUsers: number
-}
-
-// Vars
-const cardData: CardDataType[] = [
-  { totalUsers: 4, title: 'Administrator', avatars: ['1.png', '2.png', '3.png', '4.png'] },
-  { totalUsers: 7, title: 'Editor', avatars: ['5.png', '6.png', '7.png'] },
-  { totalUsers: 5, title: 'Users', avatars: ['4.png', '5.png', '6.png'] },
-  { totalUsers: 6, title: 'Support', avatars: ['1.png', '2.png', '3.png'] },
-  { totalUsers: 10, title: 'Restricted User', avatars: ['4.png', '5.png', '6.png'] }
-]
-
-const RoleCards = () => {
+const RoleCards = ({ roleCards }: { roleCards: RoleCard[] }) => {
   // Vars
   const typographyProps: TypographyProps = {
     children: 'Edit Role',
@@ -70,7 +58,7 @@ const RoleCards = () => {
   return (
     <>
       <Grid container spacing={6}>
-        {cardData.map((item, index) => (
+        {roleCards.map((item, index) => (
           <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={index}>
             <Card>
               <CardContent className='flex flex-col gap-4'>

@@ -3,13 +3,14 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
 // Type Imports
+import type { RoleCard } from '@/types/apps/rolesTypes'
 import type { UsersType } from '@/types/apps/userTypes'
 
 // Component Imports
 import RoleCards from './RoleCards'
 import RolesTable from './RolesTable'
 
-const Roles = ({ userData }: { userData?: UsersType[] }) => {
+const Roles = ({ userData, roleCards }: { userData?: UsersType[]; roleCards: RoleCard[] }) => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
@@ -22,7 +23,7 @@ const Roles = ({ userData }: { userData?: UsersType[] }) => {
         </Typography>
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <RoleCards />
+        <RoleCards roleCards={roleCards} />
       </Grid>
       <Grid size={{ xs: 12 }} className='!pbs-12'>
         <Typography variant='h4' className='mbe-1'>
