@@ -1,0 +1,20 @@
+{
+  "name": "@galaxy/utils",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "clean": "rimraf .turbo"
+  },
+  "devDependencies": {
+    "@galaxy/tsconfig": "workspace:*",
+    "@galaxy/eslint-config": "workspace:*",
+    "eslint": "8.57.1",
+    "rimraf": "5.0.7",
+    "typescript": "5.9.3"
+  }
+}

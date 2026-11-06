@@ -16,7 +16,7 @@ import type { ThemeColor } from '@core/types'
 import CustomAvatar from '@core/components/mui/Avatar'
 
 // Util Imports
-import { getInitials } from '@/utils/getInitials'
+import { getInitials } from '@galaxy/utils'
 
 const BadgeContentSpan = styled('span', {
   name: 'MuiBadgeContentSpan'

@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  transpilePackages: ['@galaxy/utils'],
   basePath: process.env.BASEPATH,
   redirects: async () => {
     return [

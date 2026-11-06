@@ -1,0 +1,4 @@
+{
+  "extends": "@galaxy/tsconfig/library.json",
+  "include": ["src/**/*.ts"]
+}

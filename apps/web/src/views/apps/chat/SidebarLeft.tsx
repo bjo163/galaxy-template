@@ -30,7 +30,7 @@ import AvatarWithBadge from './AvatarWithBadge'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Util Imports
-import { getInitials } from '@/utils/getInitials'
+import { getInitials } from '@galaxy/utils'
 import { formatDateToMonthShort } from './utils'
 
 export const statusObj: StatusObjType = {

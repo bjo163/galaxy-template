@@ -38,7 +38,7 @@ import themeConfig from '@configs/themeConfig'
 import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports
-import { getInitials } from '@/utils/getInitials'
+import { getInitials } from '@galaxy/utils'
 
 export type NotificationsType = {
   title: string

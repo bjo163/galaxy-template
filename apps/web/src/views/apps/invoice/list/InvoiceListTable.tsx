@@ -50,7 +50,7 @@ import TablePaginationComponent from '@components/TablePaginationComponent'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Util Imports
-import { getInitials } from '@/utils/getInitials'
+import { getInitials } from '@galaxy/utils'
 import { getLocalizedUrl } from '@/utils/i18n'
 
 // Style Imports
