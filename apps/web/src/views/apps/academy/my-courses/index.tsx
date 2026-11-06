@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid'
 
 // Type Imports
 import type { Mode } from '@core/types'
-import type { Course } from '@/types/apps/academyTypes'
+import type { ColoredCard, Course } from '@/types/apps/academyTypes'
 
 // Component Imports
 import MyCourseHeader from './MyCourseHeader'
@@ -18,10 +18,11 @@ import FreeCourses from './FreeCourses'
 
 type Props = {
   courseData?: Course[]
+  coloredCards?: ColoredCard[]
   mode: Mode
 }
 
-const AcademyMyCourse = ({ courseData, mode }: Props) => {
+const AcademyMyCourse = ({ courseData, coloredCards, mode }: Props) => {
   // States
   const [searchValue, setSearchValue] = useState('')
 
@@ -34,7 +35,7 @@ const AcademyMyCourse = ({ courseData, mode }: Props) => {
         <Courses courseData={courseData} searchValue={searchValue} />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <ColoredCards />
+        <ColoredCards data={coloredCards} />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <FreeCourses />

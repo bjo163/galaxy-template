@@ -8,41 +8,9 @@ import { useTheme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Types Imports
-import type { ThemeColor } from '@core/types'
+import type { ColoredCard } from '@/types/apps/academyTypes'
 
-type DataType = {
-  title: string
-  description: string
-  type: string
-  image: string
-  color: ThemeColor
-  imageColorClass?: string
-  bgColorClass?: string
-}
-
-// Vars
-const data: DataType[] = [
-  {
-    title: 'Earn a Certificate',
-    description: 'Get the right professional certificate program for you.',
-    type: 'Programs',
-    image: '/images/illustrations/characters/8.png',
-    color: 'primary',
-    imageColorClass: 'bg-primaryLight',
-    bgColorClass: 'bg-primaryLighter'
-  },
-  {
-    title: 'Best Rated Courses',
-    description: 'Enroll now in the most popular and best rated courses.',
-    type: 'Courses',
-    image: '/images/illustrations/characters/9.png',
-    color: 'error',
-    imageColorClass: 'bg-errorLight',
-    bgColorClass: 'bg-errorLighter'
-  }
-]
-
-const ColoredCards = () => {
+const ColoredCards = ({ data = [] }: { data?: ColoredCard[] }) => {
   // Hooks
   const theme = useTheme()
 

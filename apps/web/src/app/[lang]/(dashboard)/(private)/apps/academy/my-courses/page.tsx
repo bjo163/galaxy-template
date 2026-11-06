@@ -30,7 +30,7 @@ const MyCoursePage = async () => {
   const mode = await getServerMode()
   const data = await getAcademyData()
 
-  return <AcademyMyCourse mode={mode} courseData={data?.courses} />
+  return <AcademyMyCourse mode={mode} courseData={data?.courses} coloredCards={data?.coloredCards} />
 }
 
 export default MyCoursePage

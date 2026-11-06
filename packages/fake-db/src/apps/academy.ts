@@ -2,6 +2,26 @@
 import type { AcademyType } from '@galaxy/types/apps/academyTypes'
 
 export const db: AcademyType = {
+  coloredCards: [
+    {
+      title: 'Earn a Certificate',
+      description: 'Get the right professional certificate program for you.',
+      type: 'Programs',
+      image: '/images/illustrations/characters/8.png',
+      color: 'primary',
+      imageColorClass: 'bg-primaryLight',
+      bgColorClass: 'bg-primaryLighter'
+    },
+    {
+      title: 'Best Rated Courses',
+      description: 'Enroll now in the most popular and best rated courses.',
+      type: 'Courses',
+      image: '/images/illustrations/characters/9.png',
+      color: 'error',
+      imageColorClass: 'bg-errorLight',
+      bgColorClass: 'bg-errorLighter'
+    }
+  ],
   courses: [
     {
       id: 1,

@@ -49,7 +49,18 @@ export type CourseTopic = {
   isCompleted: boolean
 }
 
+export type ColoredCard = {
+  title: string
+  description: string
+  type: string
+  image: string
+  color: ThemeColor
+  imageColorClass?: string
+  bgColorClass?: string
+}
+
 export type AcademyType = {
   courses: Course[]
   courseDetails: CourseDetails
+  coloredCards: ColoredCard[]
 }
