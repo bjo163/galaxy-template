@@ -1,5 +1,5 @@
 // Type Imports
-import type { FaqType } from '@/types/pages/faqTypes'
+import type { FaqType } from '@galaxy/types/pages/faqTypes'
 
 export const db: FaqType[] = [
   {

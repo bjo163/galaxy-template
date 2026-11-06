@@ -1,5 +1,5 @@
 // Type Imports
-import type { PricingPlanType } from '@/types/pages/pricingTypes'
+import type { PricingPlanType } from '@galaxy/types/pages/pricingTypes'
 
 export const db: PricingPlanType[] = [
   {

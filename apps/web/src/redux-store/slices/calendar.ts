@@ -4,10 +4,11 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import type { EventInput } from '@fullcalendar/core'
 
 // Type Imports
+import { events } from '@galaxy/fake-db/apps/calendar'
+
 import type { CalendarFiltersType, CalendarType } from '@/types/apps/calendarTypes'
 
 // Data Imports
-import { events } from '@/fake-db/apps/calendar'
 
 const initialState: CalendarType = {
   events: events,

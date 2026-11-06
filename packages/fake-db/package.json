@@ -1,0 +1,26 @@
+{
+  "name": "@galaxy/fake-db",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./apps/*": "./src/apps/*.ts",
+    "./pages/*": "./src/pages/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "clean": "rimraf .turbo"
+  },
+  "dependencies": {
+    "@galaxy/types": "workspace:*",
+    "@fullcalendar/core": "6.1.20"
+  },
+  "devDependencies": {
+    "@galaxy/tsconfig": "workspace:*",
+    "@galaxy/eslint-config": "workspace:*",
+    "@types/react": "19.2.7",
+    "eslint": "8.57.1",
+    "rimraf": "5.0.7",
+    "typescript": "5.9.3"
+  }
+}

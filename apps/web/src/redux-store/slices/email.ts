@@ -2,10 +2,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // Type Imports
+import { db } from '@galaxy/fake-db/apps/email'
+
 import type { Email, EmailState } from '@/types/apps/emailTypes'
 
 // Data Imports
-import { db } from '@/fake-db/apps/email'
 
 // Constants
 const initialState: EmailState = {

@@ -2,10 +2,11 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // Type Imports
+import { db } from '@galaxy/fake-db/apps/kanban'
+
 import type { ColumnType, TaskType } from '@/types/apps/kanbanTypes'
 
 // Data Imports
-import { db } from '@/fake-db/apps/kanban'
 
 export const kanbanSlice = createSlice({
   name: 'kanban',

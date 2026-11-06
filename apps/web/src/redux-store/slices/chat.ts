@@ -3,10 +3,11 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
 // Type Imports
+import { db } from '@galaxy/fake-db/apps/chat'
+
 import type { StatusType } from '@/types/apps/chatTypes'
 
 // Data Imports
-import { db } from '@/fake-db/apps/chat'
 
 export const chatSlice = createSlice({
   name: 'chat',

@@ -1,5 +1,5 @@
 // Type Imports
-import type { EmailType } from '@/types/apps/emailTypes'
+import type { EmailType } from '@galaxy/types/apps/emailTypes'
 
 export const db: EmailType = {
   emails: [

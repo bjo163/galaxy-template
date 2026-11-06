@@ -1,4 +1,4 @@
-import type { logisticsType } from '@/types/apps/logisticsTypes'
+import type { logisticsType } from '@galaxy/types/apps/logisticsTypes'
 
 export const db: logisticsType = {
   vehicles: [

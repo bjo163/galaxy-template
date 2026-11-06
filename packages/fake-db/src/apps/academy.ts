@@ -1,5 +1,5 @@
 // Type Imports
-import type { AcademyType } from '@/types/apps/academyTypes'
+import type { AcademyType } from '@galaxy/types/apps/academyTypes'
 
 export const db: AcademyType = {
   courses: [

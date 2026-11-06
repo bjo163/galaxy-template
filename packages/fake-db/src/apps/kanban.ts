@@ -1,4 +1,4 @@
-import type { KanbanType } from '@/types/apps/kanbanTypes'
+import type { KanbanType } from '@galaxy/types/apps/kanbanTypes'
 
 export const db: KanbanType = {
   columns: [
