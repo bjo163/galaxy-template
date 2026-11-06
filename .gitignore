@@ -36,6 +36,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# turbo build cache
+.turbo
+
 # icon generated file
 **/iconify-icons/generated-icons.js
 **/iconify-icons/generated-icons.css
