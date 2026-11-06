@@ -211,5 +211,22 @@ export const db: CardStatsType = {
       chartColor: 'success',
       chartSeries: [{ data: [6, 35, 25, 61, 32, 84, 70] }]
     }
+  ],
+  subscribersOrders: [
+    {
+      progress: 85,
+      chipText: '+92k',
+      chipColor: 'success',
+      title: 'Subscribers Gained',
+      subtitle: '1.2k new subscriber'
+    },
+    {
+      progress: 65,
+      chipText: '+38k',
+      chipColor: 'success',
+      progressColor: 'info',
+      title: 'Orders Received',
+      subtitle: '2.4k new orders'
+    }
   ]
 }

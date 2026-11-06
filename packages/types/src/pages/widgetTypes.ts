@@ -75,6 +75,15 @@ export type CardStatsVerticalProps = {
   chipVariant?: ChipProps['variant']
 }
 
+export type SubscribersOrdersProps = {
+  title: string
+  subtitle: string
+  progress: number
+  chipText: string
+  chipColor?: ThemeColor
+  progressColor?: ThemeColor
+}
+
 export type CardStatsWithAreaChartProps = {
   stats: string
   title: string
@@ -93,5 +102,6 @@ export type CardStatsType = {
   statsSquare: CardStatsSquareProps[]
   statsHorizontal: CardStatsHorizontalProps[]
   statsVertical: CardStatsVerticalProps[]
+  subscribersOrders: SubscribersOrdersProps[]
   statsWithAreaChart: CardStatsWithAreaChartProps[]
 }

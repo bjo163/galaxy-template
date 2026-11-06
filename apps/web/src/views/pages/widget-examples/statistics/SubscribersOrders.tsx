@@ -7,39 +7,12 @@ import Chip from '@mui/material/Chip'
 import Progress from '@mui/material/LinearProgress'
 
 // Types Imports
-import type { ThemeColor } from '@core/types'
+import type { SubscribersOrdersProps } from '@/types/pages/widgetTypes'
 
 // Component Imports
 import OptionMenu from '@core/components/option-menu'
 
-type DataType = {
-  title: string
-  chipText: string
-  progress: number
-  subtitle: string
-  chipColor?: ThemeColor
-  progressColor?: ThemeColor
-}
-
-const data: DataType[] = [
-  {
-    progress: 85,
-    chipText: '+92k',
-    chipColor: 'success',
-    title: 'Subscribers Gained',
-    subtitle: '1.2k new subscriber'
-  },
-  {
-    progress: 65,
-    chipText: '+38k',
-    chipColor: 'success',
-    progressColor: 'info',
-    title: 'Orders Received',
-    subtitle: '2.4k new orders'
-  }
-]
-
-const SubscribersOrders = () => {
+const SubscribersOrders = ({ data }: { data: SubscribersOrdersProps[] }) => {
   return (
     <Card>
       <CardHeader title='Statistics' action={<OptionMenu options={['Refresh', 'Share', 'Update']} />} />

@@ -97,7 +97,7 @@ const Statistics = async () => {
         <BarChartDailyTraffic />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 3 }}>
-        <SubscribersOrders />
+        <SubscribersOrders data={statsData.subscribersOrders} />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <HorizontalStatisticsCard data={statsData?.statsHorizontalWithAvatar} />
