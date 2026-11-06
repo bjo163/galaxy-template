@@ -13,18 +13,15 @@ import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '
 import type { ColumnDef } from '@tanstack/react-table'
 
 // Type Imports
-import type { DataType } from './data'
+import type { DataType } from '@/types/apps/reactTableTypes'
 
 // Style Imports
 import styles from '@core/styles/table.module.css'
 
-// Data Imports
-import defaultData from './data'
-
 // Column Definitions
 const columnHelper = createColumnHelper<DataType>()
 
-const RowSelection = () => {
+const RowSelection = ({ data: defaultData }: { data: DataType[] }) => {
   // States
   const [rowSelection, setRowSelection] = useState({})
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

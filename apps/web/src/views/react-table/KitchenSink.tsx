@@ -28,7 +28,7 @@ import type { Column, Table, ColumnFiltersState, FilterFn, ColumnDef } from '@ta
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
-import type { DataType } from './data'
+import type { DataType } from '@/types/apps/reactTableTypes'
 
 // Component Imports
 import TablePaginationComponent from '@components/TablePaginationComponent'
@@ -39,9 +39,6 @@ import ChevronRight from '@menu/svg/ChevronRight'
 
 // Style Imports
 import styles from '@core/styles/table.module.css'
-
-// Data Imports
-import defaultData from './data'
 
 // Column Definitions
 const columnHelper = createColumnHelper<DataType>()
@@ -134,7 +131,7 @@ const Filter = ({ column, table }: { column: Column<any, unknown>; table: Table<
   )
 }
 
-const KitchenSink = () => {
+const KitchenSink = ({ data: defaultData }: { data: DataType[] }) => {
   // States
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')

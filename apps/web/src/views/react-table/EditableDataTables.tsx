@@ -12,13 +12,10 @@ import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '
 import type { ColumnDef, Row, RowData, Column, Table } from '@tanstack/react-table'
 
 // Type Imports
-import type { DataType } from './data'
+import type { DataType } from '@/types/apps/reactTableTypes'
 
 // Style Imports
 import styles from '@core/styles/table.module.css'
-
-// Data Imports
-import defaultData from './data'
 
 // Column Definitions
 const columnHelper = createColumnHelper<DataType>()
@@ -81,7 +78,7 @@ const defaultColumn: Partial<ColumnDef<DataType>> = {
   }
 }
 
-const EditableDataTables = () => {
+const EditableDataTables = ({ data: defaultData }: { data: DataType[] }) => {
   // States
   const [data, setData] = useState(() => defaultData)
 

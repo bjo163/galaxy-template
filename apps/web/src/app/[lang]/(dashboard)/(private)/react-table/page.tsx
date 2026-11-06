@@ -12,7 +12,13 @@ import ColumnVisibility from '@views/react-table/ColumnVisibility'
 import RowSelection from '@views/react-table/RowSelection'
 import KitchenSink from '@views/react-table/KitchenSink'
 
-const Tables = () => {
+// Data Imports
+import { getReactTableData } from '@/app/server/actions'
+
+const Tables = async () => {
+  // Vars
+  const reactTableData = await getReactTableData()
+
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
@@ -31,19 +37,19 @@ const Tables = () => {
         </Typography>
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <BasicDataTables />
+        <BasicDataTables data={reactTableData} />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <EditableDataTables />
+        <EditableDataTables data={reactTableData} />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <ColumnVisibility />
+        <ColumnVisibility data={reactTableData} />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <RowSelection />
+        <RowSelection data={reactTableData} />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <KitchenSink />
+        <KitchenSink data={reactTableData} />
       </Grid>
     </Grid>
   )

@@ -1,18 +1,7 @@
-export type DataType = {
-  id: number
-  avatar: string
-  fullName: string
-  post: string
-  email: string
-  city: string
-  start_date: string
-  salary: number
-  age: number
-  experience: string
-  status: number
-}
+// Type Imports
+import type { DataType } from '@galaxy/types/apps/reactTableTypes'
 
-const data: DataType[] = [
+export const db: DataType[] = [
   {
     id: 1,
     avatar: '8.png',
@@ -665,5 +654,3 @@ const data: DataType[] = [
     status: 1
   }
 ]
-
-export default data

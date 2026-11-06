@@ -11,13 +11,10 @@ import Button from '@mui/material/Button'
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 
 // Type Imports
-import type { DataType } from './data'
+import type { DataType } from '@/types/apps/reactTableTypes'
 
 // Style Imports
 import styles from '@core/styles/table.module.css'
-
-// Data Imports
-import defaultData from './data'
 
 // Column Definitions
 const columnHelper = createColumnHelper<DataType>()
@@ -45,7 +42,7 @@ const defaultColumns = [
   })
 ]
 
-const ColumnVisibility = () => {
+const ColumnVisibility = ({ data: defaultData }: { data: DataType[] }) => {
   // States
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [data, setData] = useState(() => defaultData)

@@ -12,6 +12,7 @@ import { db as vehicleData } from '@galaxy/fake-db/apps/logistics'
 import { db as invoiceData } from '@galaxy/fake-db/apps/invoice'
 import { db as userData } from '@galaxy/fake-db/apps/userList'
 import { db as permissionData } from '@galaxy/fake-db/apps/permissions'
+import { db as reactTableData } from '@galaxy/fake-db/apps/reactTable'
 import { db as profileData } from '@galaxy/fake-db/pages/userProfile'
 import { db as faqData } from '@galaxy/fake-db/pages/faq'
 import { db as pricingData } from '@galaxy/fake-db/pages/pricing'
@@ -55,4 +56,8 @@ export const getPricingData = async () => {
 
 export const getStatisticsData = async () => {
   return statisticsData
+}
+
+export const getReactTableData = async () => {
+  return reactTableData
 }
