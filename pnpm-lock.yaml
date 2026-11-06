@@ -15,7 +15,14 @@ overrides:
 
 importers:
 
-  .: {}
+  .:
+    devDependencies:
+      rimraf:
+        specifier: 5.0.7
+        version: 5.0.7
+      turbo:
+        specifier: ^2.3.3
+        version: 2.11.10
 
   apps/web:
     dependencies:
@@ -70,6 +77,15 @@ importers:
       '@fullcalendar/timegrid':
         specifier: 6.1.20
         version: 6.1.20(@fullcalendar/core@6.1.20)
+      '@galaxy/fake-db':
+        specifier: workspace:*
+        version: link:../../packages/fake-db
+      '@galaxy/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@galaxy/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       '@hookform/resolvers':
         specifier: 5.2.2
         version: 5.2.2(react-hook-form@7.69.0(react@19.2.3))
@@ -284,6 +300,9 @@ importers:
       prisma:
         specifier: 6.19.0
         version: 6.19.0(typescript@5.9.3)
+      rimraf:
+        specifier: 5.0.7
+        version: 5.0.7
       stylelint:
         specifier: 16.25.0
         version: 16.25.0(typescript@5.9.3)
@@ -336,6 +355,80 @@ importers:
   packages/config/prettier: {}
 
   packages/config/tsconfig: {}
+
+  packages/fake-db:
+    dependencies:
+      '@fullcalendar/core':
+        specifier: 6.1.20
+        version: 6.1.20
+      '@galaxy/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      '@galaxy/eslint-config':
+        specifier: workspace:*
+        version: link:../config/eslint
+      '@galaxy/tsconfig':
+        specifier: workspace:*
+        version: link:../config/tsconfig
+      '@types/react':
+        specifier: 19.2.7
+        version: 19.2.7
+      eslint:
+        specifier: 8.57.1
+        version: 8.57.1
+      rimraf:
+        specifier: 5.0.7
+        version: 5.0.7
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
+  packages/types:
+    dependencies:
+      '@mui/material':
+        specifier: 7.3.6
+        version: 7.3.6(@emotion/react@11.14.0(@types/react@19.2.7)(react@19.2.3))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.7)(react@19.2.3))(@types/react@19.2.7)(react@19.2.3))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      apexcharts:
+        specifier: 3.49.0
+        version: 3.49.0
+    devDependencies:
+      '@galaxy/eslint-config':
+        specifier: workspace:*
+        version: link:../config/eslint
+      '@galaxy/tsconfig':
+        specifier: workspace:*
+        version: link:../config/tsconfig
+      '@types/react':
+        specifier: 19.2.7
+        version: 19.2.7
+      eslint:
+        specifier: 8.57.1
+        version: 8.57.1
+      rimraf:
+        specifier: 5.0.7
+        version: 5.0.7
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
+  packages/utils:
+    devDependencies:
+      '@galaxy/eslint-config':
+        specifier: workspace:*
+        version: link:../config/eslint
+      '@galaxy/tsconfig':
+        specifier: workspace:*
+        version: link:../config/tsconfig
+      eslint:
+        specifier: 8.57.1
+        version: 8.57.1
+      rimraf:
+        specifier: 5.0.7
+        version: 5.0.7
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
 packages:
 
@@ -1791,6 +1884,36 @@ packages:
   '@trysound/sax@0.2.0':
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
+
+  '@turbo/darwin-64@2.11.10':
+    resolution: {integrity: sha512-By4idRap5+nLnMuRzLB4qkOPRlvNdyY1ne4VJYDyUoUB11H94k7uif9mbe3JT8JSNXs1D68uMcBj6hJ/jMQRvA==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@turbo/darwin-arm64@2.11.10':
+    resolution: {integrity: sha512-pyEYlVcuexOPa92p0Wlwl9YT1Is5D60lxN3ItWm3g30YLvFaUq86TF4BBWg5ZAc0uMTnrOzCvuCsOBTdzUWnRQ==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@turbo/linux-64@2.11.10':
+    resolution: {integrity: sha512-1tYeR/IDZ5HEdsb0jNq2L2xam5nMQ+g80tlV2BZmv4OFw+pMcUM0mMmUcfc5wXPPNHVNPuDMjh9Y8G8HgXPLZA==}
+    cpu: [x64]
+    os: [android, linux]
+
+  '@turbo/linux-arm64@2.11.10':
+    resolution: {integrity: sha512-HuekQxvVGhUd46g1Im/DKdOtglHr4/gguZAvzEpPUgtxNkztSa8lWhQEGQ+EmPQ0n7w19qjThFU+OfEEd0uvlw==}
+    cpu: [arm64]
+    os: [android, linux]
+
+  '@turbo/windows-64@2.11.10':
+    resolution: {integrity: sha512-UJOP3BkbreY3/JlMgJR6ZiimxYIBn+c+B4tnBIxD0E9c3Estmk+XoVNVBNBottZLNRXe3/ScgOU4+/k8tIWysg==}
+    cpu: [x64]
+    os: [win32]
+
+  '@turbo/windows-arm64@2.11.10':
+    resolution: {integrity: sha512-xOkEjF3ws/b/YNlc+bvJHMYBn+vL+QbEISZFVi0qS+ImmhA1X3/gmNmBrjjIG3dg6aeN+n6gQitzSkXQ286qJQ==}
+    cpu: [arm64]
+    os: [win32]
 
   '@types/d3-array@3.2.2':
     resolution: {integrity: sha512-hOLWVbm7uRza0BYXpIIW5pxfrKe0W+D5lrFiAEYR+pb6w3N2SwSMaJbXdUfSEv+dT4MfHBLtn5js0LAWaO6otw==}
@@ -4578,6 +4701,10 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
+  turbo@2.11.10:
+    resolution: {integrity: sha512-3GJYwig8ygEI89oaOZdduJX8/aw6O9eRPYHoIt6T3FZl9hkKjiyIspufJoVgqXihPoJu8M5CSV0DlZvzfohBCw==}
+    hasBin: true
+
   twitch-video-element@0.1.6:
     resolution: {integrity: sha512-X7l8gy+DEFKJ/EztUwaVnAYwQN9fUJxPkOVJj2sE62sGvGU4DNLyvmOsmVulM+8Plc5dMg6hYIMNRAPaH+39Uw==}
 
@@ -6117,6 +6244,24 @@ snapshots:
       '@tiptap/pm': 3.14.0
 
   '@trysound/sax@0.2.0': {}
+
+  '@turbo/darwin-64@2.11.10':
+    optional: true
+
+  '@turbo/darwin-arm64@2.11.10':
+    optional: true
+
+  '@turbo/linux-64@2.11.10':
+    optional: true
+
+  '@turbo/linux-arm64@2.11.10':
+    optional: true
+
+  '@turbo/windows-64@2.11.10':
+    optional: true
+
+  '@turbo/windows-arm64@2.11.10':
+    optional: true
 
   '@types/d3-array@3.2.2': {}
 
@@ -9329,6 +9474,15 @@ snapshots:
       get-tsconfig: 4.13.0
     optionalDependencies:
       fsevents: 2.3.3
+
+  turbo@2.11.10:
+    optionalDependencies:
+      '@turbo/darwin-64': 2.11.10
+      '@turbo/darwin-arm64': 2.11.10
+      '@turbo/linux-64': 2.11.10
+      '@turbo/linux-arm64': 2.11.10
+      '@turbo/windows-64': 2.11.10
+      '@turbo/windows-arm64': 2.11.10
 
   twitch-video-element@0.1.6: {}
 
