@@ -37,5 +37,8 @@ yarn-error.log*
 next-env.d.ts
 
 # icon generated file
-src/assets/iconify-icons/generated-icons.js
-src/assets/iconify-icons/generated-icons.css
+**/iconify-icons/generated-icons.js
+**/iconify-icons/generated-icons.css
+
+# SDD scratch workspace (never commit)
+.superpowers/
