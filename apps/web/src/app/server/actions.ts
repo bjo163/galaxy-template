@@ -7,6 +7,7 @@
 
 // Data Imports
 import { db as eCommerceData } from '@galaxy/fake-db/apps/ecommerce'
+import { db as ecommerceDashboardData } from '@galaxy/fake-db/apps/ecommerceDashboard'
 import { db as academyData } from '@galaxy/fake-db/apps/academy'
 import { db as vehicleData } from '@galaxy/fake-db/apps/logistics'
 import { db as invoiceData } from '@galaxy/fake-db/apps/invoice'
@@ -70,4 +71,8 @@ export const getRolesData = async () => {
 
 export const getDashboardData = async () => {
   return dashboardData
+}
+
+export const getEcommerceDashboardData = async () => {
+  return ecommerceDashboardData
 }

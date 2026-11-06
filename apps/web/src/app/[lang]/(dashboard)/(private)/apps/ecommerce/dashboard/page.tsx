@@ -15,7 +15,7 @@ import Transactions from '@views/apps/ecommerce/dashboard/Transactions'
 import InvoiceListTable from '@views/apps/ecommerce/dashboard/InvoiceListTable'
 
 // Data Imports
-import { getInvoiceData } from '@/app/server/actions'
+import { getEcommerceDashboardData, getInvoiceData } from '@/app/server/actions'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -39,6 +39,7 @@ import { getInvoiceData } from '@/app/server/actions'
 const EcommerceDashboard = async () => {
   // Vars
   const invoiceData = await getInvoiceData()
+  const ecommerceDashboardData = await getEcommerceDashboardData()
 
   return (
     <Grid container spacing={6}>
@@ -68,7 +69,7 @@ const EcommerceDashboard = async () => {
         <EarningReports />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
-        <PopularProducts />
+        <PopularProducts data={ecommerceDashboardData.popularProducts} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
         <Orders />
