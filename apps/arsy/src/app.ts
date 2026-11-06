@@ -4,6 +4,10 @@ import Fastify, { LogController } from "fastify";
 import type { FastifyInstance } from "fastify";
 
 import { loadConfig, type AppConfig } from "./config/env.js";
+import {
+  createSmtpEmailDelivery,
+  type EmailDeliveryProvider,
+} from "./core/email/email-delivery.js";
 import { HttpMetrics } from "./core/observability/http-metrics.js";
 import {
   enforceSharedQuota,
@@ -13,9 +17,13 @@ import { registerModules } from "./modules/register-modules.js";
 import { registerIdentityDecorators } from "./core/auth/identity.js";
 import { registerDatabase } from "./plugins/database.js";
 import { registerErrorHandling } from "./plugins/error-handler.js";
+import { registerEmailDelivery } from "./plugins/email-delivery.js";
 import { registerPlugins } from "./plugins/register-plugins.js";
 
-export function createApp(config: AppConfig = loadConfig()): FastifyInstance {
+export function createApp(
+  config: AppConfig = loadConfig(),
+  dependencies: { emailDelivery?: EmailDeliveryProvider } = {},
+): FastifyInstance {
   const metrics = config.metricsEnabled ? new HttpMetrics() : undefined;
   const app = Fastify({
     trustProxy: config.trustProxy,
@@ -70,6 +78,11 @@ export function createApp(config: AppConfig = loadConfig()): FastifyInstance {
   });
 
   registerDatabase(app, config.database);
+  registerEmailDelivery(
+    app,
+    dependencies.emailDelivery ?? createSmtpEmailDelivery(config.smtp),
+    config.publicAppUrl,
+  );
   registerIdentityDecorators(app);
   registerPlugins(app, config, metrics);
   registerErrorHandling(app);

@@ -7,11 +7,17 @@ import type {
 } from "./types";
 
 export type ConsoleSection = "overview" | "models" | "addons";
-export type AuthMode = "login" | "register";
+export type AuthMode =
+  | "login"
+  | "register"
+  | "forgot-password"
+  | "reset-password"
+  | "resend-verification";
 
 export type ConsoleViewState = {
   account: Account | null;
   authMode: AuthMode;
+  emailActionToken: string | null;
   workspaces: Workspace[];
   workspaceId: string;
   projects: Project[];
@@ -89,10 +95,47 @@ function button(
 
 function renderAuth(state: ConsoleViewState): string {
   const isRegister = state.authMode === "register";
-  const title = isRegister ? "Buat akun Arsy" : "Masuk ke Arsy";
+  const isForgotPassword = state.authMode === "forgot-password";
+  const isResetPassword = state.authMode === "reset-password";
+  const isResendVerification = state.authMode === "resend-verification";
+  const title = isRegister
+    ? "Buat akun Arsy"
+    : isForgotPassword
+      ? "Atur ulang kata sandi"
+      : isResetPassword
+        ? "Buat kata sandi baru"
+        : isResendVerification
+          ? "Kirim ulang verifikasi"
+          : "Masuk ke Arsy";
   const description = isRegister
-    ? "Gunakan akun ini untuk mengelola workspace dan project."
-    : "Masuk untuk mengelola model dan add-on project.";
+    ? "Kami akan mengirim tautan untuk memverifikasi alamat email."
+    : isForgotPassword
+      ? "Masukkan email akun untuk menerima tautan pengaturan ulang."
+      : isResetPassword
+        ? "Gunakan kata sandi baru untuk akun Arsy."
+        : isResendVerification
+          ? "Masukkan email akun yang belum diverifikasi."
+          : "Masuk untuk mengelola model dan add-on project.";
+  const formAction = isRegister
+    ? "register"
+    : isForgotPassword
+      ? "password-reset-request"
+      : isResetPassword
+        ? "password-reset-confirm"
+        : isResendVerification
+          ? "email-verification-resend"
+          : "login";
+  const showEmail = !isResetPassword;
+  const showPassword = isRegister || isResetPassword || state.authMode === "login";
+  const submitLabel = isRegister
+    ? "Buat akun"
+    : isForgotPassword
+      ? "Kirim tautan"
+      : isResetPassword
+        ? "Simpan kata sandi"
+        : isResendVerification
+          ? "Kirim ulang tautan"
+          : "Masuk";
 
   return `
     <main class="auth-layout" id="main">
@@ -105,24 +148,35 @@ function renderAuth(state: ConsoleViewState): string {
         <h1 id="auth-title">${title}</h1>
         <p class="lede">${description}</p>
         ${message(state)}
-        <form class="form-stack" data-action="${isRegister ? "register" : "login"}">
+        <form class="form-stack" data-action="${formAction}">
           ${
             isRegister
               ? `<label>Nama tampilan<input name="displayName" autocomplete="name" required maxlength="120" /></label>`
               : ""
           }
-          <label>Email<input name="email" type="email" autocomplete="email" required maxlength="320" /></label>
-          <label>Kata sandi<input name="password" type="password" autocomplete="${isRegister ? "new-password" : "current-password"}" required minlength="12" maxlength="256" /></label>
+          ${
+            showEmail
+              ? `<label>Email<input name="email" type="email" autocomplete="email" required maxlength="320" /></label>`
+              : `<input name="token" type="hidden" value="${escapeHtml(state.emailActionToken ?? "")}" />`
+          }
+          ${
+            showPassword
+              ? `<label>Kata sandi<input name="password" type="password" autocomplete="${isRegister || isResetPassword ? "new-password" : "current-password"}" required minlength="12" maxlength="256" /></label>`
+              : ""
+          }
           <button class="button button-primary" type="submit" ${state.busy ? "disabled" : ""}>
-            ${state.busy ? "Memproses..." : isRegister ? "Buat akun" : "Masuk"}
+            ${state.busy ? "Memproses..." : submitLabel}
           </button>
         </form>
-        <p class="auth-switch">
-          ${isRegister ? "Sudah punya akun?" : "Belum punya akun?"}
-          <button class="text-button" type="button" data-action="toggle-auth">
-            ${isRegister ? "Masuk" : "Daftar"}
-          </button>
-        </p>
+        ${
+          isRegister
+            ? `<p class="auth-switch">Sudah punya akun? <button class="text-button" type="button" data-action="show-login">Masuk</button></p>`
+            : isForgotPassword || isResetPassword || isResendVerification
+              ? `<p class="auth-switch"><button class="text-button" type="button" data-action="show-login">Kembali ke masuk</button></p>`
+              : `<p class="auth-switch">${isForgotPassword ? "" : "Belum punya akun?"} <button class="text-button" type="button" data-action="toggle-auth">${isRegister ? "Masuk" : "Daftar"}</button></p>
+                <p class="auth-switch"><button class="text-button" type="button" data-action="forgot-password">Lupa kata sandi?</button></p>
+                <p class="auth-switch"><button class="text-button" type="button" data-action="resend-verification">Kirim ulang verifikasi email</button></p>`
+        }
         <p class="draft-note">Draft tanpa arahan visual Arsy. Dials: ENERGY 1 / RHYTHM 1 / MOTION 1.</p>
       </section>
     </main>`;

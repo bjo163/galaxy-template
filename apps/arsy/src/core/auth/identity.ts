@@ -127,11 +127,13 @@ export async function requireAccount(
       "arsy_accounts.id",
       "arsy_accounts.email",
       "arsy_accounts.display_name as displayName",
+      "arsy_accounts.email_verified_at as emailVerifiedAt",
       "arsy_sessions.token_hash as tokenHash",
     )
     .where("arsy_sessions.token_hash", tokenHash)
     .andWhere("arsy_sessions.expires_at", ">", now)
     .andWhere("arsy_accounts.status", "active")
+    .whereNotNull("arsy_accounts.email_verified_at")
     .first();
 
   if (!row) {

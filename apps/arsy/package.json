@@ -36,11 +36,13 @@
     "@galaxy/database": "workspace:*",
     "@prometheus-io/client": "0.16.1",
     "fastify": "5.12.8",
+    "nodemailer": "^10.3.1",
     "vite": "8.3.6"
   },
   "devDependencies": {
     "@galaxy/tsconfig": "workspace:^",
     "@types/node": "24.10.1",
+    "@types/nodemailer": "^8.0.2",
     "tsx": "4.20.6",
     "typescript": "5.9.3"
   }

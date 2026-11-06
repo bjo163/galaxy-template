@@ -82,10 +82,10 @@ connection and returns `503` while it is unavailable.
 
 The v1 API includes:
 
-- Account registration, login, logout, and current-account routes under
-  `/api/v1/auth`.
+- Account registration, email verification, login, logout, password recovery,
+  and current-account routes under `/api/v1/auth`.
 - Workspace and project creation/listing, memberships, project users, scoped
-  project credentials, and audit reads.
+  project credentials, email invitations, and audit reads.
 - Model definition creation, revision creation, validation/publication, and a
   record API at `/api/v1/data/:modelKey`.
 - Declarative add-on manifest creation, validation, installation, capability
@@ -165,6 +165,42 @@ The browser keeps the account access token in memory. Reloading the page
 requires signing in again; the console does not persist the token in browser
 storage.
 
+### Account lifecycle and email
+
+Registration creates an unverified account and sends a verification link.
+Accounts must verify their email before signing in; verification links expire
+after 24 hours and can be requested again from the console. Password-reset
+links expire after 1 hour, are single-use, and revoke all existing sessions
+when the password changes. Responses to reset and verification-resend requests
+do not reveal whether an email belongs to an account.
+
+Project invitations expire after 7 days and can be revoked by a workspace
+owner or admin. The recipient must sign in to a verified account with the
+invited email address before acceptance. Acceptance adds project membership
+only; it does not add the recipient to the workspace. A workspace owner must
+issue invitations that grant the project `admin` role.
+
+Email is sent through the generic SMTP adapter. Configure `SMTP_HOST`,
+`SMTP_PORT` (default `587`), `SMTP_SECURE` (defaults to `true` for port `465`,
+otherwise `false`), and `SMTP_FROM`. Configure `SMTP_USER` and
+`SMTP_PASSWORD` together when the server requires authentication. For local
+development, point these settings at an SMTP catcher such as Mailpit. Without
+SMTP configured, registration and invitation delivery return `503`;
+enumeration-resistant resend and password-reset requests return their uniform
+accepted response and log delivery failures. Production requires
+`PUBLIC_APP_URL` to be an HTTPS origin and requires `SMTP_HOST` and
+`SMTP_FROM`; configure SMTP credentials and the URL through the deployment
+secret/configuration manager, not checked-in files.
+
+Delivery providers implement `EmailDeliveryProvider.send({ to, subject, text })`
+and may provide `close()` for shutdown cleanup. The SMTP implementation is
+isolated behind that contract; lifecycle routes do not depend on a vendor API.
+
+Migration `0004_account_lifecycle` marks existing accounts as verified using
+their original creation timestamp to avoid locking them out. New schema,
+backfill, token, invitation, and audit changes are applied through the
+programmatic Knex migration runner.
+
 The interface remains a draft without Arsy brand direction. Its current dials
 are ENERGY 1 / RHYTHM 1 / MOTION 1. The light/dark themes and green accent make
 interactive states visible across the console; the workspace/project selectors
@@ -197,17 +233,13 @@ belong in `src/core/http`. Keep dependencies flowing from routes to services
 and from services to persistence adapters; domain modules should not import
 each other's internals.
 
-Arsy now registers account/control-plane, dynamic model/data, and declarative
+Arsy registers account/control-plane, dynamic model/data, and declarative
 add-on modules. Its migrations create the control-plane and JSONB record
 catalog. Route and model tests run against ephemeral PGlite. These tests do not
 prove PostgreSQL RLS behavior with a non-owner runtime role; production
-deployment must keep that acceptance gate.
-
-Arsy currently owns password registration and login, but does not provide
-email verification, password reset, or email invitations. Project users must
-already have an Arsy account. The separate PocketBase app has been removed;
-this does not migrate or delete any PocketBase data that may exist outside this
-repository.
+deployment must keep that acceptance gate. The separate PocketBase app has
+been removed; this does not migrate or delete any PocketBase data that may
+exist outside this repository.
 
 ## Product goal
 

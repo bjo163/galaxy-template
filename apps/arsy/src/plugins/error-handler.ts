@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 
 import { createProblemDetails } from "../core/http/problem-details.js";
+import { EmailDeliveryUnavailableError } from "../core/email/email-delivery.js";
 import {
   SharedQuotaBackendUnavailableError,
   SharedQuotaExceededError,
@@ -29,7 +30,8 @@ export function registerErrorHandling(app: FastifyInstance): void {
         ? error.statusCode
         : 500;
     const statusCode =
-      error instanceof SharedQuotaBackendUnavailableError
+      error instanceof SharedQuotaBackendUnavailableError ||
+      error instanceof EmailDeliveryUnavailableError
         ? 503
         : errorStatusCode >= 400 && errorStatusCode < 500
           ? errorStatusCode
@@ -44,6 +46,8 @@ export function registerErrorHandling(app: FastifyInstance): void {
     const detail =
       statusCode === 500
         ? "An unexpected error occurred."
+        : error instanceof EmailDeliveryUnavailableError
+          ? error.message
         : error instanceof SharedQuotaBackendUnavailableError
           ? "The shared request quota backend is unavailable."
           : statusCode === 429

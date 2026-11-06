@@ -40,6 +40,26 @@ export async function withCredentialHashTransaction<T>(
   });
 }
 
+export async function withInvitationHashTransaction<T>(
+  knex: Knex,
+  invitationTokenHash: string,
+  operation: (transaction: Knex.Transaction) => Promise<T>,
+): Promise<T> {
+  if (!/^[a-f0-9]{64}$/.test(invitationTokenHash)) {
+    throw new Error("Invitation token hashes must be SHA-256 hex strings.");
+  }
+
+  return knex.transaction(async (transaction) => {
+    await setTransactionSetting(
+      transaction,
+      "arsy.invitation_token_hash",
+      invitationTokenHash,
+    );
+
+    return operation(transaction);
+  });
+}
+
 export async function withProjectTransaction<T>(
   knex: Knex,
   workspaceId: string,

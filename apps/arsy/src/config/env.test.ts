@@ -10,6 +10,9 @@ describe("loadConfig", () => {
       PORT: "8080",
       DATABASE_URL: "postgresql://arsy:secret@localhost:5432/arsy",
       CORS_ORIGINS: "https://app.example.com, https://admin.example.com",
+      PUBLIC_APP_URL: "https://app.example.com",
+      SMTP_HOST: "smtp.example.com",
+      SMTP_FROM: "no-reply@example.com",
     });
 
     assert.equal(config.port, 8080);
@@ -22,6 +25,13 @@ describe("loadConfig", () => {
       "https://app.example.com",
       "https://admin.example.com",
     ]);
+    assert.equal(config.publicAppUrl, "https://app.example.com");
+    assert.deepEqual(config.smtp, {
+      host: "smtp.example.com",
+      port: 587,
+      secure: false,
+      from: "no-reply@example.com",
+    });
     assert.equal(config.rateLimitMax, 100);
     assert.equal(config.rateLimitWindowMs, 60_000);
     assert.equal(config.trustProxy, false);
@@ -128,6 +138,9 @@ describe("loadConfig", () => {
         DATABASE_URL: "postgres://arsy:secret@localhost:5432/arsy",
         OPENAPI_ENABLED: "true",
         CORS_ORIGINS: "https://app.example.com",
+        PUBLIC_APP_URL: "https://app.example.com",
+        SMTP_HOST: "smtp.example.com",
+        SMTP_FROM: "no-reply@example.com",
       }).openApiEnabled,
       true,
     );
@@ -145,6 +158,58 @@ describe("loadConfig", () => {
           DATABASE_URL: "postgres://arsy:secret@localhost:5432/arsy",
         }),
       /CORS_ORIGINS must be configured in production/,
+    );
+  });
+
+  it("requires secure public links and a complete production SMTP configuration", () => {
+    const production = {
+      NODE_ENV: "production",
+      DATABASE_URL: "postgresql://localhost:5432/arsy",
+      CORS_ORIGINS: "https://app.example.com",
+    };
+
+    assert.throws(
+      () => loadConfig(production),
+      /PUBLIC_APP_URL must be configured in production/,
+    );
+    assert.throws(
+      () =>
+        loadConfig({
+          ...production,
+          PUBLIC_APP_URL: "http://app.example.com",
+          SMTP_HOST: "smtp.example.com",
+          SMTP_FROM: "no-reply@example.com",
+        }),
+      /PUBLIC_APP_URL must be an HTTP\(S\) origin/,
+    );
+    assert.throws(
+      () =>
+        loadConfig({
+          ...production,
+          PUBLIC_APP_URL: "https://app.example.com",
+        }),
+      /SMTP_HOST and SMTP_FROM must be configured in production/,
+    );
+  });
+
+  it("validates SMTP authentication and security settings", () => {
+    assert.throws(
+      () =>
+        loadConfig({
+          SMTP_HOST: "smtp.example.com",
+          SMTP_FROM: "no-reply@example.com",
+          SMTP_USER: "mailer",
+        }),
+      /SMTP_USER and SMTP_PASSWORD must be configured together/,
+    );
+    assert.throws(
+      () =>
+        loadConfig({
+          SMTP_HOST: "smtp.example.com",
+          SMTP_FROM: "no-reply@example.com",
+          SMTP_SECURE: "sometimes",
+        }),
+      /SMTP_SECURE must be true or false/,
     );
   });
 

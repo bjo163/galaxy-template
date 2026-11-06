@@ -1,10 +1,23 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { createApp } from "../../app.js";
-import { loadConfig } from "../../config/env.js";
+import { createApp as createArsyApp } from "../../app.js";
+import { loadConfig, type AppConfig } from "../../config/env.js";
 import { up as migrateControlPlane } from "../../migrations/0001_arsy_control_plane.js";
-import { up as migrateSharedQuotaBuckets } from "../../migrations/0003_shared_quota_buckets.js";
+import { up as migrateQuotaBuckets } from "../../migrations/0003_shared_quota_buckets.js";
+import { up as migrateAccountLifecycle } from "../../migrations/0004_account_lifecycle.js";
+import { CapturingEmailDelivery } from "../../testing/fake-email-delivery.js";
+
+const emailDelivery = new CapturingEmailDelivery();
+
+function createApp(config?: AppConfig) {
+  return createArsyApp(config, { emailDelivery });
+}
+
+async function migrateSharedQuotaBuckets(knex: Parameters<typeof migrateQuotaBuckets>[0]): Promise<void> {
+  await migrateQuotaBuckets(knex);
+  await migrateAccountLifecycle(knex);
+}
 
 describe("Arsy model and data API", () => {
   it("publishes tenant-scoped models and validates record CRUD and filters", async () => {
@@ -419,8 +432,14 @@ async function register(
       password: "model-test-password-long",
     },
   });
-  assert.equal(response.statusCode, 201, response.body);
-  const body = response.json() as {
+  assert.equal(response.statusCode, 202, response.body);
+  const verified = await app.inject({
+    method: "POST",
+    url: "/api/v1/auth/email-verification/confirm",
+    payload: { token: emailDelivery.tokenFor("verify-email") },
+  });
+  assert.equal(verified.statusCode, 200, verified.body);
+  const body = verified.json() as {
     accessToken: string;
     account: { id: string };
   };

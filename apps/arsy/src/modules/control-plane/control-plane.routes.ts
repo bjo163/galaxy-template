@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from "node:crypto";
 
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import type { Knex } from "@galaxy/database";
+import { setTransactionSetting, type Knex } from "@galaxy/database";
 
 import {
   type AuthenticatedAccount,
@@ -14,7 +14,13 @@ import {
   verifyPassword,
 } from "../../core/auth/identity.js";
 import {
+  createEmailActionUrl,
+  EmailDeliveryUnavailableError,
+  type EmailMessage,
+} from "../../core/email/email-delivery.js";
+import {
   withAccountTransaction,
+  withInvitationHashTransaction,
   withProjectTransaction,
   withWorkspaceTransaction,
 } from "../../core/tenancy/database-context.js";
@@ -51,10 +57,14 @@ type WorkspaceMemberBody = {
   role: "admin" | "developer" | "viewer";
 };
 
-type ProjectUserBody = {
+type ProjectInvitationBody = {
   email: string;
   role: "admin" | "developer" | "member";
 };
+
+type EmailBody = { email: string };
+type TokenBody = { token: string };
+type PasswordResetBody = { token: string; password: string };
 
 type ProjectRow = {
   id: string;
@@ -73,6 +83,9 @@ const supportedCredentialScopes = new Set([
   "records:write",
   "addons:manage",
 ]);
+const verificationTokenLifetimeMs = 24 * 60 * 60 * 1000;
+const passwordResetTokenLifetimeMs = 60 * 60 * 1000;
+const invitationTokenLifetimeMs = 7 * 24 * 60 * 60 * 1000;
 
 function getKnex(app: FastifyInstance): Knex {
   if (!app.database) {
@@ -119,12 +132,71 @@ async function writeAudit(
   });
 }
 
-async function requireWorkspaceRole(
+async function writeAccountAudit(
+  trx: Knex.Transaction,
+  input: {
+    accountId: string;
+    action: string;
+    resourceType: string;
+    resourceId: string;
+    metadata?: Record<string, unknown>;
+  },
+): Promise<void> {
+  await trx("arsy_account_audit_events").insert({
+    id: randomUUID(),
+    account_id: input.accountId,
+    action: input.action,
+    resource_type: input.resourceType,
+    resource_id: input.resourceId,
+    metadata: input.metadata ?? {},
+    created_at: new Date(),
+  });
+}
+
+async function replaceAccountToken(
+  trx: Knex.Transaction,
+  table:
+    | "arsy_email_verification_tokens"
+    | "arsy_password_reset_tokens",
+  accountId: string,
+  token: string,
+  expiresAt: Date,
+): Promise<void> {
+  await trx(table)
+    .insert({
+      id: randomUUID(),
+      account_id: accountId,
+      token_hash: hashOpaqueToken(token),
+      expires_at: expiresAt,
+      created_at: new Date(),
+    })
+    .onConflict("account_id")
+    .merge({
+      token_hash: hashOpaqueToken(token),
+      expires_at: expiresAt,
+      created_at: new Date(),
+    });
+}
+
+async function sendLifecycleEmail(
+  request: FastifyRequest,
+  provider: FastifyInstance["emailDelivery"],
+  operation: "email-verification" | "password-reset" | "project-invitation",
+  message: EmailMessage,
+): Promise<void> {
+  try {
+    await provider.send(message);
+  } catch {
+    request.log.error({ operation }, "lifecycle email delivery failed");
+    throw new EmailDeliveryUnavailableError();
+  }
+}
+
+async function findWorkspaceRole(
   knex: Knex,
   workspaceId: string,
   accountId: string,
-  allowedRoles: readonly string[],
-): Promise<string> {
+): Promise<string | null> {
   const membership = await withWorkspaceTransaction(
     knex,
     workspaceId,
@@ -135,11 +207,21 @@ async function requireWorkspaceRole(
         .first(),
   );
 
-  if (!membership || !allowedRoles.includes(membership.role as string)) {
+  return (membership?.role as string | undefined) ?? null;
+}
+
+async function requireWorkspaceRole(
+  knex: Knex,
+  workspaceId: string,
+  accountId: string,
+  allowedRoles: readonly string[],
+): Promise<string> {
+  const role = await findWorkspaceRole(knex, workspaceId, accountId);
+  if (!role || !allowedRoles.includes(role)) {
     throw new HttpError(404, "The requested workspace was not found.");
   }
 
-  return membership.role as string;
+  return role;
 }
 
 export async function registerControlPlaneRoutes(
@@ -184,7 +266,8 @@ export async function registerControlPlaneRoutes(
         updated_at: now,
       };
 
-      const session = await knex.transaction(async (trx) => {
+      const verificationToken = `arsy_verify_${randomBytes(32).toString("base64url")}`;
+      await knex.transaction(async (trx) => {
         const inserted = await trx("arsy_accounts")
           .insert(account)
           .onConflict("email")
@@ -194,17 +277,285 @@ export async function registerControlPlaneRoutes(
           throw new HttpError(409, "An account with this email already exists.");
         }
 
-        return createSession(trx, account.id);
+        await replaceAccountToken(
+          trx,
+          "arsy_email_verification_tokens",
+          account.id,
+          verificationToken,
+          new Date(now.getTime() + verificationTokenLifetimeMs),
+        );
+        await writeAccountAudit(trx, {
+          accountId: account.id,
+          action: "account.email_verification_requested",
+          resourceType: "account",
+          resourceId: account.id,
+        });
       });
-      return reply.code(201).send({
+      const verificationUrl = createEmailActionUrl(
+        app.publicAppUrl,
+        "verify-email",
+        verificationToken,
+      );
+      await sendLifecycleEmail(request, app.emailDelivery, "email-verification", {
+        to: email,
+        subject: "Verify your Arsy email address",
+        text: `Verify your email address within 24 hours:\n\n${verificationUrl}`,
+      });
+      return reply.code(202).send({ status: "verification_required", email });
+    },
+  );
+
+  app.post<{ Body: TokenBody }>(
+    "/auth/email-verification/confirm",
+    {
+      schema: {
+        body: {
+          type: "object",
+          additionalProperties: false,
+          required: ["token"],
+          properties: { token: { type: "string", minLength: 20, maxLength: 128 } },
+        },
+      },
+    },
+    async (request, reply) => {
+      const knex = getKnex(app);
+      const verified = await knex.transaction(async (trx) => {
+        const token = await trx("arsy_email_verification_tokens")
+          .select("account_id as accountId")
+          .where({ token_hash: hashOpaqueToken(request.body.token) })
+          .andWhere("expires_at", ">", new Date())
+          .forUpdate()
+          .first();
+        if (!token) {
+          return null;
+        }
+
+        const account = await trx("arsy_accounts")
+          .select(
+            "id",
+            "email",
+            "display_name as displayName",
+            "email_verified_at as emailVerifiedAt",
+          )
+          .where({ id: token.accountId, status: "active" })
+          .forUpdate()
+          .first();
+        if (!account || account.emailVerifiedAt) {
+          return null;
+        }
+
+        const now = new Date();
+        await trx("arsy_accounts")
+          .where({ id: account.id })
+          .update({ email_verified_at: now, updated_at: now });
+        await trx("arsy_email_verification_tokens")
+          .where({ account_id: account.id })
+          .delete();
+        await writeAccountAudit(trx, {
+          accountId: account.id as string,
+          action: "account.email_verified",
+          resourceType: "account",
+          resourceId: account.id as string,
+        });
+        const session = await createSession(trx, account.id as string);
+        return { account, session };
+      });
+
+      if (!verified) {
+        throw new HttpError(400, "The verification link is invalid or expired.");
+      }
+
+      return reply.send({
         account: publicAccount({
-          id: account.id,
-          email: account.email,
-          displayName: account.display_name,
+          id: verified.account.id as string,
+          email: verified.account.email as string,
+          displayName: verified.account.displayName as string,
         }),
-        accessToken: session.token,
-        expiresAt: session.expiresAt.toISOString(),
+        accessToken: verified.session.token,
+        expiresAt: verified.session.expiresAt.toISOString(),
       });
+    },
+  );
+
+  app.post<{ Body: EmailBody }>(
+    "/auth/email-verification/resend",
+    {
+      schema: {
+        body: {
+          type: "object",
+          additionalProperties: false,
+          required: ["email"],
+          properties: {
+            email: { type: "string", minLength: 3, maxLength: 320, pattern: emailPattern },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const knex = getKnex(app);
+      const email = normalizeEmail(request.body.email);
+      const account = await knex("arsy_accounts")
+        .select("id")
+        .where({ email, status: "active" })
+        .whereNull("email_verified_at")
+        .first();
+      if (account) {
+        const token = `arsy_verify_${randomBytes(32).toString("base64url")}`;
+        await knex.transaction(async (trx) => {
+          await replaceAccountToken(
+            trx,
+            "arsy_email_verification_tokens",
+            account.id as string,
+            token,
+            new Date(Date.now() + verificationTokenLifetimeMs),
+          );
+          await writeAccountAudit(trx, {
+            accountId: account.id as string,
+            action: "account.email_verification_requested",
+            resourceType: "account",
+            resourceId: account.id as string,
+          });
+        });
+        try {
+          await sendLifecycleEmail(request, app.emailDelivery, "email-verification", {
+            to: email,
+            subject: "Verify your Arsy email address",
+            text: `Verify your email address within 24 hours:\n\n${createEmailActionUrl(
+              app.publicAppUrl,
+              "verify-email",
+              token,
+            )}`,
+          });
+        } catch (error) {
+          if (!(error instanceof EmailDeliveryUnavailableError)) {
+            throw error;
+          }
+        }
+      }
+
+      return reply.code(202).send({ status: "if_account_exists_check_email" });
+    },
+  );
+
+  app.post<{ Body: EmailBody }>(
+    "/auth/password-reset/request",
+    {
+      schema: {
+        body: {
+          type: "object",
+          additionalProperties: false,
+          required: ["email"],
+          properties: {
+            email: { type: "string", minLength: 3, maxLength: 320, pattern: emailPattern },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const knex = getKnex(app);
+      const email = normalizeEmail(request.body.email);
+      const account = await knex("arsy_accounts")
+        .select("id")
+        .where({ email, status: "active" })
+        .first();
+      if (account) {
+        const token = `arsy_reset_${randomBytes(32).toString("base64url")}`;
+        await knex.transaction(async (trx) => {
+          await replaceAccountToken(
+            trx,
+            "arsy_password_reset_tokens",
+            account.id as string,
+            token,
+            new Date(Date.now() + passwordResetTokenLifetimeMs),
+          );
+          await writeAccountAudit(trx, {
+            accountId: account.id as string,
+            action: "account.password_reset_requested",
+            resourceType: "account",
+            resourceId: account.id as string,
+          });
+        });
+        try {
+          await sendLifecycleEmail(request, app.emailDelivery, "password-reset", {
+            to: email,
+            subject: "Reset your Arsy password",
+            text: `Reset your password within 1 hour:\n\n${createEmailActionUrl(
+              app.publicAppUrl,
+              "reset-password",
+              token,
+            )}`,
+          });
+        } catch (error) {
+          if (!(error instanceof EmailDeliveryUnavailableError)) {
+            throw error;
+          }
+        }
+      }
+
+      return reply.code(202).send({ status: "if_account_exists_check_email" });
+    },
+  );
+
+  app.post<{ Body: PasswordResetBody }>(
+    "/auth/password-reset/confirm",
+    {
+      schema: {
+        body: {
+          type: "object",
+          additionalProperties: false,
+          required: ["token", "password"],
+          properties: {
+            token: { type: "string", minLength: 20, maxLength: 128 },
+            password: { type: "string", minLength: 12, maxLength: 256 },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      const knex = getKnex(app);
+      const passwordHash = await hashPassword(request.body.password);
+      const reset = await knex.transaction(async (trx) => {
+        const token = await trx("arsy_password_reset_tokens")
+          .select("account_id as accountId")
+          .where({ token_hash: hashOpaqueToken(request.body.token) })
+          .andWhere("expires_at", ">", new Date())
+          .forUpdate()
+          .first();
+        if (!token) {
+          return false;
+        }
+
+        const account = await trx("arsy_accounts")
+          .select("id")
+          .where({ id: token.accountId, status: "active" })
+          .forUpdate()
+          .first();
+        if (!account) {
+          return false;
+        }
+
+        const now = new Date();
+        await trx("arsy_accounts")
+          .where({ id: account.id })
+          .update({ password_hash: passwordHash, updated_at: now });
+        await trx("arsy_password_reset_tokens")
+          .where({ account_id: account.id })
+          .delete();
+        await trx("arsy_sessions").where({ account_id: account.id }).delete();
+        await writeAccountAudit(trx, {
+          accountId: account.id as string,
+          action: "account.password_reset_completed",
+          resourceType: "account",
+          resourceId: account.id as string,
+        });
+        return true;
+      });
+
+      if (!reset) {
+        throw new HttpError(400, "The password reset link is invalid or expired.");
+      }
+
+      return reply.code(204).send();
     },
   );
 
@@ -233,6 +584,7 @@ export async function registerControlPlaneRoutes(
           "display_name as displayName",
           "password_hash as passwordHash",
           "status",
+          "email_verified_at as emailVerifiedAt",
         )
         .where({ email })
         .first();
@@ -244,6 +596,9 @@ export async function registerControlPlaneRoutes(
       );
       if (!account || !validPassword || account.status !== "active") {
         throw new HttpError(401, "The email or password is incorrect.");
+      }
+      if (!account.emailVerifiedAt) {
+        throw new HttpError(403, "Verify your email address before signing in.");
       }
 
       const session = await createSession(knex, account.id as string);
@@ -279,30 +634,50 @@ export async function registerControlPlaneRoutes(
 
   app.get("/workspaces", async (request) => {
     const account = await requireAccount(request, getKnex(app));
-    const memberships = await withAccountTransaction(
-      getKnex(app),
-      account.id,
-      (trx) =>
-        trx("arsy_workspace_members")
-          .select("workspace_id as id", "role")
-          .where({ account_id: account.id }),
-    );
+    const knex = getKnex(app);
+    const [workspaceMemberships, projectMemberships] = await Promise.all([
+      withAccountTransaction(
+        knex,
+        account.id,
+        (trx) =>
+          trx("arsy_workspace_members")
+            .select("workspace_id as id", "role")
+            .where({ account_id: account.id }),
+      ),
+      withAccountTransaction(
+        knex,
+        account.id,
+        (trx) =>
+          trx("arsy_project_users")
+            .distinct("workspace_id as id")
+            .where({ account_id: account.id }),
+      ),
+    ]);
+    const memberships = new Map<string, string>();
+    for (const membership of workspaceMemberships) {
+      memberships.set(membership.id as string, membership.role as string);
+    }
+    for (const membership of projectMemberships) {
+      if (!memberships.has(membership.id as string)) {
+        memberships.set(membership.id as string, "project_member");
+      }
+    }
     const rows = await Promise.all(
-      memberships.map(async (membership) => {
+      [...memberships].map(async ([workspaceId, role]) => {
         const workspace = await withWorkspaceTransaction(
-          getKnex(app),
-          membership.id as string,
+          knex,
+          workspaceId,
           (trx) =>
             trx("arsy_workspaces")
               .select("id", "name", "slug", "created_at as createdAt")
-              .where({ id: membership.id })
+              .where({ id: workspaceId })
               .first(),
         );
         if (!workspace) {
-          throw new Error("A workspace membership references a missing workspace.");
+          throw new Error("An account membership references a missing workspace.");
         }
 
-        return { ...workspace, role: membership.role };
+        return { ...workspace, role };
       }),
     );
     rows.sort(
@@ -316,7 +691,7 @@ export async function registerControlPlaneRoutes(
         id: row.id as string,
         name: row.name as string,
         slug: row.slug as string,
-        role: row.role as string,
+        role: row.role,
         createdAt: new Date(row.createdAt as string).toISOString(),
       })),
     };
@@ -542,18 +917,38 @@ export async function registerControlPlaneRoutes(
     "/workspaces/:workspaceId/projects",
     async (request) => {
       const account = await requireAccount(request, getKnex(app));
-      await requireWorkspaceRole(
-        getKnex(app),
+      const knex = getKnex(app);
+      const workspaceRole = await findWorkspaceRole(
+        knex,
         request.params.workspaceId,
         account.id,
-        ["owner", "admin", "developer", "viewer"],
       );
+      let projectIds: string[] | null = null;
+      if (!workspaceRole) {
+        projectIds = await withAccountTransaction(
+          knex,
+          account.id,
+          async (trx) =>
+            (
+              await trx("arsy_project_users")
+                .select("project_id")
+                .where({
+                  workspace_id: request.params.workspaceId,
+                  account_id: account.id,
+                })
+            ).map((row) => row.project_id as string),
+        );
+        if (projectIds.length === 0) {
+          throw new HttpError(404, "The requested workspace was not found.");
+        }
+      }
 
       const rows = await withWorkspaceTransaction(
-        getKnex(app),
+        knex,
         request.params.workspaceId,
         async (trx) =>
-          (await trx("arsy_projects")
+          {
+            const query = trx("arsy_projects")
             .select(
               "id",
               "name",
@@ -562,7 +957,12 @@ export async function registerControlPlaneRoutes(
               "created_at as createdAt",
             )
             .where("workspace_id", request.params.workspaceId)
-            .orderBy("created_at", "asc")) as ProjectRow[],
+            .orderBy("created_at", "asc");
+            if (projectIds) {
+              query.whereIn("id", projectIds);
+            }
+            return (await query) as ProjectRow[];
+          },
       );
 
       return {
@@ -649,14 +1049,37 @@ export async function registerControlPlaneRoutes(
     "/workspaces/:workspaceId/projects/:projectId/users",
     async (request) => {
       const account = await requireAccount(request, getKnex(app));
-      await requireWorkspaceRole(
-        getKnex(app),
+      const knex = getKnex(app);
+      const workspaceRole = await findWorkspaceRole(
+        knex,
         request.params.workspaceId,
         account.id,
-        ["owner", "admin", "developer", "viewer"],
       );
+      if (workspaceRole) {
+        if (!["owner", "admin", "developer", "viewer"].includes(workspaceRole)) {
+          throw new HttpError(404, "The requested workspace was not found.");
+        }
+      } else {
+        const projectMembership = await withProjectTransaction(
+          knex,
+          request.params.workspaceId,
+          request.params.projectId,
+          (trx) =>
+            trx("arsy_project_users")
+              .select("id")
+              .where({
+                workspace_id: request.params.workspaceId,
+                project_id: request.params.projectId,
+                account_id: account.id,
+              })
+              .first(),
+        );
+        if (!projectMembership) {
+          throw new HttpError(404, "The requested project was not found.");
+        }
+      }
       const rows = await withProjectTransaction(
-        getKnex(app),
+        knex,
         request.params.workspaceId,
         request.params.projectId,
         (trx) =>
@@ -691,11 +1114,19 @@ export async function registerControlPlaneRoutes(
 
   app.post<{
     Params: { workspaceId: string; projectId: string };
-    Body: ProjectUserBody;
+    Body: ProjectInvitationBody;
   }>(
-    "/workspaces/:workspaceId/projects/:projectId/users",
+    "/workspaces/:workspaceId/projects/:projectId/invitations",
     {
       schema: {
+        params: {
+          type: "object",
+          required: ["workspaceId", "projectId"],
+          properties: {
+            workspaceId: { type: "string", format: "uuid" },
+            projectId: { type: "string", format: "uuid" },
+          },
+        },
         body: {
           type: "object",
           additionalProperties: false,
@@ -725,61 +1156,321 @@ export async function registerControlPlaneRoutes(
         throw new HttpError(403, "Only a workspace owner may grant project admin.");
       }
 
-      const member = await knex("arsy_accounts")
-        .select("id", "email", "display_name as displayName")
-        .where({ email: normalizeEmail(request.body.email), status: "active" })
-        .first();
-      if (!member) {
-        throw new HttpError(404, "The account must register before it can be added.");
-      }
-
+      const email = normalizeEmail(request.body.email);
       const now = new Date();
-      await withProjectTransaction(
+      const token = `arsy_invite_${randomBytes(32).toString("base64url")}`;
+      const tokenHash = hashOpaqueToken(token);
+      const expiresAt = new Date(now.getTime() + invitationTokenLifetimeMs);
+      const invitation = await withProjectTransaction(
         knex,
         request.params.workspaceId,
         request.params.projectId,
         async (trx) => {
           const project = await trx("arsy_projects")
-            .select("id")
+            .select("id", "status")
             .where({
               id: request.params.projectId,
               workspace_id: request.params.workspaceId,
+              status: "active",
             })
+            .forUpdate()
             .first();
           if (!project) {
             throw new HttpError(404, "The requested project was not found.");
           }
 
-          await trx("arsy_project_users")
-            .insert({
-              id: randomUUID(),
+          const existing = await trx("arsy_project_invitations")
+            .select("id")
+            .where({
               workspace_id: request.params.workspaceId,
               project_id: request.params.projectId,
-              account_id: member.id,
-              role: request.body.role,
-              created_at: now,
+              email,
             })
-            .onConflict(["project_id", "account_id"])
-            .merge({ role: request.body.role });
+            .whereNull("accepted_at")
+            .whereNull("revoked_at")
+            .andWhere("expires_at", ">", now)
+            .forUpdate()
+            .first();
+          const invitationId = (existing?.id as string | undefined) ?? randomUUID();
+          if (existing) {
+            await trx("arsy_project_invitations")
+              .where({ id: invitationId })
+              .update({
+                role: request.body.role,
+                token_hash: tokenHash,
+                invited_by: account.id,
+                expires_at: expiresAt,
+                updated_at: now,
+              });
+          } else {
+            await trx("arsy_project_invitations").insert({
+              id: invitationId,
+              workspace_id: request.params.workspaceId,
+              project_id: request.params.projectId,
+              email,
+              role: request.body.role,
+              token_hash: tokenHash,
+              invited_by: account.id,
+              expires_at: expiresAt,
+              accepted_at: null,
+              revoked_at: null,
+              created_at: now,
+              updated_at: now,
+            });
+          }
           await writeAudit(trx, {
             workspaceId: request.params.workspaceId,
             projectId: request.params.projectId,
             actorId: account.id,
-            action: "project.user_added",
-            resourceType: "project_user",
-            resourceId: member.id as string,
+            action: existing
+              ? "project.invitation_resent"
+              : "project.invitation_created",
+            resourceType: "project_invitation",
+            resourceId: invitationId,
             metadata: { role: request.body.role },
           });
+
+          return { id: invitationId, createdAt: existing ? undefined : now };
         },
       );
 
-      return reply.code(201).send({
-        accountId: member.id,
-        email: member.email,
-        displayName: member.displayName,
-        role: request.body.role,
-        createdAt: now.toISOString(),
+      await sendLifecycleEmail(request, app.emailDelivery, "project-invitation", {
+        to: email,
+        subject: "You have been invited to an Arsy project",
+        text: `You have been invited to join project ${request.params.projectId} as ${request.body.role}. Accept within 7 days:\n\n${createEmailActionUrl(
+          app.publicAppUrl,
+          "accept-invitation",
+          token,
+        )}`,
       });
+
+      return reply.code(invitation.createdAt ? 201 : 200).send({
+        id: invitation.id,
+        email,
+        role: request.body.role,
+        expiresAt: expiresAt.toISOString(),
+        createdAt: invitation.createdAt?.toISOString() ?? null,
+      });
+    },
+  );
+
+  app.get<{ Params: { workspaceId: string; projectId: string } }>(
+    "/workspaces/:workspaceId/projects/:projectId/invitations",
+    async (request) => {
+      const account = await requireAccount(request, getKnex(app));
+      await requireWorkspaceRole(
+        getKnex(app),
+        request.params.workspaceId,
+        account.id,
+        ["owner", "admin"],
+      );
+      const rows = await withProjectTransaction(
+        getKnex(app),
+        request.params.workspaceId,
+        request.params.projectId,
+        (trx) =>
+          trx("arsy_project_invitations")
+            .select(
+              "id",
+              "email",
+              "role",
+              "expires_at as expiresAt",
+              "accepted_at as acceptedAt",
+              "revoked_at as revokedAt",
+              "created_at as createdAt",
+            )
+            .where({
+              workspace_id: request.params.workspaceId,
+              project_id: request.params.projectId,
+            })
+            .orderBy("created_at", "desc"),
+      );
+
+      return {
+        data: rows.map((row) => ({
+          id: row.id,
+          email: row.email,
+          role: row.role,
+          expiresAt: new Date(row.expiresAt as string).toISOString(),
+          acceptedAt: row.acceptedAt
+            ? new Date(row.acceptedAt as string).toISOString()
+            : null,
+          revokedAt: row.revokedAt
+            ? new Date(row.revokedAt as string).toISOString()
+            : null,
+          createdAt: new Date(row.createdAt as string).toISOString(),
+        })),
+      };
+    },
+  );
+
+  app.delete<{
+    Params: { workspaceId: string; projectId: string; invitationId: string };
+  }>(
+    "/workspaces/:workspaceId/projects/:projectId/invitations/:invitationId",
+    async (request, reply) => {
+      const account = await requireAccount(request, getKnex(app));
+      const knex = getKnex(app);
+      await requireWorkspaceRole(
+        knex,
+        request.params.workspaceId,
+        account.id,
+        ["owner", "admin"],
+      );
+      await withProjectTransaction(
+        knex,
+        request.params.workspaceId,
+        request.params.projectId,
+        async (trx) => {
+          const invitation = await trx("arsy_project_invitations")
+            .select("accepted_at as acceptedAt", "revoked_at as revokedAt")
+            .where({
+              id: request.params.invitationId,
+              workspace_id: request.params.workspaceId,
+              project_id: request.params.projectId,
+            })
+            .forUpdate()
+            .first();
+          if (!invitation) {
+            throw new HttpError(404, "The project invitation was not found.");
+          }
+          if (invitation.acceptedAt) {
+            throw new HttpError(409, "An accepted invitation cannot be revoked.");
+          }
+          if (!invitation.revokedAt) {
+            const now = new Date();
+            await trx("arsy_project_invitations")
+              .where({ id: request.params.invitationId })
+              .update({ revoked_at: now, updated_at: now });
+            await writeAudit(trx, {
+              workspaceId: request.params.workspaceId,
+              projectId: request.params.projectId,
+              actorId: account.id,
+              action: "project.invitation_revoked",
+              resourceType: "project_invitation",
+              resourceId: request.params.invitationId,
+            });
+          }
+        },
+      );
+      return reply.code(204).send();
+    },
+  );
+
+  app.post<{ Body: TokenBody }>(
+    "/invitations/accept",
+    {
+      schema: {
+        body: {
+          type: "object",
+          additionalProperties: false,
+          required: ["token"],
+          properties: { token: { type: "string", minLength: 20, maxLength: 128 } },
+        },
+      },
+    },
+    async (request, reply) => {
+      const account = await requireAccount(request, getKnex(app));
+      const tokenHash = hashOpaqueToken(request.body.token);
+      const accepted = await withInvitationHashTransaction(
+        getKnex(app),
+        tokenHash,
+        async (trx) => {
+          const invitation = await trx("arsy_project_invitations")
+            .select(
+              "id",
+              "workspace_id as workspaceId",
+              "project_id as projectId",
+              "email",
+              "role",
+            )
+            .where({ token_hash: tokenHash })
+            .whereNull("accepted_at")
+            .whereNull("revoked_at")
+            .andWhere("expires_at", ">", new Date())
+            .forUpdate()
+            .first();
+          if (!invitation || invitation.email !== account.email) {
+            return null;
+          }
+
+          await setTransactionSetting(
+            trx,
+            "arsy.workspace_id",
+            invitation.workspaceId as string,
+          );
+          await setTransactionSetting(
+            trx,
+            "arsy.project_id",
+            invitation.projectId as string,
+          );
+          const project = await trx("arsy_projects")
+            .select("id")
+            .where({
+              id: invitation.projectId,
+              workspace_id: invitation.workspaceId,
+              status: "active",
+            })
+            .first();
+          if (!project) {
+            return null;
+          }
+
+          const existingMembership = await trx("arsy_project_users")
+            .select("id")
+            .where({
+              workspace_id: invitation.workspaceId,
+              project_id: invitation.projectId,
+              account_id: account.id,
+            })
+            .first();
+          if (existingMembership) {
+            throw new HttpError(409, "The account is already a project member.");
+          }
+
+          const acceptedAt = new Date();
+          await trx("arsy_project_users").insert({
+            id: randomUUID(),
+            workspace_id: invitation.workspaceId,
+            project_id: invitation.projectId,
+            account_id: account.id,
+            role: invitation.role,
+            created_at: acceptedAt,
+          });
+          const updated = await trx("arsy_project_invitations")
+            .where({
+              id: invitation.id,
+              workspace_id: invitation.workspaceId,
+              project_id: invitation.projectId,
+            })
+            .whereNull("accepted_at")
+            .whereNull("revoked_at")
+            .update({ accepted_at: acceptedAt, updated_at: acceptedAt });
+          if (updated !== 1) {
+            throw new HttpError(409, "The project invitation is no longer available.");
+          }
+          await writeAudit(trx, {
+            workspaceId: invitation.workspaceId as string,
+            projectId: invitation.projectId as string,
+            actorId: account.id,
+            action: "project.invitation_accepted",
+            resourceType: "project_invitation",
+            resourceId: invitation.id as string,
+          });
+
+          return {
+            workspaceId: invitation.workspaceId,
+            projectId: invitation.projectId,
+            role: invitation.role,
+            acceptedAt: acceptedAt.toISOString(),
+          };
+        },
+      );
+      if (!accepted) {
+        throw new HttpError(404, "The invitation is invalid or unavailable.");
+      }
+
+      return reply.code(200).send(accepted);
     },
   );
 

@@ -11,6 +11,7 @@ export { BaseModel } from "./models/base-model.js";
 export { BaseRepository } from "./repositories/base-repository.js";
 export {
   disableRowLevelSecurity,
+  dropRowLevelSecurityPolicy,
   enableRowLevelSecurity,
   provisionPostgresRoles,
   setTransactionSetting,

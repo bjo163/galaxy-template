@@ -25,6 +25,8 @@ export type AppConfig = {
   port: number;
   logLevel: LogLevel;
   corsOrigins: string[];
+  publicAppUrl: string;
+  smtp: SmtpConfig | null;
   rateLimitMax: number;
   rateLimitWindowMs: number;
   trustProxy: boolean | string[];
@@ -34,6 +36,15 @@ export type AppConfig = {
   openApiEnabled: boolean;
   metricsEnabled: boolean;
   metricsToken: string;
+};
+
+export type SmtpConfig = {
+  host: string;
+  port: number;
+  secure: boolean;
+  from: string;
+  user?: string;
+  password?: string;
 };
 
 function positiveInteger(
@@ -102,6 +113,102 @@ function isValidHost(value: string): boolean {
     .every((label) =>
       /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$/.test(label),
     );
+}
+
+function parsePublicAppUrl(
+  value: string | undefined,
+  nodeEnv: AppConfig["nodeEnv"],
+): string {
+  if (!value?.trim()) {
+    if (nodeEnv === "production") {
+      throw new Error("PUBLIC_APP_URL must be configured in production");
+    }
+
+    return "http://localhost:3001";
+  }
+
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(value.trim());
+  } catch {
+    throw new Error("PUBLIC_APP_URL must be a valid HTTP(S) origin");
+  }
+
+  if (
+    (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") ||
+    parsedUrl.username ||
+    parsedUrl.password ||
+    parsedUrl.pathname !== "/" ||
+    parsedUrl.search ||
+    parsedUrl.hash ||
+    (nodeEnv === "production" && parsedUrl.protocol !== "https:")
+  ) {
+    throw new Error(
+      "PUBLIC_APP_URL must be an HTTP(S) origin without a path; production requires HTTPS",
+    );
+  }
+
+  return parsedUrl.origin;
+}
+
+function parseSmtpConfig(
+  environment: NodeJS.ProcessEnv,
+  nodeEnv: AppConfig["nodeEnv"],
+): SmtpConfig | null {
+  const hasSmtpConfiguration = [
+    environment.SMTP_HOST,
+    environment.SMTP_PORT,
+    environment.SMTP_SECURE,
+    environment.SMTP_FROM,
+    environment.SMTP_USER,
+    environment.SMTP_PASSWORD,
+  ].some((value) => value !== undefined);
+
+  if (!hasSmtpConfiguration) {
+    if (nodeEnv === "production") {
+      throw new Error("SMTP_HOST and SMTP_FROM must be configured in production");
+    }
+
+    return null;
+  }
+
+  const host = environment.SMTP_HOST?.trim();
+  const from = environment.SMTP_FROM?.trim();
+  if (!host || !isValidHost(host)) {
+    throw new Error("SMTP_HOST must be a valid hostname or IP address");
+  }
+  if (!from || from.length > 320 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(from)) {
+    throw new Error("SMTP_FROM must be a valid email address");
+  }
+
+  const port = positiveInteger(
+    environment.SMTP_PORT,
+    587,
+    "SMTP_PORT",
+    65535,
+  );
+  const secureValue = environment.SMTP_SECURE ?? (port === 465 ? "true" : "false");
+  if (secureValue !== "true" && secureValue !== "false") {
+    throw new Error("SMTP_SECURE must be true or false");
+  }
+
+  const user = environment.SMTP_USER?.trim();
+  const password = environment.SMTP_PASSWORD;
+  if ((user && !password) || (!user && password)) {
+    throw new Error("SMTP_USER and SMTP_PASSWORD must be configured together");
+  }
+  if (password !== undefined && !password.trim()) {
+    throw new Error("SMTP_PASSWORD must not be empty");
+  }
+
+  return {
+    host,
+    port,
+    secure: secureValue === "true",
+    from,
+    ...(user ? { user } : {}),
+    ...(password ? { password } : {}),
+  };
 }
 
 export function loadConfig(
@@ -290,6 +397,12 @@ export function loadConfig(
     }
   }
 
+  const publicAppUrl = parsePublicAppUrl(
+    environment.PUBLIC_APP_URL,
+    nodeEnv,
+  );
+  const smtp = parseSmtpConfig(environment, nodeEnv);
+
   return {
     nodeEnv,
     database,
@@ -297,6 +410,8 @@ export function loadConfig(
     port,
     logLevel: requestedLogLevel,
     corsOrigins,
+    publicAppUrl,
+    smtp,
     rateLimitMax: positiveInteger(
       environment.RATE_LIMIT_MAX,
       100,

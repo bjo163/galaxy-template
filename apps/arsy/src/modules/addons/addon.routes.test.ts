@@ -1,12 +1,28 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { createApp } from "../../app.js";
-import { loadConfig } from "../../config/env.js";
+import { createApp as createArsyApp } from "../../app.js";
+import { loadConfig, type AppConfig } from "../../config/env.js";
 import { down as rollbackControlPlane } from "../../migrations/0001_arsy_control_plane.js";
 import { up as migrateControlPlane } from "../../migrations/0001_arsy_control_plane.js";
 import { down as rollbackSharedQuotaBuckets } from "../../migrations/0003_shared_quota_buckets.js";
-import { up as migrateSharedQuotaBuckets } from "../../migrations/0003_shared_quota_buckets.js";
+import { up as migrateQuotaBuckets } from "../../migrations/0003_shared_quota_buckets.js";
+import {
+  down as rollbackAccountLifecycle,
+  up as migrateAccountLifecycle,
+} from "../../migrations/0004_account_lifecycle.js";
+import { CapturingEmailDelivery } from "../../testing/fake-email-delivery.js";
+
+const emailDelivery = new CapturingEmailDelivery();
+
+function createApp(config?: AppConfig) {
+  return createArsyApp(config, { emailDelivery });
+}
+
+async function migrateSharedQuotaBuckets(knex: Parameters<typeof migrateQuotaBuckets>[0]): Promise<void> {
+  await migrateQuotaBuckets(knex);
+  await migrateAccountLifecycle(knex);
+}
 
 describe("Arsy add-on API", () => {
   it("validates and manages declarative add-ons with project-scoped grants", async () => {
@@ -233,6 +249,7 @@ describe("Arsy add-on API", () => {
       });
       assert.equal(otherProjectAccess.statusCode, 404);
 
+      await rollbackAccountLifecycle(app.database.knex);
       await rollbackSharedQuotaBuckets(app.database.knex);
       await rollbackControlPlane(app.database.knex);
       assert.equal(
@@ -264,8 +281,14 @@ async function register(
       password: "addon-test-password-long",
     },
   });
-  assert.equal(response.statusCode, 201, response.body);
-  return { token: response.json().accessToken as string };
+  assert.equal(response.statusCode, 202, response.body);
+  const verified = await app.inject({
+    method: "POST",
+    url: "/api/v1/auth/email-verification/confirm",
+    payload: { token: emailDelivery.tokenFor("verify-email") },
+  });
+  assert.equal(verified.statusCode, 200, verified.body);
+  return { token: verified.json().accessToken as string };
 }
 
 async function createWorkspace(

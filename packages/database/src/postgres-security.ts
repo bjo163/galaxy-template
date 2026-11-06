@@ -16,12 +16,20 @@ export type RowLevelSecurityExpression =
       expressions: RowLevelSecurityExpression[];
     };
 
-export type RowLevelSecurityPolicy = {
-  table: string;
-  name: string;
-  using: RowLevelSecurityExpression;
-  check: RowLevelSecurityExpression;
-};
+export type RowLevelSecurityPolicy =
+  | {
+      table: string;
+      name: string;
+      command: "select";
+      using: RowLevelSecurityExpression;
+    }
+  | {
+      table: string;
+      name: string;
+      command?: "all";
+      using: RowLevelSecurityExpression;
+      check: RowLevelSecurityExpression;
+    };
 
 export async function enableRowLevelSecurity(
   knex: Knex,
@@ -29,12 +37,16 @@ export async function enableRowLevelSecurity(
 ): Promise<void> {
   await knex.raw("ALTER TABLE ?? ENABLE ROW LEVEL SECURITY", [policy.table]);
   await knex.raw("ALTER TABLE ?? FORCE ROW LEVEL SECURITY", [policy.table]);
+  const command = policy.command === "select" ? " FOR SELECT" : "";
+  const check =
+    policy.command === "select"
+      ? ""
+      : ` WITH CHECK (${compileExpression(knex, policy.check)})`;
   await knex.raw(
-    "CREATE POLICY ?? ON ?? USING (" +
-      compileExpression(knex, policy.using) +
-      ") WITH CHECK (" +
-      compileExpression(knex, policy.check) +
-      ")",
+    `CREATE POLICY ?? ON ??${command} USING (${compileExpression(
+      knex,
+      policy.using,
+    )})${check}`,
     [policy.name, policy.table],
   );
 }
@@ -44,9 +56,17 @@ export async function disableRowLevelSecurity(
   table: string,
   policyName: string,
 ): Promise<void> {
-  await knex.raw("DROP POLICY ?? ON ??", [policyName, table]);
+  await dropRowLevelSecurityPolicy(knex, table, policyName);
   await knex.raw("ALTER TABLE ?? NO FORCE ROW LEVEL SECURITY", [table]);
   await knex.raw("ALTER TABLE ?? DISABLE ROW LEVEL SECURITY", [table]);
+}
+
+export async function dropRowLevelSecurityPolicy(
+  knex: Knex,
+  table: string,
+  policyName: string,
+): Promise<void> {
+  await knex.raw("DROP POLICY ?? ON ??", [policyName, table]);
 }
 
 function compileExpression(

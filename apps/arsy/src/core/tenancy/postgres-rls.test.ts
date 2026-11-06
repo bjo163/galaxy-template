@@ -11,6 +11,7 @@ import {
   withProjectTransaction,
   withWorkspaceTransaction,
 } from "./database-context.js";
+import { CapturingEmailDelivery } from "../../testing/fake-email-delivery.js";
 
 const connectionString = process.env.ARSY_POSTGRES_TEST_URL;
 const tenantTables = [
@@ -18,6 +19,7 @@ const tenantTables = [
   "arsy_workspace_members",
   "arsy_projects",
   "arsy_project_users",
+  "arsy_project_invitations",
   "arsy_project_credentials",
   "arsy_model_definitions",
   "arsy_model_revisions",
@@ -31,6 +33,7 @@ it(
   "enforces project RLS for a non-owner PostgreSQL runtime role",
   { skip: !connectionString },
   async () => {
+    const emailDelivery = new CapturingEmailDelivery();
     const app = createApp(
       loadConfig({
         ...process.env,
@@ -39,6 +42,7 @@ it(
         DATABASE_URL: connectionString,
         LOG_LEVEL: "silent",
       }),
+      { emailDelivery },
     );
     let poolDatabase: Awaited<ReturnType<typeof createDatabase>> | undefined;
     const accountId = randomUUID();
@@ -352,10 +356,12 @@ it(
 
       const owner = await registerAccount(
         app,
+        emailDelivery,
         `rls-owner-${randomUUID()}@example.test`,
       );
       const member = await registerAccount(
         app,
+        emailDelivery,
         `rls-member-${randomUUID()}@example.test`,
       );
       accountIds.push(owner.accountId, member.accountId);
@@ -392,14 +398,25 @@ it(
       assert.ok(memberAccount);
       const acceptedMemberResponse = await app.inject({
         method: "POST",
-        url: `/api/v1/workspaces/${apiWorkspaceId}/projects/${apiProjectId}/users`,
-        headers: workspaceCredentialHeaders,
+        url: `/api/v1/workspaces/${apiWorkspaceId}/projects/${apiProjectId}/invitations`,
+        headers: { authorization: `Bearer ${owner.accessToken}` },
         payload: { email: memberAccount.email as string, role: "member" },
       });
       assert.equal(
         acceptedMemberResponse.statusCode,
         201,
         acceptedMemberResponse.body,
+      );
+      const invitationAcceptanceResponse = await app.inject({
+        method: "POST",
+        url: "/api/v1/invitations/accept",
+        headers: { authorization: `Bearer ${member.accessToken}` },
+        payload: { token: emailDelivery.tokenFor("accept-invitation") },
+      });
+      assert.equal(
+        invitationAcceptanceResponse.statusCode,
+        200,
+        invitationAcceptanceResponse.body,
       );
 
       const credentialResponse = await app.inject({
@@ -499,6 +516,7 @@ it(
 
 async function registerAccount(
   app: ReturnType<typeof createApp>,
+  emailDelivery: CapturingEmailDelivery,
   email: string,
 ): Promise<{ accessToken: string; accountId: string }> {
   const response = await app.inject({
@@ -510,8 +528,14 @@ async function registerAccount(
       password: "rls-integration-password",
     },
   });
-  assert.equal(response.statusCode, 201, response.body);
-  const body = response.json() as {
+  assert.equal(response.statusCode, 202, response.body);
+  const verification = await app.inject({
+    method: "POST",
+    url: "/api/v1/auth/email-verification/confirm",
+    payload: { token: emailDelivery.tokenFor("verify-email") },
+  });
+  assert.equal(verification.statusCode, 200, verification.body);
+  const body = verification.json() as {
     accessToken: string;
     account: { id: string };
   };

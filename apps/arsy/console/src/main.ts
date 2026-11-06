@@ -23,6 +23,7 @@ const consoleRoot = root;
 const state: ConsoleViewState = {
   account: null,
   authMode: "login",
+  emailActionToken: null,
   workspaces: [],
   workspaceId: "",
   projects: [],
@@ -35,6 +36,10 @@ const state: ConsoleViewState = {
   error: null,
   notice: null,
 };
+
+let pendingInvitationToken = localStorage.getItem(
+  "arsy-pending-invitation-token",
+);
 
 const savedTheme = localStorage.getItem("arsy-console-theme");
 document.documentElement.dataset.theme =
@@ -186,7 +191,60 @@ async function acceptSession(response: AuthResponse): Promise<void> {
   state.account = response.account;
   state.section = "overview";
   await loadWorkspaces();
-  state.notice = `Selamat datang, ${response.account.displayName}.`;
+  if (pendingInvitationToken) {
+    const invitation = await arsyApi.request<{
+      workspaceId: string;
+      projectId: string;
+    }>("/invitations/accept", {
+      method: "POST",
+      body: jsonBody({ token: pendingInvitationToken }),
+    });
+    pendingInvitationToken = null;
+    localStorage.removeItem("arsy-pending-invitation-token");
+    await loadWorkspaces(invitation.workspaceId);
+    state.notice = "Undangan project berhasil diterima.";
+  } else {
+    state.notice = `Selamat datang, ${response.account.displayName}.`;
+  }
+}
+
+async function processEmailAction(): Promise<void> {
+  const url = new URL(window.location.href);
+  const action = url.searchParams.get("action");
+  const token = url.searchParams.get("token");
+  if (!action || !token) {
+    return;
+  }
+
+  if (action === "verify-email") {
+    window.history.replaceState(null, "", url.pathname);
+    await withBusy(async () => {
+      const response = await arsyApi.request<AuthResponse>(
+        "/auth/email-verification/confirm",
+        { method: "POST", body: jsonBody({ token }) },
+      );
+      await acceptSession(response);
+      state.notice = "Email berhasil diverifikasi.";
+    });
+    return;
+  }
+
+  if (action === "reset-password") {
+    window.history.replaceState(null, "", url.pathname);
+    state.authMode = "reset-password";
+    state.emailActionToken = token;
+    state.notice = "Buat kata sandi baru untuk melanjutkan.";
+    render();
+    return;
+  }
+
+  if (action === "accept-invitation") {
+    pendingInvitationToken = token;
+    localStorage.setItem("arsy-pending-invitation-token", token);
+    window.history.replaceState(null, "", url.pathname);
+    state.notice = "Masuk atau buat akun dengan email yang menerima undangan.";
+    render();
+  }
 }
 
 async function submitForm(form: HTMLFormElement): Promise<void> {
@@ -194,25 +252,64 @@ async function submitForm(form: HTMLFormElement): Promise<void> {
   const formData = new FormData(form);
 
   await withBusy(async () => {
-    if (action === "login" || action === "register") {
+    if (action === "register") {
       const email = readFormValue(formData, "email");
-      const password = readFormValue(formData, "password");
-      const response =
-        action === "register"
-          ? await arsyApi.request<AuthResponse>("/auth/register", {
-              method: "POST",
-              body: jsonBody({
-                email,
-                password,
-                displayName: readFormValue(formData, "displayName"),
-              }),
-            })
-          : await arsyApi.request<AuthResponse>("/auth/login", {
-              method: "POST",
-              body: jsonBody({ email, password }),
-            });
+      await arsyApi.request("/auth/register", {
+        method: "POST",
+        body: jsonBody({
+          email,
+          password: readFormValue(formData, "password"),
+          displayName: readFormValue(formData, "displayName"),
+        }),
+      });
+      state.authMode = "login";
+      state.notice = "Periksa email untuk memverifikasi akun sebelum masuk.";
+      return;
+    }
 
+    if (action === "login") {
+      const response = await arsyApi.request<AuthResponse>("/auth/login", {
+        method: "POST",
+        body: jsonBody({
+          email: readFormValue(formData, "email"),
+          password: readFormValue(formData, "password"),
+        }),
+      });
       await acceptSession(response);
+      return;
+    }
+
+    if (action === "password-reset-request") {
+      await arsyApi.request("/auth/password-reset/request", {
+        method: "POST",
+        body: jsonBody({ email: readFormValue(formData, "email") }),
+      });
+      state.notice =
+        "Jika email terdaftar, tautan pengaturan ulang akan dikirim.";
+      return;
+    }
+
+    if (action === "email-verification-resend") {
+      await arsyApi.request("/auth/email-verification/resend", {
+        method: "POST",
+        body: jsonBody({ email: readFormValue(formData, "email") }),
+      });
+      state.notice =
+        "Jika akun belum diverifikasi, tautan verifikasi akan dikirim.";
+      return;
+    }
+
+    if (action === "password-reset-confirm") {
+      await arsyApi.request("/auth/password-reset/confirm", {
+        method: "POST",
+        body: jsonBody({
+          token: readFormValue(formData, "token"),
+          password: readFormValue(formData, "password"),
+        }),
+      });
+      state.authMode = "login";
+      state.emailActionToken = null;
+      state.notice = "Kata sandi diperbarui. Silakan masuk.";
       return;
     }
 
@@ -453,6 +550,26 @@ root.addEventListener("click", (event: MouseEvent) => {
     case "toggle-auth":
       state.authMode = state.authMode === "login" ? "register" : "login";
       state.error = null;
+      state.notice = null;
+      render();
+      break;
+    case "show-login":
+      state.authMode = "login";
+      state.emailActionToken = null;
+      state.error = null;
+      state.notice = null;
+      render();
+      break;
+    case "forgot-password":
+      state.authMode = "forgot-password";
+      state.error = null;
+      state.notice = null;
+      render();
+      break;
+    case "resend-verification":
+      state.authMode = "resend-verification";
+      state.error = null;
+      state.notice = null;
       render();
       break;
     case "toggle-theme":
@@ -477,3 +594,4 @@ root.addEventListener("click", (event: MouseEvent) => {
 });
 
 render();
+void processEmailAction();
