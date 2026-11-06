@@ -4,8 +4,9 @@
 import Grid from '@mui/material/Grid'
 
 // Type Imports
-import type { InvoiceType } from '@/types/apps/invoiceTypes'
 import type { invoicePreview } from '@galaxy/fake-db/apps/invoicePreview'
+
+import type { InvoiceType } from '@/types/apps/invoiceTypes'
 
 // Component Imports
 import PreviewActions from './PreviewActions'
