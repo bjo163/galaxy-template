@@ -85,7 +85,7 @@ const child = isWindows && resolvedCommand.toLowerCase().endsWith('.cmd')
     })
   : isWindows && resolvedCommand.toLowerCase().endsWith('.exe')
     ? spawn(resolvedCommand, args, { cwd, env: process.env, stdio: 'inherit' })
-    : spawn(process.execPath, [resolvedCommand, ...args], { cwd, env: process.env, stdio: 'inherit' })
+    : spawn(resolvedCommand, args, { cwd, env: process.env, stdio: 'inherit' })
 
 child.on('error', error => {
   console.error(error.message)

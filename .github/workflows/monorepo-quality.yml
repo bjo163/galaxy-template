@@ -36,3 +36,5 @@ jobs:
         run: pnpm test:arsy
       - name: Test shared database package
         run: pnpm test:database
+      - name: Build production Arsy container
+        run: docker build -f apps/arsy/Dockerfile -t arsy:ci .
