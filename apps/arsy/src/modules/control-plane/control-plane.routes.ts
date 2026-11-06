@@ -65,6 +65,23 @@ type ProjectRow = {
   createdAt: Date;
 };
 
+type PaginationQuery = { limit?: number; offset?: number };
+const paginationQuerySchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    limit: { type: "integer", minimum: 1, maximum: 100 },
+    offset: { type: "integer", minimum: 0, maximum: 1_000_000 },
+  },
+};
+
+function getPagination(query: PaginationQuery): { limit: number; offset: number } {
+  return {
+    limit: query.limit ?? 50,
+    offset: query.offset ?? 0,
+  };
+}
+
 const emailPattern = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$";
 const slugPattern = "^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$";
 const supportedCredentialScopes = new Set([
@@ -343,50 +360,49 @@ export async function registerControlPlaneRoutes(
     return reply.code(204).send();
   });
 
-  app.get("/workspaces", async (request) => {
-    const account = await requireAccount(request, getKnex(app));
-    const memberships = await withAccountTransaction(
-      getKnex(app),
-      account.id,
-      (trx) =>
-        trx("arsy_workspace_members")
-          .select("workspace_id as id", "role")
-          .where({ account_id: account.id }),
-    );
-    const rows = await Promise.all(
-      memberships.map(async (membership) => {
-        const workspace = await withWorkspaceTransaction(
-          getKnex(app),
-          membership.id as string,
-          (trx) =>
-            trx("arsy_workspaces")
-              .select("id", "name", "slug", "created_at as createdAt")
-              .where({ id: membership.id })
-              .first(),
-        );
-        if (!workspace) {
-          throw new Error("A workspace membership references a missing workspace.");
-        }
-
-        return { ...workspace, role: membership.role };
-      }),
-    );
-    rows.sort(
-      (left, right) =>
-        new Date(left.createdAt as string).getTime() -
-        new Date(right.createdAt as string).getTime(),
-    );
-
-    return {
-      data: rows.map((row) => ({
-        id: row.id as string,
-        name: row.name as string,
-        slug: row.slug as string,
-        role: row.role as string,
-        createdAt: new Date(row.createdAt as string).toISOString(),
-      })),
-    };
-  });
+  app.get<{ Querystring: PaginationQuery }>(
+    "/workspaces",
+    { schema: { querystring: paginationQuerySchema } },
+    async (request) => {
+      const account = await requireAccount(request, getKnex(app));
+      const { limit, offset } = getPagination(request.query);
+      const fetched = await withAccountTransaction(
+        getKnex(app),
+        account.id,
+        (trx) =>
+          trx("arsy_workspaces")
+            .join(
+              "arsy_workspace_members",
+              "arsy_workspace_members.workspace_id",
+              "arsy_workspaces.id",
+            )
+            .select(
+              "arsy_workspaces.id",
+              "arsy_workspaces.name",
+              "arsy_workspaces.slug",
+              "arsy_workspaces.created_at as createdAt",
+              "arsy_workspace_members.role",
+            )
+            .where("arsy_workspace_members.account_id", account.id)
+            .orderBy("arsy_workspaces.created_at", "asc")
+            .orderBy("arsy_workspaces.id", "asc")
+            .limit(limit + 1)
+            .offset(offset),
+      );
+      const hasMore = fetched.length > limit;
+      const rows = fetched.slice(0, limit);
+      return {
+        data: rows.map((row) => ({
+          id: row.id as string,
+          name: row.name as string,
+          slug: row.slug as string,
+          role: row.role as string,
+          createdAt: new Date(row.createdAt as string).toISOString(),
+        })),
+        nextOffset: hasMore ? offset + rows.length : null,
+      };
+    },
+  );
 
   app.post<{ Body: WorkspaceBody }>(
     "/workspaces",
@@ -444,8 +460,9 @@ export async function registerControlPlaneRoutes(
     },
   );
 
-  app.get<{ Params: { workspaceId: string } }>(
+  app.get<{ Params: { workspaceId: string }; Querystring: PaginationQuery }>(
     "/workspaces/:workspaceId/members",
+    { schema: { querystring: paginationQuerySchema } },
     async (request) => {
       const account = await requireAccount(request, getKnex(app));
       await requireWorkspaceRole(
@@ -454,7 +471,8 @@ export async function registerControlPlaneRoutes(
         account.id,
         ["owner", "admin", "developer", "viewer"],
       );
-      const members = await withWorkspaceTransaction(
+      const { limit, offset } = getPagination(request.query);
+      const fetchedMembers = await withWorkspaceTransaction(
         getKnex(app),
         request.params.workspaceId,
         (trx) =>
@@ -472,13 +490,19 @@ export async function registerControlPlaneRoutes(
               "arsy_workspace_members.created_at as createdAt",
             )
             .where({ workspace_id: request.params.workspaceId })
-            .orderBy("arsy_workspace_members.created_at", "asc"),
+            .orderBy("arsy_workspace_members.created_at", "asc")
+            .orderBy("arsy_workspace_members.account_id", "asc")
+            .limit(limit + 1)
+            .offset(offset),
       );
+      const hasMore = fetchedMembers.length > limit;
+      const members = fetchedMembers.slice(0, limit);
       return {
         data: members.map((row) => ({
           ...row,
           createdAt: new Date(row.createdAt as string).toISOString(),
         })),
+        nextOffset: hasMore ? offset + members.length : null,
       };
     },
   );
@@ -604,8 +628,9 @@ export async function registerControlPlaneRoutes(
     },
   );
 
-  app.get<{ Params: { workspaceId: string } }>(
+  app.get<{ Params: { workspaceId: string }; Querystring: PaginationQuery }>(
     "/workspaces/:workspaceId/projects",
+    { schema: { querystring: paginationQuerySchema } },
     async (request) => {
       const account = await requireAccount(request, getKnex(app));
       await requireWorkspaceRole(
@@ -615,7 +640,8 @@ export async function registerControlPlaneRoutes(
         ["owner", "admin", "developer", "viewer"],
       );
 
-      const rows = await withWorkspaceTransaction(
+      const { limit, offset } = getPagination(request.query);
+      const fetchedRows = await withWorkspaceTransaction(
         getKnex(app),
         request.params.workspaceId,
         async (trx) =>
@@ -628,8 +654,13 @@ export async function registerControlPlaneRoutes(
               "created_at as createdAt",
             )
             .where("workspace_id", request.params.workspaceId)
-            .orderBy("created_at", "asc")) as ProjectRow[],
+            .orderBy("created_at", "asc")
+            .orderBy("id", "asc")
+            .limit(limit + 1)
+            .offset(offset)) as ProjectRow[],
       );
+      const hasMore = fetchedRows.length > limit;
+      const rows = fetchedRows.slice(0, limit);
 
       return {
         data: rows.map((row) => ({
@@ -639,6 +670,7 @@ export async function registerControlPlaneRoutes(
           status: row.status,
           createdAt: new Date(row.createdAt).toISOString(),
         })),
+        nextOffset: hasMore ? offset + rows.length : null,
       };
     },
   );
@@ -711,8 +743,9 @@ export async function registerControlPlaneRoutes(
     },
   );
 
-  app.get<{ Params: { workspaceId: string; projectId: string } }>(
+  app.get<{ Params: { workspaceId: string; projectId: string }; Querystring: PaginationQuery }>(
     "/workspaces/:workspaceId/projects/:projectId/users",
+    { schema: { querystring: paginationQuerySchema } },
     async (request) => {
       const account = await requireAccount(request, getKnex(app));
       await requireWorkspaceRole(
@@ -721,7 +754,8 @@ export async function registerControlPlaneRoutes(
         account.id,
         ["owner", "admin", "developer", "viewer"],
       );
-      const rows = await withProjectTransaction(
+      const { limit, offset } = getPagination(request.query);
+      const fetchedUsers = await withProjectTransaction(
         getKnex(app),
         request.params.workspaceId,
         request.params.projectId,
@@ -743,14 +777,20 @@ export async function registerControlPlaneRoutes(
               "arsy_project_users.workspace_id": request.params.workspaceId,
               "arsy_project_users.project_id": request.params.projectId,
             })
-            .orderBy("arsy_project_users.created_at", "asc"),
+            .orderBy("arsy_project_users.created_at", "asc")
+            .orderBy("arsy_project_users.account_id", "asc")
+            .limit(limit + 1)
+            .offset(offset),
       );
+      const hasMore = fetchedUsers.length > limit;
+      const rows = fetchedUsers.slice(0, limit);
 
       return {
         data: rows.map((row) => ({
           ...row,
           createdAt: new Date(row.createdAt as string).toISOString(),
         })),
+        nextOffset: hasMore ? offset + rows.length : null,
       };
     },
   );
@@ -911,8 +951,9 @@ export async function registerControlPlaneRoutes(
     },
   );
 
-  app.get<{ Params: { workspaceId: string; projectId: string } }>(
+  app.get<{ Params: { workspaceId: string; projectId: string }; Querystring: PaginationQuery }>(
     "/workspaces/:workspaceId/projects/:projectId/credentials",
+    { schema: { querystring: paginationQuerySchema } },
     async (request) => {
       const account = await requireAccount(request, getKnex(app));
       const knex = getKnex(app);
@@ -922,7 +963,8 @@ export async function registerControlPlaneRoutes(
         account.id,
         ["owner", "admin", "developer"],
       );
-      const rows = await withProjectTransaction(
+      const { limit, offset } = getPagination(request.query);
+      const fetchedCredentials = await withProjectTransaction(
         knex,
         request.params.workspaceId,
         request.params.projectId,
@@ -941,8 +983,13 @@ export async function registerControlPlaneRoutes(
               workspace_id: request.params.workspaceId,
               project_id: request.params.projectId,
             })
-            .orderBy("created_at", "desc"),
+            .orderBy("created_at", "desc")
+            .orderBy("id", "desc")
+            .limit(limit + 1)
+            .offset(offset),
       );
+      const hasMore = fetchedCredentials.length > limit;
+      const rows = fetchedCredentials.slice(0, limit);
 
       return {
         data: rows.map((row) => ({
@@ -958,6 +1005,7 @@ export async function registerControlPlaneRoutes(
             : null,
           createdAt: new Date(row.createdAt as string).toISOString(),
         })),
+        nextOffset: hasMore ? offset + rows.length : null,
       };
     },
   );
