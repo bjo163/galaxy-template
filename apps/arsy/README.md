@@ -29,6 +29,28 @@ PostgreSQL 18. The API requires
 PGlite database or a separate browser console. The shared Knex/Objection
 adapters live in `packages/database`.
 
+### Authentication limits, sessions, and mutation retries
+
+Authentication endpoints use shared PostgreSQL-backed rolling buckets so the
+limits apply across Arsy replicas. Defaults are 5 login attempts per normalized
+email and 30 per source IP per 15-minute window; registration defaults are 3
+per email and 10 per source IP. Only SHA-256 identifier digests are stored.
+Run `pnpm --filter arsy db:cleanup` periodically with the migration-owner
+connection to remove expired sessions, old authentication buckets, and
+expired idempotency records.
+
+Authenticated users can inspect active sessions at `GET /api/v1/auth/sessions`,
+revoke one session with `DELETE /api/v1/auth/sessions/:sessionId`, revoke all
+other sessions with `DELETE /api/v1/auth/sessions`, or revoke every session
+with `DELETE /api/v1/auth/sessions/all`.
+
+Dynamic record queries accept `limit` (1–100, default 50) and an opaque
+context-bound `cursor`. Record POST/PATCH/DELETE operations accept an optional
+16–128 character `Idempotency-Key`; identical retries replay the original
+status/body for 24 hours, while reusing a key with a different request returns
+409. Record create/update/delete events are written transactionally with
+redacted metadata (field names/counts, not field values).
+
 ### PostgreSQL roles and tenant isolation
 
 Use separate PostgreSQL login roles for schema migrations and API traffic.
@@ -139,7 +161,9 @@ graceful shutdown. PostgreSQL pool capacity and acquire/idle/create timeouts are
 configurable with `DB_POOL_MIN`, `DB_POOL_MAX`,
 `DB_POOL_ACQUIRE_TIMEOUT_MS`, `DB_POOL_IDLE_TIMEOUT_MS`, and
 `DB_POOL_CREATE_TIMEOUT_MS`. The maximum pool size must fit the PostgreSQL
-connection budget across application replicas and migration jobs. SIGINT and SIGTERM trigger an idempotent close; active
+connection budget across application replicas and migration jobs. Prometheus
+metrics include bounded HTTP route labels, database pool states, and SQL
+operation/query-duration aggregates; no tenant IDs or query text are metric labels. SIGINT and SIGTERM trigger an idempotent close; active
 connections are closed if the graceful period expires.
 
 OpenAPI and Swagger UI default to enabled outside production and disabled in

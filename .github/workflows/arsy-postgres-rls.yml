@@ -67,6 +67,14 @@ jobs:
           DATABASE_URL="postgresql://arsy_migrator:${ARSY_MIGRATOR_PASSWORD}@localhost:5432/arsy_test" \
             pnpm --filter arsy db:migrate
 
+      - name: Verify migration rollback and re-apply
+        run: |
+          export DATABASE_ADAPTER=postgres
+          DATABASE_URL="postgresql://arsy_migrator:${ARSY_MIGRATOR_PASSWORD}@localhost:5432/arsy_test" \
+            pnpm --filter arsy db:rollback
+          DATABASE_URL="postgresql://arsy_migrator:${ARSY_MIGRATOR_PASSWORD}@localhost:5432/arsy_test" \
+            pnpm --filter arsy db:migrate
+
       - name: Grant runtime access to migrated tables
         run: |
           export ARSY_POSTGRES_ADMIN_URL="postgresql://postgres:postgres@localhost:5432/arsy_test"

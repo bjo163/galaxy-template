@@ -22,3 +22,8 @@ export async function down(knex: Knex): Promise<void> {
 Migrations run in transactions and use the shared `galaxy_migrations` history
 and lock tables. Keep each migration reversible and avoid editing a migration
 after it has been applied to a shared environment.
+
+The PostgreSQL CI workflow exercises fresh migration, rollback of the latest
+batch, and re-application against PostgreSQL 17 and 18. Production releases
+should use expand/contract changes and retain a forward-fix path for migrations
+that are not safely reversible after application data has been written.
