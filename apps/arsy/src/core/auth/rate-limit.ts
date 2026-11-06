@@ -31,6 +31,14 @@ export async function enforceAuthRateLimit(
     .returning("attempts");
   const attempts = Number(rows[0]?.attempts ?? 0);
   if (attempts > maximumAttempts) {
-    throw new HttpError(429, "Too many authentication attempts. Try again later.");
+    const retryAfterSeconds = Math.max(
+      1,
+      Math.ceil((windowStartedAt.getTime() + windowMs - now.getTime()) / 1000),
+    );
+    throw new HttpError(
+      429,
+      "Too many authentication attempts. Try again later.",
+      { "retry-after": String(retryAfterSeconds) },
+    );
   }
 }
