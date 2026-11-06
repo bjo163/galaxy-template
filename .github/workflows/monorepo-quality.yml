@@ -1,0 +1,38 @@
+name: Monorepo Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: monorepo-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.0.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.12.0
+          cache: pnpm
+      - name: Install workspace
+        run: pnpm install --frozen-lockfile
+      - name: Validate workspace manifests and boundaries
+        run: node .scripts/validate-monorepo.mjs
+      - name: Typecheck, lint, and build all workspaces
+        run: pnpm turbo run typecheck lint build
+      - name: Test Arsy API
+        run: pnpm test:arsy
+      - name: Test shared database package
+        run: pnpm test:database

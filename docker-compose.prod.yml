@@ -1,0 +1,47 @@
+services:
+  arsy:
+    build:
+      context: .
+      dockerfile: apps/arsy/Dockerfile
+    image: ${ARSY_IMAGE:-arsy:local}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_ADAPTER: postgres
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL to the least-privilege arsy_runtime connection}
+      HOST: 0.0.0.0
+      ARSY_PORT: 3001
+      CORS_ORIGINS: ${CORS_ORIGINS:?Set explicit browser origins}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+      DB_POOL_MIN: ${DB_POOL_MIN:-2}
+      DB_POOL_MAX: ${DB_POOL_MAX:-10}
+      DB_POOL_ACQUIRE_TIMEOUT_MS: ${DB_POOL_ACQUIRE_TIMEOUT_MS:-30000}
+      DB_POOL_IDLE_TIMEOUT_MS: ${DB_POOL_IDLE_TIMEOUT_MS:-10000}
+      DB_POOL_CREATE_TIMEOUT_MS: ${DB_POOL_CREATE_TIMEOUT_MS:-30000}
+      REQUEST_TIMEOUT_MS: ${REQUEST_TIMEOUT_MS:-30000}
+      BODY_LIMIT_BYTES: ${BODY_LIMIT_BYTES:-1048576}
+      SHUTDOWN_TIMEOUT_MS: ${SHUTDOWN_TIMEOUT_MS:-10000}
+      OPENAPI_ENABLED: ${OPENAPI_ENABLED:-false}
+      METRICS_ENABLED: ${METRICS_ENABLED:-false}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+    ports:
+      - "127.0.0.1:${ARSY_HOST_PORT:-3001}:3001"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
+    cpus: 1.0
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3001/health/live').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
