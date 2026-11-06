@@ -15,6 +15,8 @@ import classnames from 'classnames'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Type Imports
+import { getInitials } from '@galaxy/utils'
+
 import type { ThemeColor } from '@core/types'
 import type { ChatDataType, StatusObjType } from '@/types/apps/chatTypes'
 import type { AppDispatch } from '@/redux-store'
@@ -30,7 +32,6 @@ import AvatarWithBadge from './AvatarWithBadge'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Util Imports
-import { getInitials } from '@galaxy/utils'
 import { formatDateToMonthShort } from './utils'
 
 export const statusObj: StatusObjType = {

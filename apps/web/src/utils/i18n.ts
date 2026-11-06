@@ -1,8 +1,9 @@
 // Config Imports
+import { ensurePrefix } from '@galaxy/utils'
+
 import { i18n } from '@configs/i18n'
 
 // Util Imports
-import { ensurePrefix } from '@galaxy/utils'
 
 // Check if the url is missing the locale
 export const isUrlMissingLocale = (url: string) => {

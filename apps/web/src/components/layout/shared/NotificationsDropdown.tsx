@@ -25,6 +25,8 @@ import classnames from 'classnames'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Type Imports
+import { getInitials } from '@galaxy/utils'
+
 import type { ThemeColor } from '@core/types'
 import type { CustomAvatarProps } from '@core/components/mui/Avatar'
 
@@ -38,7 +40,6 @@ import themeConfig from '@configs/themeConfig'
 import { useSettings } from '@core/hooks/useSettings'
 
 // Util Imports
-import { getInitials } from '@galaxy/utils'
 
 export type NotificationsType = {
   title: string

@@ -6,6 +6,8 @@ import Typography from '@mui/material/Typography'
 import type { TypographyProps } from '@mui/material/Typography'
 
 // Type Imports
+import { getInitials } from '@galaxy/utils'
+
 import type { ThemeColor } from '@core/types'
 import type { OrderType } from '@/types/apps/ecommerceTypes'
 
@@ -15,7 +17,6 @@ import EditUserInfo from '@components/dialogs/edit-user-info'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 
 // Util Imports
-import { getInitials } from '@galaxy/utils'
 
 const getAvatar = (params: Pick<OrderType, 'avatar' | 'customer'>) => {
   const { avatar, customer } = params
