@@ -35,6 +35,25 @@ Archives must be encrypted with the deployment's KMS-managed key and stored in i
 4. Compare counts and digest after readback.
 5. Record the exact archive object version, verification run, and operator identity.
 
+## Export and verification commands
+
+Export one project-scoped archive using a database connection that can read that project:
+
+```sh
+DATABASE_ADAPTER=postgres DATABASE_URL="$ARSY_RUNTIME_DATABASE_URL" \
+  pnpm --filter arsy audit:export --workspace-id "$WORKSPACE_ID" \
+  --project-id "$PROJECT_ID" --since "2026-01-01T00:00:00Z" \
+  --before "2027-01-01T00:00:00Z" > events.ndjson 2> manifest.json
+```
+
+Verify the exact bytes and event count before encryption or upload:
+
+```sh
+node .scripts/verify-audit-archive.mjs events.ndjson manifest.json
+```
+
+The exporter is project-scoped and uses keyset batches of 500 events. It writes event data to stdout and a JSON manifest to stderr so the two files can be captured independently.
+
 ## Current implementation status
 
-Record create/update/delete audit writes and workspace/project access controls are implemented in the API. Archive export, KMS integration, immutable object storage, automated readback, and retention deletion are not yet implemented. Issue #30 remains open until those capabilities are verified.
+Record create/update/delete audit writes, project-scoped NDJSON export, and local SHA-256/count verification are implemented. KMS integration, immutable object storage, automated restore/readback, workspace-level events export, and retention deletion are not yet implemented. Issue #30 remains open until those capabilities are verified.

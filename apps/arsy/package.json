@@ -23,7 +23,8 @@
     "pretypecheck": "pnpm --filter @galaxy/database build",
     "typecheck": "pnpm typecheck:server",
     "typecheck:server": "tsc --noEmit -p tsconfig.json",
-    "db:cleanup": "pnpm build && node ../../.scripts/load-env.mjs . node dist/cli/cleanup.js"
+    "db:cleanup": "pnpm build && node ../../.scripts/load-env.mjs . node dist/cli/cleanup.js",
+    "audit:export": "pnpm build && node ../../.scripts/load-env.mjs . node dist/cli/export-audit.js"
   },
   "dependencies": {
     "@fastify/cors": "11.4.1",
