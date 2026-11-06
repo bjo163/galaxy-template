@@ -21,6 +21,7 @@ export function registerDatabase(
       : {
           adapter: "postgres",
           connectionString: config.connectionString,
+          pool: config.pool,
         };
 
   app.decorate("database", null);

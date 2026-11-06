@@ -16,6 +16,13 @@ describe("loadConfig", () => {
     assert.deepEqual(config.database, {
       adapter: "postgres",
       connectionString: "postgresql://arsy:secret@localhost:5432/arsy",
+      pool: {
+        min: 2,
+        max: 10,
+        acquireTimeoutMillis: 30_000,
+        idleTimeoutMillis: 10_000,
+        createTimeoutMillis: 30_000,
+      },
     });
     assert.equal(config.logLevel, "info");
     assert.deepEqual(config.corsOrigins, [
@@ -26,6 +33,36 @@ describe("loadConfig", () => {
     assert.equal(config.rateLimitWindowMs, 60_000);
     assert.equal(config.trustProxy, false);
     assert.equal(config.openApiEnabled, false);
+  });
+
+  it("validates PostgreSQL pool capacity and timeout configuration", () => {
+    const config = loadConfig({
+      NODE_ENV: "production",
+      DATABASE_URL: "postgresql://arsy:secret@localhost:5432/arsy",
+      CORS_ORIGINS: "https://app.example.com",
+      DB_POOL_MIN: "3",
+      DB_POOL_MAX: "24",
+      DB_POOL_ACQUIRE_TIMEOUT_MS: "15000",
+      DB_POOL_IDLE_TIMEOUT_MS: "5000",
+      DB_POOL_CREATE_TIMEOUT_MS: "20000",
+    });
+    assert.deepEqual(config.database.adapter === "postgres" ? config.database.pool : null, {
+      min: 3,
+      max: 24,
+      acquireTimeoutMillis: 15_000,
+      idleTimeoutMillis: 5_000,
+      createTimeoutMillis: 20_000,
+    });
+    assert.throws(
+      () => loadConfig({
+        NODE_ENV: "production",
+        DATABASE_URL: "postgresql://arsy:secret@localhost:5432/arsy",
+        CORS_ORIGINS: "https://app.example.com",
+        DB_POOL_MIN: "11",
+        DB_POOL_MAX: "10",
+      }),
+      /DB_POOL_MIN must not exceed DB_POOL_MAX/,
+    );
   });
 
   it("rejects invalid ports", () => {
