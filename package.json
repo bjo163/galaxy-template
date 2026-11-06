@@ -5,17 +5,22 @@
   "private": true,
   "packageManager": "pnpm@10.0.0",
   "scripts": {
-    "dev": "pnpm --filter web dev",
-    "build": "pnpm --filter web build",
-    "start": "pnpm --filter web start",
-    "lint": "pnpm --filter web lint",
-    "lint:fix": "pnpm --filter web lint:fix",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "typecheck": "turbo run typecheck",
     "format": "pnpm --filter web format",
     "build:icons": "pnpm --filter web build:icons",
     "migrate": "pnpm --filter web migrate",
     "removeI18n": "pnpm --filter web removeI18n",
-    "clean": "pnpm -r run clean",
-    "clear": "pnpm -r exec rm -rf node_modules .next && rm -rf node_modules"
+    "clean": "turbo run clean",
+    "clear": "rimraf -g **/node_modules **/.next node_modules"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "rimraf": "5.0.7"
   },
   "pnpm": {
     "overrides": {
