@@ -23,12 +23,13 @@ import WebsiteAnalyticsSlider from '@views/pages/widget-examples/advanced/Websit
 import Congratulations from '@/views/pages/widget-examples/advanced/Congratulations'
 
 // Server Action Imports
-import { getEcommerceDashboardData } from '@/app/server/actions'
+import { getDashboardData, getEcommerceDashboardData } from '@/app/server/actions'
 import { getServerMode } from '@core/utils/serverHelpers'
 
 const Advanced = async () => {
   // Vars
   const serverMode = await getServerMode()
+  const dashboardData = await getDashboardData()
   const ecommerceDashboardData = await getEcommerceDashboardData()
 
   return (
@@ -37,7 +38,7 @@ const Advanced = async () => {
         <MonthlyCampaignState />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <ActiveProjects />
+        <ActiveProjects data={dashboardData.activeProjects} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <SourceVisits />
@@ -79,7 +80,7 @@ const Advanced = async () => {
         <PopularInstructors />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
-        <LastTransaction serverMode={serverMode} />
+        <LastTransaction data={dashboardData.lastTransactions} serverMode={serverMode} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
         <ActivityTimeline />

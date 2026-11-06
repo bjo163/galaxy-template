@@ -16,21 +16,13 @@ import OptionMenu from '@core/components/option-menu'
 
 // Types Imports
 import type { ThemeColor, SystemMode } from '@core/types'
+import type { LastTransaction as LastTransactionType } from '@/types/apps/dashboardTypes'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
-type DataType = {
-  date: string
-  trend: string
-  imgName: string
-  cardType: string
-  cardNumber: string
-  status: 'verified' | 'rejected' | 'pending' | 'on-hold'
-}
-
 type StatusObj = Record<
-  DataType['status'],
+  LastTransactionType['status'],
   {
     text: string
     color: ThemeColor
@@ -38,49 +30,6 @@ type StatusObj = Record<
 >
 
 // Vars
-const data: DataType[] = [
-  {
-    trend: '+$1,678',
-    status: 'verified',
-    cardType: 'Credit',
-    cardNumber: '*4230',
-    imgName: 'visa',
-    date: `17 Mar ${new Date().getFullYear()}`
-  },
-  {
-    trend: '-$839',
-    status: 'rejected',
-    cardType: 'Credit',
-    cardNumber: '*5578',
-    imgName: 'mastercard',
-    date: `12 Feb ${new Date().getFullYear()}`
-  },
-  {
-    trend: '+$435',
-    cardType: 'ATM',
-    status: 'verified',
-    cardNumber: '*4567',
-    imgName: 'american-express',
-    date: `28 Feb ${new Date().getFullYear()}`
-  },
-  {
-    trend: '+$2,345',
-    status: 'pending',
-    cardType: 'Credit',
-    cardNumber: '*5699',
-    imgName: 'visa',
-    date: `08 Jan ${new Date().getFullYear()}`
-  },
-  {
-    trend: '+$1,758',
-    status: 'rejected',
-    cardType: 'Credit',
-    cardNumber: '*2451',
-    imgName: 'visa',
-    date: `19 Oct ${new Date().getFullYear()}`
-  }
-]
-
 const statusObj: StatusObj = {
   rejected: { text: 'Rejected', color: 'error' },
   pending: { text: 'Pending', color: 'secondary' },
@@ -88,7 +37,7 @@ const statusObj: StatusObj = {
   verified: { text: 'Verified', color: 'success' }
 }
 
-const LastTransaction = ({ serverMode }: { serverMode: SystemMode }) => {
+const LastTransaction = ({ data, serverMode }: { data: LastTransactionType[]; serverMode: SystemMode }) => {
   // Hooks
   const { mode } = useColorScheme()
 
