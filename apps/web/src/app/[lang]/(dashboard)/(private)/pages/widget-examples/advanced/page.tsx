@@ -31,54 +31,54 @@ const Advanced = async () => {
   const serverMode = await getServerMode()
   const dashboardData = await getDashboardData()
   const ecommerceDashboardData = await getEcommerceDashboardData()
-  const widgetExamplesAdvancedData = await getWidgetExamplesAdvancedData()
+  const advancedData = await getWidgetExamplesAdvancedData()
 
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <MonthlyCampaignState />
+        <MonthlyCampaignState data={dashboardData.monthlyCampaignStates} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <ActiveProjects data={dashboardData.activeProjects} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <SourceVisits />
+        <SourceVisits data={dashboardData.sourceVisits} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <SalesByCountries data={widgetExamplesAdvancedData.salesByCountries} />
+        <SalesByCountries data={advancedData.salesByCountries} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <EarningReports />
+        <EarningReports data={advancedData.widgetEarningReports} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <BrowserStates data={widgetExamplesAdvancedData.browserStates} />
+        <BrowserStates data={advancedData.browserStates} />
       </Grid>
       <Grid size={{ xs: 12, lg: 4 }}>
-        <Orders />
+        <Orders data={advancedData.orders} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <Transactions />
+        <Transactions data={advancedData.transactions} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
         <PopularProducts data={ecommerceDashboardData.popularProducts} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <TopCourses />
+        <TopCourses data={advancedData.topCourses} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <UpcomingWebinar />
+        <UpcomingWebinar data={advancedData.upcomingWebinar} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <AssignmentProgress />
+        <AssignmentProgress data={advancedData.assignmentProgress} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <DeliveryPerformance />
+        <DeliveryPerformance data={advancedData.deliveryPerformance} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <VehicleCondition data={widgetExamplesAdvancedData.vehicleConditions} />
+        <VehicleCondition data={advancedData.vehicleConditions} />
       </Grid>
       <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-        <PopularInstructors />
+        <PopularInstructors data={advancedData.popularInstructors} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
         <LastTransaction data={dashboardData.lastTransactions} serverMode={serverMode} />
@@ -87,7 +87,7 @@ const Advanced = async () => {
         <ActivityTimeline />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
-        <WebsiteAnalyticsSlider />
+        <WebsiteAnalyticsSlider data={dashboardData.websiteAnalyticsSlides} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
         <Congratulations />

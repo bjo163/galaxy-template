@@ -7,70 +7,14 @@ import Typography from '@mui/material/Typography'
 // Third-party Imports
 import classnames from 'classnames'
 
-import type { ThemeColor } from '@core/types'
+import { CustomAvatar } from '@galaxy/ui'
+
+import type { MonthlyCampaignState as MonthlyCampaignStateType } from '@/types/apps/dashboardTypes'
 
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
-import CustomAvatar from '@core/components/mui/Avatar'
 
-type DataType = {
-  icon: string
-  title: string
-  amount: string
-  avatarColor: ThemeColor
-  trendNumber: string
-  trend?: 'positive' | 'negative'
-}
-
-// Vars
-const data: DataType[] = [
-  {
-    title: 'Emails',
-    amount: '12,346',
-    trendNumber: '0.3%',
-    avatarColor: 'success',
-    icon: 'tabler-mail'
-  },
-  {
-    title: 'Opened',
-    amount: '8,734',
-    trendNumber: '2.1%',
-    avatarColor: 'info',
-    icon: 'tabler-link'
-  },
-  {
-    title: 'Clicked',
-    amount: '967',
-    trendNumber: '1.4%',
-    trend: 'negative',
-    avatarColor: 'warning',
-    icon: 'tabler-mouse'
-  },
-  {
-    title: 'Subscribe',
-    amount: '345',
-    trendNumber: '8.5%',
-    avatarColor: 'primary',
-    icon: 'tabler-users'
-  },
-  {
-    title: 'Complaints',
-    amount: '10',
-    trendNumber: '1.5%',
-    trend: 'negative',
-    avatarColor: 'secondary',
-    icon: 'tabler-alert-triangle'
-  },
-  {
-    title: 'Unsubscribe',
-    amount: '86',
-    trendNumber: '0.8%',
-    avatarColor: 'error',
-    icon: 'tabler-ban'
-  }
-]
-
-const MonthlyCampaignState = () => {
+const MonthlyCampaignState = ({ data }: { data: MonthlyCampaignStateType[] }) => {
   return (
     <Card>
       <CardHeader

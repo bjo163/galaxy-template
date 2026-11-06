@@ -6,29 +6,16 @@ import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 
 // Type Imports
-import type { ThemeColor } from '@core/types'
+import { CustomAvatar } from '@galaxy/ui'
+
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
 
-type DataType = {
-  title: string
-  views: string
-  icon: string
-  color: ThemeColor
-}
+import type { WidgetTopCourse } from '@/types/pages/widgetExamplesAdvancedTypes'
 
 // Vars
-const data: DataType[] = [
-  { title: 'Videography Basic Design Course', views: '1.2k', icon: 'tabler-video', color: 'primary' },
-  { title: 'Basic Front-end Development Course', views: '834', icon: 'tabler-code', color: 'info' },
-  { title: 'Basic Fundamentals of Photography', views: '3.7k', icon: 'tabler-camera', color: 'success' },
-  { title: 'Advance Dribble Base Visual Design', views: '2.5k', icon: 'tabler-brand-dribbble', color: 'warning' },
-  { title: 'Your First Singing Lesson', views: '948', icon: 'tabler-microphone-2', color: 'error' }
-]
-
-const TopCourses = () => {
+const TopCourses = ({ data }: { data: WidgetTopCourse[] }) => {
   return (
     <Card>
       <CardHeader title='Top Courses' action={<OptionMenu options={['Last 28 Days', 'Last Month', 'Last Year']} />} />

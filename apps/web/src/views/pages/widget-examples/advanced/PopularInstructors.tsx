@@ -6,27 +6,13 @@ import Divider from '@mui/material/Divider'
 import Typography from '@mui/material/Typography'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
+
 import OptionMenu from '@core/components/option-menu'
 
-type DataType = {
-  name: string
-  profession: string
-  totalCourses: number
-  avatar: string
-}
+import type { WidgetPopularInstructor } from '@/types/pages/widgetExamplesAdvancedTypes'
 
-// Vars
-const data: DataType[] = [
-  { name: 'Jordan Stevenson', profession: 'Business Intelligence', totalCourses: 33, avatar: '/images/avatars/1.png' },
-  { name: 'Bentlee Emblin', profession: 'Digital Marketing', totalCourses: 52, avatar: '/images/avatars/2.png' },
-  { name: 'Benedetto Rossiter', profession: 'UI/UX Design', totalCourses: 12, avatar: '/images/avatars/3.png' },
-  { name: 'Beverlie Krabbe', profession: 'Vue', totalCourses: 8, avatar: '/images/avatars/4.png' },
-  { name: 'Emma Bowen', profession: 'React Native', totalCourses: 9, avatar: '/images/avatars/3.png' },
-  { name: 'Amy Patterson', profession: 'Java Developer', totalCourses: 10, avatar: '/images/avatars/6.png' }
-]
-
-const PopularInstructors = () => {
+const PopularInstructors = ({ data }: { data: WidgetPopularInstructor[] }) => {
   return (
     <Card className='bs-full'>
       <CardHeader title='Popular Instructors' action={<OptionMenu options={['Refresh', 'Update', 'Share']} />} />

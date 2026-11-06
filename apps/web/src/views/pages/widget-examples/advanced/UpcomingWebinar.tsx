@@ -8,21 +8,11 @@ import Typography from '@mui/material/Typography'
 import classnames from 'classnames'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
 
-type DataType = {
-  icon: string
-  title: string
-  value: string
-}
+import type { WidgetUpcomingWebinar } from '@/types/pages/widgetExamplesAdvancedTypes'
 
-// Vars
-const data: DataType[] = [
-  { icon: 'tabler-calendar', title: '17 Nov 23', value: 'Date' },
-  { icon: 'tabler-clock', title: '32 Minutes', value: 'Duration' }
-]
-
-const UpcomingWebinar = () => {
+const UpcomingWebinar = ({ data }: { data: WidgetUpcomingWebinar[] }) => {
   return (
     <Card>
       <CardContent className='flex flex-col gap-4'>

@@ -6,29 +6,16 @@ import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
 
 // Type Imports
-import type { ThemeColor } from '@core/types'
+import { CustomIconButton } from '@galaxy/ui'
+
 
 // Components Imports
-import CustomIconButton from '@core/components/mui/IconButton'
 import OptionMenu from '@core/components/option-menu'
 import DirectionalIcon from '@components/DirectionalIcon'
 
-type DataType = {
-  title: string
-  tasks: number
-  progress: number
-  color: ThemeColor
-}
+import type { WidgetAssignmentProgress } from '@/types/pages/widgetExamplesAdvancedTypes'
 
-// Vars
-const data: DataType[] = [
-  { title: 'User Experience Design', tasks: 120, progress: 72, color: 'primary' },
-  { title: 'Basic fundamentals', tasks: 32, progress: 48, color: 'success' },
-  { title: 'React Native components', tasks: 182, progress: 15, color: 'error' },
-  { title: 'Basic of music theory', tasks: 56, progress: 24, color: 'info' }
-]
-
-const AssignmentProgress = () => {
+const AssignmentProgress = ({ data }: { data: WidgetAssignmentProgress[] }) => {
   return (
     <Card>
       <CardHeader title='Assignment Progress' action={<OptionMenu options={['Refresh', 'Update', 'Share']} />} />

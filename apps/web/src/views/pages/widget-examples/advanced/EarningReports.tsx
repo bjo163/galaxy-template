@@ -12,56 +12,20 @@ import type { ApexOptions } from 'apexcharts'
 import classnames from 'classnames'
 
 // Types Imports
-import type { ThemeColor } from '@core/types'
+import { CustomAvatar } from '@galaxy/ui'
+
+import type { WidgetEarningReport } from '@/types/pages/widgetExamplesAdvancedTypes'
 
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
-import CustomAvatar from '@core/components/mui/Avatar'
 
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
-type DataType = {
-  title: string
-  subtitle: string
-  amount: string
-  trendNumber: number
-  avatarIcon: string
-  avatarColor: ThemeColor
-  trend?: 'positive' | 'negative'
-}
-
 // Vars
 const series = [{ data: [32, 98, 61, 41, 88, 47, 71] }]
 
-const data: DataType[] = [
-  {
-    amount: '$1,619',
-    trendNumber: 18.6,
-    title: 'Net Profit',
-    avatarColor: 'primary',
-    subtitle: '12.4k Sales',
-    avatarIcon: 'tabler-chart-pie-2'
-  },
-  {
-    amount: '$3,571',
-    trendNumber: 39.6,
-    title: 'Total Income',
-    avatarColor: 'success',
-    subtitle: 'Sales, Affiliation',
-    avatarIcon: 'tabler-currency-dollar'
-  },
-  {
-    amount: '$430',
-    trendNumber: 52.8,
-    title: 'Total Expenses',
-    avatarColor: 'secondary',
-    subtitle: 'ADVT, Marketing',
-    avatarIcon: 'tabler-credit-card'
-  }
-]
-
-const EarningReports = () => {
+const EarningReports = ({ data }: { data: WidgetEarningReport[] }) => {
   // Vars
   const primaryColorWithOpacity = 'var(--mui-palette-primary-lightOpacity)'
 
