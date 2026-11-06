@@ -44,6 +44,7 @@ describe("Arsy model and data API", () => {
             key: "score",
             type: "integer",
             required: true,
+            indexed: true,
             minimum: 0,
             maximum: 100,
           },
@@ -89,6 +90,55 @@ describe("Arsy model and data API", () => {
       assert.equal(recordResponse.statusCode, 201, recordResponse.body);
       const record = recordResponse.json() as { id: string; name: string };
       assert.equal(record.name, "Ada");
+
+      const compatibleRevision = await app.inject({
+        method: "POST",
+        url: `${modelUrl}/contacts/revisions`,
+        headers: managementHeaders,
+        payload: {
+          ...definition,
+          fields: [
+            ...definition.fields,
+            { key: "source", type: "string", required: false, default: "legacy" },
+          ],
+        },
+      });
+      assert.equal(compatibleRevision.statusCode, 201, compatibleRevision.body);
+      const compatiblePublish = await app.inject({
+        method: "POST",
+        url: `${modelUrl}/contacts/publish`,
+        headers: managementHeaders,
+        payload: { revision: 2 },
+      });
+      assert.equal(compatiblePublish.statusCode, 200, compatiblePublish.body);
+      const backfilledRecord = await app.inject({
+        method: "GET",
+        url: `/api/v1/data/contacts/${record.id}`,
+        headers: dataHeaders,
+      });
+      assert.equal(backfilledRecord.statusCode, 200, backfilledRecord.body);
+      assert.equal(backfilledRecord.json().source, "legacy");
+
+      const breakingRevision = await app.inject({
+        method: "POST",
+        url: `${modelUrl}/contacts/revisions`,
+        headers: managementHeaders,
+        payload: {
+          ...definition,
+          fields: [
+            ...definition.fields,
+            { key: "required_new", type: "string", required: true },
+          ],
+        },
+      });
+      assert.equal(breakingRevision.statusCode, 201, breakingRevision.body);
+      const blockedPublish = await app.inject({
+        method: "POST",
+        url: `${modelUrl}/contacts/publish`,
+        headers: managementHeaders,
+        payload: { revision: 3 },
+      });
+      assert.equal(blockedPublish.statusCode, 409);
 
       const writeOnly = await createCredential(app, owner.accessToken, workspace.id, project.id, ["records:write"]);
       const writeOnlyCreate = await app.inject({

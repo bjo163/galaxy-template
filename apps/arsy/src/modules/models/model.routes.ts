@@ -13,6 +13,7 @@ import {
   requireProjectCredential,
 } from "../../core/auth/project-credential.js";
 import {
+  canonicalJson,
   modelDefinitionHash,
   type ModelDefinition,
   type ModelField,
@@ -546,6 +547,48 @@ function getIndexName(
   return `arsy_field_${digest}`;
 }
 
+async function validateExistingRecordsForRevision(
+  trx: Knex.Transaction,
+  projectId: string,
+  modelKey: string,
+  revision: number,
+  definition: ModelDefinition,
+): Promise<void> {
+  let lastId: string | undefined;
+  while (true) {
+    const query = trx("arsy_records")
+      .select("id", "payload")
+      .where({ project_id: projectId, model_key: modelKey })
+      .orderBy("id", "asc")
+      .limit(500);
+    if (lastId) query.andWhere("id", ">", lastId);
+    const rows = await query;
+    if (rows.length === 0) break;
+
+    for (const row of rows) {
+      const existing = readJsonObject(row.payload);
+      let normalized: Record<string, unknown>;
+      try {
+        normalized = validateRecordPayload(definition, existing);
+      } catch {
+        throw new HttpError(
+          409,
+          `Model revision ${revision} is incompatible with existing records. A data migration is required before publication.`,
+        );
+      }
+      if (canonicalJson(normalized) !== canonicalJson(existing)) {
+        await trx("arsy_records")
+          .where({ id: row.id, project_id: projectId, model_key: modelKey })
+          .update({
+            payload: JSON.stringify(normalized),
+            model_revision: revision,
+          });
+      }
+    }
+    lastId = rows.at(-1)?.id as string;
+  }
+}
+
 async function recreateFieldIndexes(
   trx: Knex.Transaction,
   projectId: string,
@@ -869,6 +912,13 @@ export async function registerModelRoutes(
               )
             : undefined;
           const previousDefinition = previous?.definition;
+          await validateExistingRecordsForRevision(
+            trx,
+            request.params.projectId,
+            request.params.modelKey,
+            request.body.revision,
+            definition,
+          );
           await recreateFieldIndexes(
             trx,
             request.params.projectId,
