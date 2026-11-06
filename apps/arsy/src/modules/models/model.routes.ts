@@ -46,6 +46,48 @@ type ProjectActor = {
   projectId: string;
 };
 
+type RecordCursor = {
+  version: 1;
+  projectId: string;
+  modelKey: string;
+  filterHash: string;
+  createdAt: string;
+  id: string;
+};
+
+function encodeRecordCursor(cursor: RecordCursor): string {
+  return Buffer.from(JSON.stringify(cursor), "utf8").toString("base64url");
+}
+
+function decodeRecordCursor(
+  value: string,
+  projectId: string,
+  modelKey: string,
+  filterHash: string,
+): RecordCursor {
+  if (value.length > 2_048 || !/^[A-Za-z0-9_-]+$/.test(value)) {
+    throw new HttpError(400, "The pagination cursor is invalid.");
+  }
+  try {
+    const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as Record<string, unknown>;
+    if (
+      parsed.version !== 1 ||
+      parsed.projectId !== projectId ||
+      parsed.modelKey !== modelKey ||
+      parsed.filterHash !== filterHash ||
+      typeof parsed.createdAt !== "string" ||
+      Number.isNaN(Date.parse(parsed.createdAt)) ||
+      typeof parsed.id !== "string" ||
+      !/^[0-9a-f-]{36}$/i.test(parsed.id)
+    ) {
+      throw new Error("cursor context mismatch");
+    }
+    return parsed as RecordCursor;
+  } catch {
+    throw new HttpError(400, "The pagination cursor is invalid for this query.");
+  }
+}
+
 type FilterExpression =
   | { and: FilterExpression[] }
   | { or: FilterExpression[] }
@@ -395,6 +437,24 @@ function fieldExpression(field: ModelField): string {
   return "payload ->> ?";
 }
 
+function fieldIndexExpression(field: ModelField): string {
+  const key = field.key.replace(/'/g, "''");
+  const extracted = `payload ->> '${key}'`;
+  switch (field.type) {
+    case "integer":
+    case "number":
+      return `(${extracted})::numeric`;
+    case "boolean":
+      return `(${extracted})::boolean`;
+    case "date":
+      return `(${extracted})::date`;
+    case "datetime":
+      return `(${extracted})::timestamptz`;
+    default:
+      return extracted;
+  }
+}
+
 function scalarFilterValue(field: ModelField, value: unknown): string | number | boolean {
   if (
     typeof value === "string" ||
@@ -509,7 +569,7 @@ async function recreateFieldIndexes(
     const indexName = getIndexName(projectId, modelKey, field.key);
     const unique = field.unique ? "UNIQUE " : "";
     await trx.raw(
-      `CREATE ${unique}INDEX ?? ON "arsy_records" ("workspace_id", "project_id", "model_key", (payload ->> '${field.key}'))`,
+      `CREATE ${unique}INDEX ?? ON "arsy_records" ("workspace_id", "project_id", "model_key", (${fieldIndexExpression(field)}))`,
       [indexName],
     );
   }
@@ -898,7 +958,7 @@ export async function registerModelRoutes(
     },
   );
 
-  app.post<{ Params: RouteParams; Body: { filter?: unknown; limit?: number } }>(
+  app.post<{ Params: RouteParams; Body: { filter?: unknown; limit?: number; cursor?: string } }>(
     "/data/:modelKey/query",
     {
       schema: {
@@ -913,6 +973,7 @@ export async function registerModelRoutes(
           properties: {
             filter: { type: "object" },
             limit: { type: "integer", minimum: 1, maximum: 100 },
+            cursor: { type: "string", minLength: 1, maxLength: 2048 },
           },
         },
       },
@@ -934,6 +995,10 @@ export async function registerModelRoutes(
           const fieldMap = new Map(
             model.definition.fields.map((field) => [field.key, field]),
           );
+          const limit = request.body.limit ?? 50;
+          const filterHash = createHash("sha256")
+            .update(JSON.stringify(request.body.filter ?? null))
+            .digest("hex");
           const query = trx("arsy_records")
             .select(
               "id",
@@ -951,7 +1016,21 @@ export async function registerModelRoutes(
               model_key: request.params.modelKey,
             })
             .orderBy("created_at", "desc")
-            .limit(request.body.limit ?? 50);
+            .orderBy("id", "desc")
+            .limit(limit + 1);
+
+          if (request.body.cursor) {
+            const cursor = decodeRecordCursor(
+              request.body.cursor,
+              actor.projectId,
+              request.params.modelKey,
+              filterHash,
+            );
+            query.andWhereRaw("(created_at, id) < (?, ?)", [
+              new Date(cursor.createdAt),
+              cursor.id,
+            ]);
+          }
 
           if (model.definition.access.defaultVisibility === "private") {
             query.andWhere("owner_user_id", actor.accountId);
@@ -963,8 +1042,22 @@ export async function registerModelRoutes(
               fieldMap,
             );
           }
-          const rows = await query;
+          const fetchedRows = await query;
+          const hasMore = fetchedRows.length > limit;
+          const rows = fetchedRows.slice(0, limit);
+          const lastRow = rows.at(-1);
+          const nextCursor = hasMore && lastRow
+            ? encodeRecordCursor({
+                version: 1,
+                projectId: actor.projectId,
+                modelKey: request.params.modelKey,
+                filterHash,
+                createdAt: new Date(lastRow.createdAt as string).toISOString(),
+                id: lastRow.id as string,
+              })
+            : null;
           return {
+            nextCursor,
             data: rows.map((row) => ({
               id: row.id,
               ...readJsonObject(row.payload),
@@ -1029,6 +1122,15 @@ export async function registerModelRoutes(
             }
             throw error;
           }
+          await writeAudit(trx, {
+            workspaceId: actor.workspaceId,
+            projectId: actor.projectId,
+            actorId: actor.accountId,
+            action: "record.created",
+            resourceType: "record",
+            resourceId: id,
+            metadata: { modelKey: request.params.modelKey, fieldCount: Object.keys(payload).length },
+          });
           return reply.code(201).send({
             id,
             ...payload,
@@ -1147,6 +1249,15 @@ export async function registerModelRoutes(
               model_revision: model.activeRevision,
               updated_at: now,
             });
+          await writeAudit(trx, {
+            workspaceId: actor.workspaceId,
+            projectId: actor.projectId,
+            actorId: actor.accountId,
+            action: "record.updated",
+            resourceType: "record",
+            resourceId: request.params.recordId,
+            metadata: { modelKey: request.params.modelKey, changedFields: Object.keys(request.body as Record<string, unknown>) },
+          });
           return {
             id: row.id,
             ...payload,
@@ -1187,6 +1298,15 @@ export async function registerModelRoutes(
           if (deleted === 0) {
             throw new HttpError(404, "The record was not found.");
           }
+          await writeAudit(trx, {
+            workspaceId: actor.workspaceId,
+            projectId: actor.projectId,
+            actorId: actor.accountId,
+            action: "record.deleted",
+            resourceType: "record",
+            resourceId: request.params.recordId,
+            metadata: { modelKey: request.params.modelKey },
+          });
           return reply.code(204).send();
         },
       );
