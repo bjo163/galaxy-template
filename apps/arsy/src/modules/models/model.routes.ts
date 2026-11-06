@@ -1305,7 +1305,7 @@ export async function registerModelRoutes(
             actorId: actor.accountId,
             action: "record.updated",
             resourceType: "record",
-            resourceId: request.params.recordId,
+            resourceId: request.params.recordId as string,
             metadata: { modelKey: request.params.modelKey, changedFields: Object.keys(request.body as Record<string, unknown>) },
           });
           return {
@@ -1354,7 +1354,7 @@ export async function registerModelRoutes(
             actorId: actor.accountId,
             action: "record.deleted",
             resourceType: "record",
-            resourceId: request.params.recordId,
+            resourceId: request.params.recordId as string,
             metadata: { modelKey: request.params.modelKey },
           });
           return reply.code(204).send();

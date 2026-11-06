@@ -48,13 +48,14 @@ it(
     const otherWorkspaceId = randomUUID();
     const otherWorkspaceProjectId = randomUUID();
     const definitionId = randomUUID();
-    const accountIds = [accountId];
-    const workspaceIds = [workspaceId, otherWorkspaceId];
+    const accountIds: string[] = [accountId];
+    const workspaceIds: string[] = [workspaceId, otherWorkspaceId];
 
     try {
       await app.ready();
-      assert.ok(app.database);
-      const knex = app.database.knex;
+      const database = app.database;
+      assert.ok(database);
+      const knex = database.knex;
       poolDatabase = await createDatabase({
         adapter: "postgres",
         connectionString,

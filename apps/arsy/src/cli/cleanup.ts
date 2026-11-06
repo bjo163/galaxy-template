@@ -26,8 +26,9 @@ async function deleteExpiredRows(
         .whereIn("id", rows.map((row) => row.id))
         .delete();
     });
-    total += deleted;
-    if (deleted === 0) break;
+    const deletedCount = Number(deleted ?? 0);
+    total += deletedCount;
+    if (deletedCount === 0) break;
   }
   return total;
 }
