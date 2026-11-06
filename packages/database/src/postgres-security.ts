@@ -53,32 +53,35 @@ function compileExpression(
   knex: Knex,
   expression: RowLevelSecurityExpression,
 ): string {
-  if (expression.type === "and" || expression.type === "or") {
-    if (expression.expressions.length === 0) {
-      throw new Error("Row-security logical expressions must not be empty.");
+  switch (expression.type) {
+    case "and":
+    case "or": {
+      if (expression.expressions.length === 0) {
+        throw new Error("Row-security logical expressions must not be empty.");
+      }
+
+      return `(${expression.expressions
+        .map((child) => compileExpression(knex, child))
+        .join(expression.type === "and" ? " AND " : " OR ")})`;
     }
+    case "column-is-null":
+      return knex.raw("?? IS NULL", [expression.column]).toQuery();
+    case "setting-equals-column":
+      if (!/^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/.test(expression.setting)) {
+        throw new Error(
+          "Row-security setting names must be safe PostgreSQL names.",
+        );
+      }
 
-    return `(${expression.expressions
-      .map((child) => compileExpression(knex, child))
-      .join(expression.type === "and" ? " AND " : " OR ")})`;
+      return knex
+        .raw(
+          expression.valueType === "uuid"
+            ? "?? = NULLIF(current_setting(?, true), '')::uuid"
+            : "?? = NULLIF(current_setting(?, true), '')",
+          [expression.column, expression.setting],
+        )
+        .toQuery();
   }
-
-  if (expression.type === "column-is-null") {
-    return knex.raw("?? IS NULL", [expression.column]).toQuery();
-  }
-
-  if (!/^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/.test(expression.setting)) {
-    throw new Error("Row-security setting names must be safe PostgreSQL names.");
-  }
-
-  return knex
-    .raw(
-      expression.valueType === "uuid"
-        ? "?? = NULLIF(current_setting(?, true), '')::uuid"
-        : "?? = NULLIF(current_setting(?, true), '')",
-      [expression.column, expression.setting],
-    )
-    .toQuery();
 }
 
 export async function setTransactionSetting(
