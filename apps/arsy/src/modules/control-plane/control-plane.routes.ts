@@ -18,6 +18,7 @@ import {
   withProjectTransaction,
   withWorkspaceTransaction,
 } from "../../core/tenancy/database-context.js";
+import { enforceAuthRateLimit } from "../../core/auth/rate-limit.js";
 
 type RegisterBody = {
   email: string;
@@ -164,6 +165,8 @@ export async function registerControlPlaneRoutes(
     async (request, reply) => {
       const knex = getKnex(app);
       const email = normalizeEmail(request.body.email);
+      await enforceAuthRateLimit(knex, "register-email", email, 3);
+      await enforceAuthRateLimit(knex, "register-ip", request.ip, 10);
       const exists = await knex("arsy_accounts").select("id").where({ email }).first();
       if (exists) {
         throw new HttpError(409, "An account with this email already exists.");
@@ -226,6 +229,8 @@ export async function registerControlPlaneRoutes(
     async (request, reply) => {
       const knex = getKnex(app);
       const email = normalizeEmail(request.body.email);
+      await enforceAuthRateLimit(knex, "login-email", email, 5);
+      await enforceAuthRateLimit(knex, "login-ip", request.ip, 30);
       const account = await knex("arsy_accounts")
         .select(
           "id",
