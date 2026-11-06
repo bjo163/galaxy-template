@@ -15,19 +15,20 @@ import VehicleOverview from '@views/pages/widget-examples/charts/VehicleOverview
 import InterestedTopics from '@views/pages/widget-examples/charts/InterestedTopics'
 
 // Data Imports
-import { getWidgetExamplesChartsData } from '@/app/server/actions'
+import { getDashboardData, getWidgetExamplesChartsData } from '@/app/server/actions'
 
 const Charts = async () => {
   // Vars
   const chartsData = await getWidgetExamplesChartsData()
+  const dashboardData = await getDashboardData()
 
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12, md: 6 }}>
-        <EarningReports />
+        <EarningReports data={dashboardData.earningReports} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
-        <SupportTracker />
+        <SupportTracker data={dashboardData.supportTracker} />
       </Grid>
       <Grid size={{ xs: 12, md: 4 }}>
         <Sales />
@@ -36,13 +37,13 @@ const Charts = async () => {
         <RevenueReport />
       </Grid>
       <Grid size={{ xs: 12, md: 4 }}>
-        <ProjectStatus />
+        <ProjectStatus data={dashboardData.projectStatuses} />
       </Grid>
       <Grid size={{ xs: 12, md: 8 }}>
         <EarningReportsWithTabs />
       </Grid>
       <Grid size={{ xs: 12, md: 5, lg: 4 }}>
-        <TotalEarning />
+        <TotalEarning data={dashboardData.totalEarnings} />
       </Grid>
       <Grid size={{ xs: 12, md: 7, lg: 8 }}>
         <CarrierPerformance />
@@ -54,7 +55,7 @@ const Charts = async () => {
         <VehicleOverview data={chartsData.vehicleOverview} />
       </Grid>
       <Grid size={{ xs: 12 }}>
-        <InterestedTopics />
+        <InterestedTopics data={chartsData.interestedTopics} />
       </Grid>
     </Grid>
   )

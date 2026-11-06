@@ -15,23 +15,15 @@ import classnames from 'classnames'
 import type { ApexOptions } from 'apexcharts'
 
 // Types Imports
-import type { ThemeColor } from '@core/types'
+import { CustomAvatar } from '@galaxy/ui'
+
+import type { TotalEarning as TotalEarningType } from '@/types/apps/dashboardTypes'
 
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
-import CustomAvatar from '@core/components/mui/Avatar'
 
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
-
-type DataType = {
-  title: string
-  amount: number
-  subtitle: string
-  avatarIcon: string
-  avatarColor: ThemeColor
-  amountDiff?: 'positive' | 'negative'
-}
 
 // Vars
 const series = [
@@ -39,24 +31,7 @@ const series = [
   { name: 'Expense', data: [-7, -10, -7, -12, -6, -9, -5, -8] }
 ]
 
-const data: DataType[] = [
-  {
-    title: 'Total Revenue',
-    subtitle: 'Client Payment',
-    amount: 126,
-    avatarColor: 'primary',
-    avatarIcon: 'tabler-brand-paypal'
-  },
-  {
-    title: 'Total Sales',
-    subtitle: 'Refund',
-    amount: 98,
-    avatarColor: 'secondary',
-    avatarIcon: 'tabler-currency-dollar'
-  }
-]
-
-const TotalEarning = () => {
+const TotalEarning = ({ data }: { data: TotalEarningType[] }) => {
   // Hooks
   const theme = useTheme()
 

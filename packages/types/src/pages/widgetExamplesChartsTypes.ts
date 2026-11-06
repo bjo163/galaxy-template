@@ -7,3 +7,9 @@ export type WidgetVehicleOverview = {
   progressData: string
   widthClass?: string
 }
+
+export type WidgetInterestedTopic = {
+  title: string
+  value: number
+  colorClass: string
+}

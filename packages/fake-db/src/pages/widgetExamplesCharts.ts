@@ -1,7 +1,10 @@
 // Type Imports
-import type { WidgetVehicleOverview } from '@galaxy/types/pages/widgetExamplesChartsTypes'
+import type { WidgetVehicleOverview, WidgetInterestedTopic } from '@galaxy/types/pages/widgetExamplesChartsTypes'
 
-export const db: { vehicleOverview: WidgetVehicleOverview[] } = {
+export const db: {
+  vehicleOverview: WidgetVehicleOverview[]
+  interestedTopics: WidgetInterestedTopic[]
+} = {
   vehicleOverview: [
     {
       icon: 'tabler-car',
@@ -39,5 +42,13 @@ export const db: { vehicleOverview: WidgetVehicleOverview[] } = {
       progressData: '14.6%',
       widthClass: 'is-[14.6%]'
     }
+  ],
+  interestedTopics: [
+    { title: 'UI Design', value: 35, colorClass: 'text-primary' },
+    { title: 'UX Design', value: 20, colorClass: 'text-info' },
+    { title: 'Music', value: 14, colorClass: 'text-success' },
+    { title: 'Animation', value: 12, colorClass: 'text-secondary' },
+    { title: 'React', value: 10, colorClass: 'text-error' },
+    { title: 'SEO', value: 9, colorClass: 'text-warning' }
   ]
 }

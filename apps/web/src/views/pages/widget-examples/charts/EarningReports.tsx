@@ -14,55 +14,20 @@ import classnames from 'classnames'
 import type { ApexOptions } from 'apexcharts'
 
 // Types Imports
-import type { ThemeColor } from '@core/types'
+import { CustomAvatar } from '@galaxy/ui'
+
+import type { EarningReport } from '@/types/apps/dashboardTypes'
 
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
-import CustomAvatar from '@core/components/mui/Avatar'
 
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
-type DataType = {
-  stats: string
-  title: string
-  progress: number
-  avatarIcon: string
-  avatarColor?: ThemeColor
-  progressColor?: ThemeColor
-}
-
 // Vars
 const series = [{ data: [37, 76, 65, 41, 99, 53, 70] }]
 
-const data: DataType[] = [
-  {
-    title: 'Earnings',
-    progress: 64,
-    stats: '$545.69',
-    progressColor: 'primary',
-    avatarColor: 'primary',
-    avatarIcon: 'tabler-currency-dollar'
-  },
-  {
-    title: 'Profit',
-    progress: 59,
-    stats: '$256.34',
-    progressColor: 'info',
-    avatarColor: 'info',
-    avatarIcon: 'tabler-chart-pie-2'
-  },
-  {
-    title: 'Expense',
-    progress: 22,
-    stats: '$74.19',
-    progressColor: 'error',
-    avatarColor: 'error',
-    avatarIcon: 'tabler-brand-paypal'
-  }
-]
-
-const EarningReports = () => {
+const EarningReports = ({ data }: { data: EarningReport[] }) => {
   // Vars
   const primaryColorWithOpacity = 'var(--mui-palette-primary-lightOpacity)'
 

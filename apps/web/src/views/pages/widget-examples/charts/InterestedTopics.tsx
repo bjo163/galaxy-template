@@ -18,14 +18,10 @@ import type { ApexOptions } from 'apexcharts'
 // Components Imports
 import OptionMenu from '@core/components/option-menu'
 
+import type { WidgetInterestedTopic } from '@/types/pages/widgetExamplesChartsTypes'
+
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
-
-type DataType = {
-  title: string
-  value: number
-  colorClass: string
-}
 
 // Vars
 const series = [
@@ -34,21 +30,12 @@ const series = [
   }
 ]
 
-const data1: DataType[] = [
-  { title: 'UI Design', value: 35, colorClass: 'text-primary' },
-  { title: 'UX Design', value: 20, colorClass: 'text-info' },
-  { title: 'Music', value: 14, colorClass: 'text-success' }
-]
-
-const data2: DataType[] = [
-  { title: 'Animation', value: 12, colorClass: 'text-secondary' },
-  { title: 'React', value: 10, colorClass: 'text-error' },
-  { title: 'SEO', value: 9, colorClass: 'text-warning' }
-]
-
 const labels = ['UI Design', 'UX Design', 'Music', 'Animation', 'React', 'SEO']
 
-const InterestedTopics = () => {
+const InterestedTopics = ({ data }: { data: WidgetInterestedTopic[] }) => {
+  // Vars
+  const data1 = data.slice(0, 3)
+  const data2 = data.slice(3, 6)
   // Hooks
   const theme = useTheme()
 
