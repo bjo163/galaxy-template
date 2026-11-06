@@ -318,7 +318,7 @@ describe("Arsy model and data API", () => {
       for (let request = 0; request < 100; request += 1) {
         const allowedResponse = await app.inject({
           method: "POST",
-          url: "/api/v1/data/unknown-model/query",
+          url: "/api/v1/data/unknown_model/query",
           payload: {},
           headers: { authorization: `Bearer ${credential.secret}` },
         });
@@ -327,7 +327,7 @@ describe("Arsy model and data API", () => {
 
       const response = await app.inject({
         method: "POST",
-        url: "/api/v1/data/unknown-model/query",
+        url: "/api/v1/data/unknown_model/query",
         payload: {},
         headers: { authorization: `Bearer ${credential.secret}` },
       });
