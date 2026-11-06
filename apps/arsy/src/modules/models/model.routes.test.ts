@@ -317,16 +317,18 @@ describe("Arsy model and data API", () => {
       );
       for (let request = 0; request < 100; request += 1) {
         const allowedResponse = await app.inject({
-          method: "GET",
-          url: "/api/v1/data/unknown-model",
+          method: "POST",
+          url: "/api/v1/data/unknown-model/query",
+          payload: {},
           headers: { authorization: `Bearer ${credential.secret}` },
         });
         assert.equal(allowedResponse.statusCode, 404);
       }
 
       const response = await app.inject({
-        method: "GET",
-        url: "/api/v1/data/unknown-model",
+        method: "POST",
+        url: "/api/v1/data/unknown-model/query",
+        payload: {},
         headers: { authorization: `Bearer ${credential.secret}` },
       });
       assert.equal(response.statusCode, 429);
@@ -360,13 +362,21 @@ describe("Arsy model and data API", () => {
         authorization: `Bearer ${owner.accessToken}`,
       };
 
-      const addUserResponse = await app.inject({
+      const invitationResponse = await app.inject({
         method: "POST",
-        url: `/api/v1/workspaces/${workspace.id}/projects/${project.id}/users`,
+        url: `/api/v1/workspaces/${workspace.id}/projects/${project.id}/invitations`,
         headers: managementHeaders,
         payload: { email: "private-user@example.com", role: "member" },
       });
-      assert.equal(addUserResponse.statusCode, 201, addUserResponse.body);
+      assert.equal(invitationResponse.statusCode, 201, invitationResponse.body);
+      const invitationToken = emailDelivery.tokenFor("accept-invitation");
+      const acceptInvitation = await app.inject({
+        method: "POST",
+        url: "/api/v1/invitations/accept",
+        headers: { authorization: `Bearer ${user.accessToken}` },
+        payload: { token: invitationToken },
+      });
+      assert.equal(acceptInvitation.statusCode, 200, acceptInvitation.body);
 
       const credential = await createCredential(
         app,
