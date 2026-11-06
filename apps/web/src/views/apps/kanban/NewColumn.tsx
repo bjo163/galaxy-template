@@ -13,7 +13,8 @@ import { object, string, minLength, pipe, nonEmpty } from 'valibot'
 import type { InferInput } from 'valibot'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
+
 
 // Styled CustomTextField component
 const CustomTextFieldStyled = styled(CustomTextField)({

@@ -23,6 +23,8 @@ import Button from '@mui/material/Button'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { AppDispatch } from '@/redux-store'
 import type { ProfileUserType, StatusType } from '@/types/apps/chatTypes'
 
@@ -32,7 +34,6 @@ import { setUserStatus } from '@/redux-store/slices/chat'
 // Component Imports
 import AvatarWithBadge from './AvatarWithBadge'
 import { statusObj } from '@views/apps/chat/SidebarLeft'
-import CustomTextField from '@core/components/mui/TextField'
 
 type Props = {
   userSidebar: boolean

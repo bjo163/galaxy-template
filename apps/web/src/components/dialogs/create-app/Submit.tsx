@@ -1,16 +1,10 @@
-// MUI Imports
+﻿'use client'
+
 import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
 
-// Component Imports
-import DirectionalIcon from '@components/DirectionalIcon'
+import WizardNav from './WizardNav'
 
-type Props = {
-  activeStep: number
-  isLastStep: boolean
-  handleNext: () => void
-  handlePrev: () => void
-}
+type Props = { activeStep: number; isLastStep: boolean; handleNext: () => void; handlePrev: () => void }
 
 const Submit = ({ activeStep, isLastStep, handleNext, handlePrev }: Props) => {
   return (
@@ -22,31 +16,7 @@ const Submit = ({ activeStep, isLastStep, handleNext, handlePrev }: Props) => {
         </div>
         <img alt='submit-img' src='/images/illustrations/characters/4.png' height={200} width={176} />
       </div>
-      <div className='flex items-center justify-between'>
-        <Button
-          variant='tonal'
-          color='secondary'
-          disabled={activeStep === 0}
-          onClick={handlePrev}
-          startIcon={<DirectionalIcon ltrIconClass='tabler-arrow-left' rtlIconClass='tabler-arrow-right' />}
-        >
-          Previous
-        </Button>
-        <Button
-          variant='contained'
-          color={isLastStep ? 'success' : 'primary'}
-          onClick={handleNext}
-          endIcon={
-            isLastStep ? (
-              <i className='tablerr-check' />
-            ) : (
-              <DirectionalIcon ltrIconClass='tabler-arrow-right' rtlIconClass='tabler-arrow-left' />
-            )
-          }
-        >
-          {isLastStep ? 'Submit' : 'Next'}
-        </Button>
-      </div>
+      <WizardNav activeStep={activeStep} isLastStep={isLastStep} onNext={handleNext} onPrev={handlePrev} />
     </div>
   )
 }

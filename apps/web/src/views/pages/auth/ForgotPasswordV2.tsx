@@ -14,13 +14,14 @@ import Button from '@mui/material/Button'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { SystemMode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
 import DirectionalIcon from '@components/DirectionalIcon'
 import Logo from '@components/layout/shared/Logo'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'

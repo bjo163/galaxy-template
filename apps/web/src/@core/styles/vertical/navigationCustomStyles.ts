@@ -18,8 +18,8 @@ const navigationCustomStyles = (verticalNavOptions: VerticalNavState, theme: The
     color: 'var(--mui-palette-text-primary)',
     zIndex: 'var(--drawer-z-index) !important',
     [`& .${verticalNavClasses.header}`]: {
-      paddingBlock: theme.spacing(5),
-      paddingInline: theme.spacing(5.5, 4),
+      paddingBlock: theme.spacing(3),
+      paddingInline: theme.spacing(4, 3),
 
       ...(collapsedNotHovered && {
         paddingInline: theme.spacing(((collapsedWidth as number) - 35) / 8),
@@ -37,7 +37,7 @@ const navigationCustomStyles = (verticalNavOptions: VerticalNavState, theme: The
         easing: 'ease-in-out'
       }),
       borderColor: 'transparent',
-      boxShadow: 'var(--mui-customShadows-sm)',
+      boxShadow: '0 8px 28px rgb(var(--mui-mainColorChannels-shadow) / 0.08)',
       '[data-skin="bordered"] &': {
         boxShadow: 'none',
         ...(collapsedHovered && {

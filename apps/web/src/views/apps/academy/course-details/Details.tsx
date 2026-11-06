@@ -12,15 +12,14 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 
 // Third-party Imports
+import { CustomAvatar, CustomIconButton } from '@galaxy/ui'
+
 import ReactPlayer from '@/libs/ReactPlayer'
 
 // Type Imports
 import type { CourseDetails } from '@/types/apps/academyTypes'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-import CustomIconButton from '@core/components/mui/IconButton'
-
 const Details = ({ data }: { data?: CourseDetails }) => {
   // Hooks
   const theme = useTheme()

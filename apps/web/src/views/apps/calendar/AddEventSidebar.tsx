@@ -20,11 +20,11 @@ import { useForm, Controller } from 'react-hook-form'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { AddEventSidebarType, AddEventType } from '@/types/apps/calendarTypes'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
-
 // Styled Component Imports
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 

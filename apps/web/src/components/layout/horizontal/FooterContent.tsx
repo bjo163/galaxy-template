@@ -6,6 +6,13 @@ import Link from 'next/link'
 // Third-party Imports
 import classnames from 'classnames'
 
+// Type Imports
+import { db as brandingData } from '@galaxy/fake-db/pages/branding'
+
+import type { BrandingData } from '@/types/pages/brandingTypes'
+
+// Data Imports
+
 // Hook Imports
 import useHorizontalNav from '@menu/hooks/useHorizontalNav'
 
@@ -16,36 +23,28 @@ const FooterContent = () => {
   // Hooks
   const { isBreakpointReached } = useHorizontalNav()
 
+  // Vars
+  const branding: BrandingData = brandingData
+
   return (
     <div
       className={classnames(horizontalLayoutClasses.footerContent, 'flex items-center justify-between flex-wrap gap-4')}
     >
       <p>
-        <span className='text-textSecondary'>{`© ${new Date().getFullYear()}, Made with `}</span>
-        <span>{`❤️`}</span>
-        <span className='text-textSecondary'>{` by `}</span>
-        <Link href='https://pixinvent.com/' target='_blank' className='text-primary uppercase'>
-          Pixinvent
+        <span className='text-textSecondary'>{branding.copyright.prefix.replace('{year}', String(new Date().getFullYear()))}</span>
+        <span>{branding.copyright.heart}</span>
+        <span className='text-textSecondary'>{branding.copyright.separator}</span>
+        <Link href={branding.company.url} target='_blank' className='text-primary uppercase'>
+          {branding.company.name}
         </Link>
       </p>
       {!isBreakpointReached && (
         <div className='flex items-center gap-4'>
-          <Link href='https://themeforest.net/licenses/standard' target='_blank' className='text-primary'>
-            License
-          </Link>
-          <Link href='https://themeforest.net/user/pixinvent/portfolio' target='_blank' className='text-primary'>
-            More Themes
-          </Link>
-          <Link
-            href='https://demos.pixinvent.com/vuexy-nextjs-admin-template/documentation'
-            target='_blank'
-            className='text-primary'
-          >
-            Documentation
-          </Link>
-          <Link href='https://pixinvent.ticksy.com' target='_blank' className='text-primary'>
-            Support
-          </Link>
+          {branding.footerLinks.map((link, index) => (
+            <Link key={index} href={link.url} target='_blank' className='text-primary'>
+              {link.label}
+            </Link>
+          ))}
         </div>
       )}
     </div>

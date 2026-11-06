@@ -11,6 +11,8 @@ import { styled } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Type Imports
+import { db } from '@galaxy/fake-db/pages/frontPages'
+
 import type { ThemeColor } from '@core/types'
 
 // Hook Imports
@@ -20,33 +22,10 @@ import { useIntersection } from '@/hooks/useIntersection'
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 import styles from './styles.module.css'
 
+// Data Imports
+
 // Data
-const team = [
-  {
-    name: 'Sophie Gilbert',
-    position: 'Project Manager',
-    image: '/images/front-pages/landing-page/sophie.png',
-    color: 'var(--mui-palette-primary-mainOpacity)'
-  },
-  {
-    name: 'Paul Miles',
-    position: 'UI Designer',
-    image: '/images/front-pages/landing-page/paul.png',
-    color: 'var(--mui-palette-info-mainOpacity)'
-  },
-  {
-    name: 'Nannie Ford',
-    position: 'Development Lead',
-    image: '/images/front-pages/landing-page/nannie.png',
-    color: 'var(--mui-palette-error-mainOpacity)'
-  },
-  {
-    name: 'Chris Watkins',
-    position: 'Marketing Manager',
-    image: '/images/front-pages/landing-page/chris.png',
-    color: 'var(--mui-palette-success-mainOpacity)'
-  }
-]
+const team = db.landing.team
 
 const Card = styled('div')`
   border-color: ${(props: { color: ThemeColor }) => props.color};

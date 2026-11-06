@@ -42,15 +42,15 @@ const defaultColumns = [
   })
 ]
 
-const ColumnVisibility = ({ data: defaultData }: { data: DataType[] }) => {
+const ColumnVisibility = ({ data }: { data?: DataType[] }) => {
   // States
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [data, setData] = useState(() => defaultData)
+  const [rows, setRows] = useState(() => data ?? [])
   const [columns] = useState<typeof defaultColumns>(() => [...defaultColumns])
   const [columnVisibility, setColumnVisibility] = useState({})
 
   const table = useReactTable({
-    data,
+    data: rows,
     columns,
     state: {
       columnVisibility

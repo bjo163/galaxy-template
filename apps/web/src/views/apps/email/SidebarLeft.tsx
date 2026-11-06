@@ -17,13 +17,14 @@ import classnames from 'classnames'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Types Imports
+import { CustomChip } from '@galaxy/ui'
+
 import type { Email, EmailState } from '@/types/apps/emailTypes'
 import type { ThemeColor } from '@core/types'
 import type { Locale } from '@/configs/i18n'
 
 // Components Imports
 import ComposeMail from './ComposeMail'
-import CustomChip from '@core/components/mui/Chip'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

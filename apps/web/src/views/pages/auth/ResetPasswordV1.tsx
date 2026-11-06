@@ -16,12 +16,13 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Button from '@mui/material/Button'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
 import DirectionalIcon from '@components/DirectionalIcon'
 import Logo from '@components/layout/shared/Logo'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

@@ -40,14 +40,14 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
+import { CustomAvatar, CustomTextField } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { Locale } from '@configs/i18n'
 import type { ProductType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
 import TableFilters from './TableFilters'
-import CustomAvatar from '@core/components/mui/Avatar'
-import CustomTextField from '@core/components/mui/TextField'
 import OptionMenu from '@core/components/option-menu'
 import TablePaginationComponent from '@components/TablePaginationComponent'
 

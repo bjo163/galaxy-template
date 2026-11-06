@@ -103,7 +103,7 @@ const Customizer = ({ breakpoint = 'lg', dir = 'ltr', disableDirection = false }
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   // Refs
-  const anchorRef = useRef<HTMLDivElement | null>(null)
+  const anchorRef = useRef<HTMLButtonElement | null>(null)
 
   // Hooks
   const theme = useTheme()
@@ -175,20 +175,33 @@ const Customizer = ({ breakpoint = 'lg', dir = 'ltr', disableDirection = false }
           [styles.smallScreen]: isMobileScreen
         })}
       >
-        <div className={styles.toggler} onClick={handleToggle}>
-          <i className='tabler-settings text-[22px]' />
-        </div>
+        <button
+          type='button'
+          className={styles.toggler}
+          onClick={handleToggle}
+          aria-label='Open theme visualizer'
+          aria-expanded={isOpen}
+        >
+          <i className='tabler-settings text-[22px]' aria-hidden='true' />
+        </button>
         <div className={styles.header}>
           <div className='flex flex-col'>
-            <h4 className={styles.customizerTitle}>Theme Customizer</h4>
-            <p className={styles.customizerSubtitle}>Customize & Preview in Real Time</p>
+            <h4 className={styles.customizerTitle}>Galaxy Theme Visualizer</h4>
+            <p className={styles.customizerSubtitle}>Tune color, mode, and layout</p>
           </div>
           <div className='flex gap-4'>
-            <div onClick={resetSettings} className='relative flex cursor-pointer'>
-              <i className='tabler-refresh text-textPrimary' />
+            <button
+              type='button'
+              onClick={resetSettings}
+              className='relative flex cursor-pointer'
+              aria-label='Reset theme settings'
+            >
+              <i className='tabler-refresh text-textPrimary' aria-hidden='true' />
               <div className={classnames(styles.dotStyles, { [styles.show]: isSettingsChanged })} />
-            </div>
-            <i className='tabler-x text-textPrimary cursor-pointer' onClick={handleToggle} />
+            </button>
+            <button type='button' className='text-textPrimary cursor-pointer' onClick={handleToggle} aria-label='Close theme visualizer'>
+              <i className='tabler-x' aria-hidden='true' />
+            </button>
           </div>
         </div>
         <ScrollWrapper
@@ -203,24 +216,31 @@ const Customizer = ({ breakpoint = 'lg', dir = 'ltr', disableDirection = false }
                 <p className='font-medium'>Primary Color</p>
                 <div className='flex items-center justify-between'>
                   {primaryColorConfig.map(item => (
-                    <div
+                    <button
+                      type='button'
                       key={item.main}
                       className={classnames(styles.primaryColorWrapper, {
                         [styles.active]: settings.primaryColor === item.main
                       })}
                       onClick={() => handleChange('primaryColor', item.main)}
+                      aria-label={`${item.name} primary color`}
+                      aria-pressed={settings.primaryColor === item.main}
                     >
-                      <div className={styles.primaryColor} style={{ backgroundColor: item.main }} />
-                    </div>
+                      <span className={styles.primaryColor} style={{ backgroundColor: item.main }} />
+                    </button>
                   ))}
-                  <div
+                  <button
+                    type='button'
                     ref={anchorRef}
                     className={classnames(styles.primaryColorWrapper, {
                       [styles.active]: !isColorFromPrimaryConfig
                     })}
                     onClick={() => setIsMenuOpen(prev => !prev)}
+                    aria-label='Choose custom primary color'
+                    aria-haspopup='dialog'
+                    aria-expanded={isMenuOpen}
                   >
-                    <div
+                    <span
                       className={classnames(styles.primaryColor, 'flex items-center justify-center')}
                       style={{
                         backgroundColor: !isColorFromPrimaryConfig
@@ -232,8 +252,8 @@ const Customizer = ({ breakpoint = 'lg', dir = 'ltr', disableDirection = false }
                       }}
                     >
                       <i className='tabler-color-picker text-xl' />
-                    </div>
-                  </div>
+                    </span>
+                  </button>
                   <Popper
                     transition
                     open={isMenuOpen}

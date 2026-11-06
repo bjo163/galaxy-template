@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid'
 import InvoiceList from '@views/apps/invoice/list'
 
 // Data Imports
-import { getInvoiceData } from '@/app/server/actions'
+import { getInvoiceData, getInvoiceKPIData } from '@/app/server/actions'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -28,11 +28,12 @@ import { getInvoiceData } from '@/app/server/actions'
 const InvoiceApp = async () => {
   // Vars
   const data = await getInvoiceData()
+  const kpiData = await getInvoiceKPIData()
 
   return (
     <Grid container>
       <Grid size={{ xs: 12 }}>
-        <InvoiceList invoiceData={data} />
+        <InvoiceList invoiceData={data} kpiData={kpiData} />
       </Grid>
     </Grid>
   )

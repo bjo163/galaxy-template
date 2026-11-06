@@ -26,11 +26,11 @@ import classnames from 'classnames'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Type Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-
 // Config Imports
 import themeConfig from '@configs/themeConfig'
 

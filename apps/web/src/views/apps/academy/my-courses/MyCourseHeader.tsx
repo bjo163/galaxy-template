@@ -7,12 +7,11 @@ import { useTheme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomIconButton, CustomTextField } from '@galaxy/ui'
+
 import type { Mode } from '@core/types'
 
 // Component Imports
-import CustomIconButton from '@core/components/mui/IconButton'
-import CustomTextField from '@core/components/mui/TextField'
-
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
 

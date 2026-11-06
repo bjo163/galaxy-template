@@ -12,7 +12,8 @@ import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
+
 
 // Styled Component Imports
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'

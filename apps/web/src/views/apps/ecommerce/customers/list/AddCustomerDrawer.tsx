@@ -15,11 +15,11 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import { useForm, Controller } from 'react-hook-form'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { Customer } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
-
 type Props = {
   open: boolean
   handleClose: () => void

@@ -17,11 +17,11 @@ import { lighten, darken, useTheme } from '@mui/material/styles'
 import type { ApexOptions } from 'apexcharts'
 
 // Type Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 

@@ -37,14 +37,16 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import { getInitials } from '@galaxy/utils'
 
+import { CustomAvatar , CustomTextField } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { OrderType } from '@/types/apps/ecommerceTypes'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
-import CustomTextField from '@core/components/mui/TextField'
+
+
 import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Util Imports

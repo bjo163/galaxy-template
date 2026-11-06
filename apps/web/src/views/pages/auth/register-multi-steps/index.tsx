@@ -20,11 +20,12 @@ import type { StepProps } from '@mui/material/Step'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { SystemMode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
 import DirectionalIcon from '@components/DirectionalIcon'
 import Logo from '@components/layout/shared/Logo'
 import StepperWrapper from '@core/styles/stepper'

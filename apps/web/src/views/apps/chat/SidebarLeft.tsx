@@ -17,6 +17,8 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 // Type Imports
 import { getInitials } from '@galaxy/utils'
 
+import { CustomAvatar, CustomChip , CustomTextField } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { ChatDataType, StatusObjType } from '@/types/apps/chatTypes'
 import type { AppDispatch } from '@/redux-store'
@@ -25,11 +27,10 @@ import type { AppDispatch } from '@/redux-store'
 import { addNewChat } from '@/redux-store/slices/chat'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-import CustomChip from '@core/components/mui/Chip'
 import UserProfileLeft from './UserProfileLeft'
 import AvatarWithBadge from './AvatarWithBadge'
-import CustomTextField from '@core/components/mui/TextField'
+
+
 
 // Util Imports
 import { formatDateToMonthShort } from './utils'

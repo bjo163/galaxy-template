@@ -1,0 +1,1 @@
+﻿{"extends":"@galaxy/tsconfig/base.json","compilerOptions":{"jsx":"react-jsx","lib":["DOM","DOM.Iterable","ESNext"],"types":["react","react-dom"]},"include":["src/**/*.ts","src/**/*.tsx","src/**/*.d.ts"]}

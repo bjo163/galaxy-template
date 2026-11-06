@@ -6,12 +6,11 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
 // Third-party Imports
+import { CustomAvatar, CustomIconButton } from '@galaxy/ui'
+
 import ReactPlayer from '@/libs/ReactPlayer'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-import CustomIconButton from '@core/components/mui/IconButton'
-
 const FreeCourses = () => {
   return (
     <Card>

@@ -6,12 +6,13 @@ import dynamic from 'next/dynamic'
 
 // Type Imports
 import type { Data } from '@/types/pages/profileTypes'
+import type { ActivityTimelineItem } from '@galaxy/fake-db/apps/activityTimeline'
 
 // Component Imports
 import UserProfile from '@views/pages/user-profile'
 
 // Data Imports
-import { getProfileData } from '@/app/server/actions'
+import { getProfileData, getActivityTimelineData } from '@/app/server/actions'
 
 const ProfileTab = dynamic(() => import('@views/pages/user-profile/profile'))
 const TeamsTab = dynamic(() => import('@views/pages/user-profile/teams'))
@@ -19,8 +20,8 @@ const ProjectsTab = dynamic(() => import('@views/pages/user-profile/projects'))
 const ConnectionsTab = dynamic(() => import('@views/pages/user-profile/connections'))
 
 // Vars
-const tabContentList = (data?: Data): { [key: string]: ReactElement } => ({
-  profile: <ProfileTab data={data?.users.profile} />,
+const tabContentList = (data?: Data, activityTimelineData?: ActivityTimelineItem[]): { [key: string]: ReactElement } => ({
+  profile: <ProfileTab data={data?.users.profile} activityTimelineData={activityTimelineData} />,
   teams: <TeamsTab data={data?.users.teams} />,
   projects: <ProjectsTab data={data?.users.projects} />,
   connections: <ConnectionsTab data={data?.users.connections} />
@@ -47,8 +48,9 @@ const tabContentList = (data?: Data): { [key: string]: ReactElement } => ({
 const ProfilePage = async () => {
   // Vars
   const data = await getProfileData()
+  const activityTimelineData = await getActivityTimelineData()
 
-  return <UserProfile data={data} tabContentList={tabContentList(data)} />
+  return <UserProfile data={data} tabContentList={tabContentList(data, activityTimelineData)} />
 }
 
 export default ProfilePage

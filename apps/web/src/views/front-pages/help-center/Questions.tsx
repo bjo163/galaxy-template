@@ -9,22 +9,20 @@ import InputAdornment from '@mui/material/InputAdornment'
 import classnames from 'classnames'
 
 // Component Imports
+import { CustomTextField } from '@galaxy/ui'
+
+import { db } from '@galaxy/fake-db/pages/frontPages'
+
 import Link from '@components/Link'
 import DirectionalIcon from '@components/DirectionalIcon'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Styles Imports
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 
+// Data Imports
+
 // Data
-const articleList = [
-  'Template Kits',
-  'Elementor Template Kits: PHP Zip Extends',
-  'Envato Elements Template Kits',
-  'Envato Elements Template Kits',
-  'How to use the template in WordPress',
-  'How to use the Template Kit Import'
-]
+const articleList = db.helpCenter.relatedArticles
 
 const Questions = () => {
   return (

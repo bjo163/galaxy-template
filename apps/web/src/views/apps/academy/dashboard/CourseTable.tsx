@@ -35,13 +35,17 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
+import { CustomAvatar } from '@galaxy/ui'
+
+import { CustomTextField } from '@galaxy/ui'
+
 import type { Course } from '@/types/apps/academyTypes'
 import type { Locale } from '@configs/i18n'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
 import TablePaginationComponent from '@components/TablePaginationComponent'
-import CustomTextField from '@core/components/mui/TextField'
+
+
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

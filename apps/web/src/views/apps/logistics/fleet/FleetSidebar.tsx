@@ -26,11 +26,11 @@ import type { TimelineProps } from '@mui/lab/Timeline'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 // Types Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { viewStateType } from './index'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-
 type Props = {
   backdropOpen: boolean
   setBackdropOpen: (value: boolean) => void

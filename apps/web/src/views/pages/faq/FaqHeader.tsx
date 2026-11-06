@@ -10,8 +10,10 @@ import type { TextFieldProps } from '@mui/material/TextField'
 import classnames from 'classnames'
 
 // Styles imports
+import { CustomTextField } from '@galaxy/ui'
+
 import styles from './styles.module.css'
-import CustomTextField from '@core/components/mui/TextField'
+
 
 // Styled CustomTextField component
 const CustomTextFieldStyled = styled(CustomTextField)<TextFieldProps>(({ theme }) => ({

@@ -9,8 +9,9 @@ import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
 
 // Component Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import Form from '@components/Form'
-import CustomTextField from '@core/components/mui/TextField'
 
 const ProductPricing = () => {
   return (

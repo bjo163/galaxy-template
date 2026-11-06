@@ -1,14 +1,6 @@
-type SearchData = {
-  id: string
-  name: string
-  url: string
-  excludeLang?: boolean
-  icon: string
-  section: string
-  shortcut?: string
-}
+import type { SearchData } from '@galaxy/types/navigation/searchDataTypes'
 
-const data: SearchData[] = [
+export const db: SearchData[] = [
   {
     id: '1',
     name: 'CRM Dashboard',
@@ -793,4 +785,3 @@ const data: SearchData[] = [
   }
 ]
 
-export default data

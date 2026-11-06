@@ -12,6 +12,7 @@
   transition-property: inset-inline-end, box-shadow;
   transition-duration: 300ms;
   transition-timing-function: ease-in-out;
+  border-inline-start: 1px solid var(--border-color);
 
   &.show {
     inset-inline-end: 0 !important;
@@ -43,6 +44,8 @@
   inset-inline-end: 100%;
   transform: translateY(-20%);
   padding: 8px;
+  border: 0;
+  font: inherit;
   background-color: var(--primary-color);
   color: var(--mui-palette-primary-contrastText);
   border-start-start-radius: var(--border-radius);
@@ -90,8 +93,8 @@
 .customizerBody {
   display: flex;
   flex-direction: column;
-  padding: 24px;
-  gap: 32px;
+  padding: 18px 20px;
+  gap: 24px;
 }
 
 .itemWrapper {
@@ -105,6 +108,9 @@
   min-inline-size: 106px;
   min-block-size: 68px;
   cursor: pointer;
+  color: inherit;
+  background: var(--mui-palette-background-paper);
+  transition: border-color 140ms ease, background-color 140ms ease, outline-color 140ms ease;
 
   &.active {
     border-color: var(--primary-color);
@@ -131,11 +137,24 @@
   inline-size: 50px;
   padding: 8px;
   cursor: pointer;
+  background: var(--mui-palette-background-paper);
+  transition: border-color 140ms ease, outline-color 140ms ease, transform 140ms ease;
 
   &.active {
     border-color: var(--primary-color);
     outline: 1px solid var(--primary-color);
   }
+}
+
+.primaryColorWrapper:hover {
+  transform: translateY(-2px);
+}
+
+.primaryColorWrapper:focus-visible,
+.itemWrapper:focus-visible,
+.toggler:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 3px;
 }
 
 .primaryColor {

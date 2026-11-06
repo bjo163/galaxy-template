@@ -25,9 +25,11 @@ import { toast } from 'react-toastify'
 import classnames from 'classnames'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
+
+import { CustomTextField } from '@galaxy/ui'
+
 import DirectionalIcon from '@components/DirectionalIcon'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Styles Component Imports
 import StepperWrapper from '@core/styles/stepper'

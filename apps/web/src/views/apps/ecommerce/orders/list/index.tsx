@@ -5,16 +5,17 @@ import Grid from '@mui/material/Grid'
 
 // Type Imports
 import type { OrderType } from '@/types/apps/ecommerceTypes'
+import type { ecommerceOrderKPI } from '@galaxy/fake-db/apps/ecommerceOrderKPI'
 
 // Component Imports
 import OrderCard from './OrderCard'
 import OrderListTable from './OrderListTable'
 
-const OrderList = ({ orderData }: { orderData?: OrderType[] }) => {
+const OrderList = ({ orderData, kpiData }: { orderData?: OrderType[]; kpiData: typeof ecommerceOrderKPI }) => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12 }}>
-        <OrderCard />
+        <OrderCard data={kpiData} />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <OrderListTable orderData={orderData} />

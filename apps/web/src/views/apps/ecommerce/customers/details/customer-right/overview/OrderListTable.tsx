@@ -34,6 +34,8 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { OrderType } from '@/types/apps/ecommerceTypes'
 import type { Locale } from '@configs/i18n'
@@ -41,7 +43,6 @@ import type { Locale } from '@configs/i18n'
 // Component Imports
 import OptionMenu from '@core/components/option-menu'
 import TablePaginationComponent from '@components/TablePaginationComponent'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

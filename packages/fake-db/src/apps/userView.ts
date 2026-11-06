@@ -3,7 +3,8 @@ import type {
   RecentDeviceItem,
   ConnectedAccount,
   SocialAccount,
-  ProjectListItem
+  ProjectListItem,
+  EcommerceCustomerPaymentCard
 } from '@galaxy/types/apps/userViewTypes'
 
 export const db: {
@@ -12,6 +13,7 @@ export const db: {
   connectedAccounts: ConnectedAccount[]
   socialAccounts: SocialAccount[]
   projectList: ProjectListItem[]
+  ecommercePaymentCards: EcommerceCustomerPaymentCard[]
 } = {
   paymentMethods: [
     {
@@ -95,5 +97,10 @@ export const db: {
     { id: 5, hours: '230:10', progressValue: 49, totalTask: '120/186', progressColor: 'warning', projectType: 'Python Project', projectTitle: 'Dojo React Project', img: '/images/logos/python-bg.png' },
     { id: 6, hours: '342:41', progressValue: 92, totalTask: '99/109', progressColor: 'success', projectType: 'Sketch Project', projectTitle: 'Blockchain Website', img: '/images/logos/sketch-bg.png' },
     { id: 7, hours: '12:45', progressValue: 88, totalTask: '98/110', progressColor: 'success', projectType: 'HTML Project', projectTitle: 'Hoffman Website', img: '/images/logos/html-bg.png' }
+  ],
+  ecommercePaymentCards: [
+    { typeOfCard: 'Mastercard', isDefaultCard: true, expiryDate: 'Apr 2028' },
+    { typeOfCard: 'American Express', isDefaultCard: false, expiryDate: 'Jan 2025' },
+    { typeOfCard: 'Visa', isDefaultCard: false, expiryDate: 'Nov 2030' }
   ]
 }

@@ -4,7 +4,8 @@
   "private": true,
   "exports": {
     "./apps/*": "./src/apps/*.ts",
-    "./pages/*": "./src/pages/*.ts"
+    "./pages/*": "./src/pages/*.ts",
+    "./navigation/*": "./src/navigation/*.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -18,6 +19,7 @@
   "devDependencies": {
     "@galaxy/tsconfig": "workspace:*",
     "@galaxy/eslint-config": "workspace:*",
+    "@types/node": "24.10.1",
     "@types/react": "19.2.7",
     "eslint": "8.57.1",
     "rimraf": "5.0.7",

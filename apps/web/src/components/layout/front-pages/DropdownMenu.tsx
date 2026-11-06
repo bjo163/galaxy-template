@@ -27,11 +27,12 @@ import {
 } from '@floating-ui/react'
 
 // Type Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { Mode } from '@core/types'
 
 // Component Imports
 import Link from '@components/Link'
-import CustomAvatar from '@core/components/mui/Avatar'
 
 type Props = {
   mode: Mode

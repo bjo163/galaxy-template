@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 // Next Imports
 import Link from 'next/link'
@@ -14,13 +14,17 @@ import Button from '@mui/material/Button'
 import classnames from 'classnames'
 
 // Type Imports
+import { DirectionalIcon } from '@galaxy/ui'
+
+import { CustomTextField } from '@galaxy/ui'
+
 import type { SystemMode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import DirectionalIcon from '@components/DirectionalIcon'
 import Logo from '@components/layout/shared/Logo'
-import CustomTextField from '@core/components/mui/TextField'
+
+
 
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
@@ -91,7 +95,7 @@ const ForgotPassword = ({ mode }: { mode: SystemMode }) => {
         </Link>
         <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-8 sm:mbs-11 md:mbs-0'>
           <div className='flex flex-col gap-1'>
-            <Typography variant='h4'>Forgot Password 🔒</Typography>
+            <Typography variant='h4'>Forgot Password ðŸ”’</Typography>
             <Typography>Enter your email and we&#39;ll send you instructions to reset your password</Typography>
           </div>
           <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()} className='flex flex-col gap-6'>

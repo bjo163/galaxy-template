@@ -10,128 +10,26 @@ import Chip from '@mui/material/Chip'
 import classnames from 'classnames'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
+
 
 // Styles Imports
+import { db } from '@galaxy/fake-db/pages/frontPages'
+
 import tableStyles from '@core/styles/table.module.css'
 import styles from './styles.module.css'
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 
 // Types
-type FeatureType = {
-  feature: string
-  starter: boolean
-  pro: boolean
-  enterprise: boolean
-  addOnAvailable: {
-    starter: boolean
-    pro: boolean
-    enterprise: boolean
-  }
-}
-type PlanType = {
-  variant: 'tonal' | 'contained'
-  label: string
-  plan: 'starter' | 'pro' | 'enterprise'
-}
+// Type Imports
+import type { PricingPageFeature, PricingPagePlanButton } from '@/types/pages/frontPagesTypes'
+
+// Data Imports
 
 // Data
-const features: FeatureType[] = [
-  {
-    feature: '14-days free trial',
-    starter: true,
-    pro: true,
-    enterprise: true,
-    addOnAvailable: {
-      starter: false,
-      pro: false,
-      enterprise: false
-    }
-  },
-  {
-    feature: 'No user limit',
-    starter: false,
-    pro: false,
-    enterprise: true,
-    addOnAvailable: {
-      starter: false,
-      pro: false,
-      enterprise: false
-    }
-  },
-  {
-    feature: 'Product Support',
-    starter: false,
-    pro: true,
-    enterprise: true,
-    addOnAvailable: {
-      starter: false,
-      pro: false,
-      enterprise: false
-    }
-  },
-  {
-    feature: 'Email Support',
-    starter: false,
-    pro: false,
-    enterprise: true,
-    addOnAvailable: {
-      starter: false,
-      pro: true,
-      enterprise: false
-    }
-  },
-  {
-    feature: 'Integrations',
-    starter: false,
-    pro: true,
-    enterprise: true,
-    addOnAvailable: {
-      starter: false,
-      pro: false,
-      enterprise: false
-    }
-  },
-  {
-    feature: 'Removal of Front branding',
-    starter: false,
-    pro: false,
-    enterprise: true,
-    addOnAvailable: {
-      starter: false,
-      pro: true,
-      enterprise: false
-    }
-  },
-  {
-    feature: 'Active maintenance & support',
-    starter: false,
-    pro: false,
-    enterprise: true,
-    addOnAvailable: {
-      starter: false,
-      pro: false,
-      enterprise: false
-    }
-  },
-  {
-    feature: 'Data storage for 365 days',
-    starter: false,
-    pro: false,
-    enterprise: true,
-    addOnAvailable: {
-      starter: false,
-      pro: false,
-      enterprise: false
-    }
-  }
-]
+const features: PricingPageFeature[] = db.pricing.features
 
-const plans: PlanType[] = [
-  { variant: 'tonal', label: 'Choose Plan', plan: 'starter' },
-  { variant: 'contained', label: 'Choose Plan', plan: 'pro' },
-  { variant: 'tonal', label: 'Choose Plan', plan: 'enterprise' }
-]
+const plans: PricingPagePlanButton[] = db.pricing.plans
 
 const Plans = () => {
   return (

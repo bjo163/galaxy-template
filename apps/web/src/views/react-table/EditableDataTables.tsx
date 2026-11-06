@@ -78,13 +78,13 @@ const defaultColumn: Partial<ColumnDef<DataType>> = {
   }
 }
 
-const EditableDataTables = ({ data: defaultData }: { data: DataType[] }) => {
+const EditableDataTables = ({ data }: { data?: DataType[] }) => {
   // States
-  const [data, setData] = useState(() => defaultData)
+  const [rows, setRows] = useState(() => data ?? [])
 
   // Hooks
   const table = useReactTable({
-    data,
+    data: rows,
     columns,
     defaultColumn,
     getCoreRowModel: getCoreRowModel(),
@@ -95,7 +95,7 @@ const EditableDataTables = ({ data: defaultData }: { data: DataType[] }) => {
     // Provide our updateData function to our table meta
     meta: {
       updateData: (rowIndex, columnId, value) => {
-        setData(old =>
+        setRows(old =>
           old.map((row, index) => {
             if (index === rowIndex) {
               return {

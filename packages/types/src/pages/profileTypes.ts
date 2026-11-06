@@ -1,6 +1,29 @@
 // Type Imports
 import type { ThemeColor } from '../base'
 
+export type ActivityTimelineItem = {
+  id: number
+  type: 'invoice-paid' | 'meeting' | 'project'
+  title: string
+  timeAgo: string
+  description: string
+  iconColor: string
+  attachment?: {
+    name: string
+    src: string
+  }
+  avatar?: {
+    name: string
+    role: string
+    src: string
+  }
+  avatars?: {
+    name: string
+    src: string
+  }[]
+  totalMembers?: number
+}
+
 export type ProjectTableRowType = {
   id: number
   title: string

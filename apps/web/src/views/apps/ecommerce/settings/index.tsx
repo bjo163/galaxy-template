@@ -13,7 +13,7 @@ import TabPanel from '@mui/lab/TabPanel'
 import Typography from '@mui/material/Typography'
 
 // Component Imports
-import CustomTabList from '@core/components/mui/TabList'
+import { CustomTabList } from '@galaxy/ui'
 
 const Settings = ({ tabContentList }: { tabContentList: { [key: string]: ReactElement } }) => {
   // States

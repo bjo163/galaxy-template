@@ -38,10 +38,10 @@ const theme = (settings: Settings, mode: SystemMode, direction: Theme['direction
     typography: typography(public_sans.style.fontFamily),
     customShadows: customShadows(mode),
     mainColorChannels: {
-      light: '47 43 61',
-      dark: '225 222 245',
-      lightShadow: '47 43 61',
-      darkShadow: '19 17 32'
+      light: '32 56 43',
+      dark: '229 237 231',
+      lightShadow: '32 56 43',
+      darkShadow: '10 16 12'
     }
   } as Theme
 }

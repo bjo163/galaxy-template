@@ -5,8 +5,7 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
 // Component Imports
-import CustomIconButton from '@core/components/mui/IconButton'
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomIconButton, CustomTextField } from '@galaxy/ui'
 
 const InviteAndShare = () => {
   return (

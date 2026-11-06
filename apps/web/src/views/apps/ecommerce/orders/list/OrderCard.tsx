@@ -11,33 +11,12 @@ import type { Theme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
 
-// Vars
-const data = [
-  {
-    value: 56,
-    title: 'Pending Payment',
-    icon: 'tabler-calendar-stats'
-  },
-  {
-    value: 12689,
-    title: 'Completed',
-    icon: 'tabler-checks'
-  },
-  {
-    value: 124,
-    title: 'Refunded',
-    icon: 'tabler-wallet'
-  },
-  {
-    value: 32,
-    title: 'Failed',
-    icon: 'tabler-alert-octagon'
-  }
-]
+// Type Imports
+import type { ecommerceOrderKPI } from '@galaxy/fake-db/apps/ecommerceOrderKPI'
 
-const OrderCard = () => {
+const OrderCard = ({ data }: { data: typeof ecommerceOrderKPI }) => {
   // Hooks
   const isBelowMdScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
   const isBelowSmScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))

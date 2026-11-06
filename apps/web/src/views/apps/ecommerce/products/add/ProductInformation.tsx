@@ -21,8 +21,7 @@ import StarterKit from '@tiptap/starter-kit'
 import classnames from 'classnames'
 
 // Components Imports
-import CustomIconButton from '@core/components/mui/IconButton'
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomIconButton, CustomTextField } from '@galaxy/ui'
 
 // Style Imports
 import '@/libs/styles/tiptapEditor.css'

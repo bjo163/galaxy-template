@@ -38,14 +38,14 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
+import { CustomAvatar, CustomTextField } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { InvoiceType } from '@/types/apps/invoiceTypes'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
 import OptionMenu from '@core/components/option-menu'
-import CustomAvatar from '@core/components/mui/Avatar'
-import CustomTextField from '@core/components/mui/TextField'
 import TablePaginationComponent from '@components/TablePaginationComponent'
 
 // Util Imports

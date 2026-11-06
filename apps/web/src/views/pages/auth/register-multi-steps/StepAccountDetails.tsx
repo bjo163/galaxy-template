@@ -9,8 +9,9 @@ import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 
 // Component Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import DirectionalIcon from '@components/DirectionalIcon'
-import CustomTextField from '@core/components/mui/TextField'
 
 const StepAccountDetails = ({ handleNext }: { handleNext: () => void }) => {
   // States

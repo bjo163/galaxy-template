@@ -7,8 +7,9 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
 // Component Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import Link from '@components/Link'
-import CustomAvatar from '@core/components/mui/Avatar'
 import OptionMenu from '@core/components/option-menu'
 
 // Style Imports

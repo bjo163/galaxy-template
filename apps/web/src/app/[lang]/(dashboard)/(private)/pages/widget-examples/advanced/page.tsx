@@ -23,7 +23,7 @@ import WebsiteAnalyticsSlider from '@views/pages/widget-examples/advanced/Websit
 import Congratulations from '@/views/pages/widget-examples/advanced/Congratulations'
 
 // Server Action Imports
-import { getDashboardData, getEcommerceDashboardData, getWidgetExamplesAdvancedData } from '@/app/server/actions'
+import { getDashboardData, getEcommerceDashboardData, getWidgetExamplesAdvancedData, getActivityTimelineData } from '@/app/server/actions'
 import { getServerMode } from '@core/utils/serverHelpers'
 
 const Advanced = async () => {
@@ -32,6 +32,7 @@ const Advanced = async () => {
   const dashboardData = await getDashboardData()
   const ecommerceDashboardData = await getEcommerceDashboardData()
   const advancedData = await getWidgetExamplesAdvancedData()
+  const activityTimelineData = await getActivityTimelineData()
 
   return (
     <Grid container spacing={6}>
@@ -84,7 +85,7 @@ const Advanced = async () => {
         <LastTransaction data={dashboardData.lastTransactions} serverMode={serverMode} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
-        <ActivityTimeline />
+        <ActivityTimeline data={activityTimelineData} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
         <WebsiteAnalyticsSlider data={dashboardData.websiteAnalyticsSlides} />

@@ -1,4 +1,6 @@
 // MUI Imports
+import type { ReactNode } from 'react'
+
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -11,10 +13,12 @@ import { useKeenSlider } from 'keen-slider/react'
 import classnames from 'classnames'
 
 // Component Imports
-import CustomIconButton from '@core/components/mui/IconButton'
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomIconButton, CustomAvatar } from '@galaxy/ui'
+
 
 // Styled Component Imports
+import { db } from '@galaxy/fake-db/pages/frontPages'
+
 import AppKeenSlider from '@/libs/styles/AppKeenSlider'
 
 // SVG Imports
@@ -29,89 +33,25 @@ import Netflix from '@assets/svg/front-pages/landing-page/Netflix'
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 import styles from './styles.module.css'
 
+// React Imports
+
+// Type Imports
+import type { LandingCustomerReview } from '@/types/pages/frontPagesTypes'
+
+// Data Imports
+
 // Data
-const data = [
-  {
-    desc: "I've never used a theme as versatile and flexible as Vuexy. It's my go to for building dashboard sites on almost any project.",
-    svg: <Pinterest color='#ee7676' />,
-    rating: 5,
-    name: 'Eugenia Moore',
-    position: 'Founder of Pinterest',
-    avatarSrc: '/images/avatars/1.png'
-  },
-  {
-    desc: 'Materio is awesome, and I particularly enjoy knowing that if I get stuck on something.',
-    svg: <Netflix color='#d34c4d' />,
-    rating: 5,
-    name: 'Tommy haffman',
-    position: 'Founder of Netflix',
-    avatarSrc: '/images/avatars/2.png'
-  },
-  {
-    desc: "This template is superior in so many ways. The code, the design, the regular updates, the support.. It's the whole package. Excellent Work.",
-    svg: <Airbnb color='#FF5A60' />,
-    rating: 4,
-    name: 'Eugenia Moore',
-    position: 'CTO of Airbnb',
-    avatarSrc: '/images/avatars/3.png'
-  },
-  {
-    desc: "All the requirements for developers have been taken into consideration, so I'm able to build any interface I want.",
-    svg: <Coinbase color='#0199ff' />,
-    rating: 5,
-    name: 'Sara Smith',
-    position: 'Founder of Coinbase',
-    avatarSrc: '/images/avatars/4.png'
-  },
-  {
-    desc: "I've never used a theme as versatile and flexible as Vuexy. It's my go to for building dashboard sites on almost any project.",
-    svg: <Dribbble color='#ea4c89' />,
-    rating: 5,
-    name: 'Tommy haffman',
-    position: 'Founder of Dribble',
-    avatarSrc: '/images/avatars/5.png'
-  },
-  {
-    desc: "I've never used a theme as versatile and flexible as Vuexy. It's my go to for building dashboard sites on almost any project.",
-    svg: <Pinterest color='#ee7676' />,
-    rating: 5,
-    name: 'Eugenia Moore',
-    position: 'Founder of Pinterest',
-    avatarSrc: '/images/avatars/6.png'
-  },
-  {
-    desc: 'Materio is awesome, and I particularly enjoy knowing that if I get stuck on something.',
-    svg: <HubSpot color='#FF5C35' />,
-    rating: 5,
-    name: 'Tommy haffman',
-    position: 'Founder of HubSpot',
-    avatarSrc: '/images/avatars/7.png'
-  },
-  {
-    desc: "This template is superior in so many ways. The code, the design, the regular updates, the support.. It's the whole package. Excellent Work.",
-    svg: <Airbnb color='#FF5A60' />,
-    rating: 4,
-    name: 'Eugenia Moore',
-    position: 'CTO of Airbnb',
-    avatarSrc: '/images/avatars/8.png'
-  },
-  {
-    desc: "All the requirements for developers have been taken into consideration, so I'm able to build any interface I want.",
-    svg: <Coinbase color='#0199ff' />,
-    rating: 5,
-    name: 'Sara Smith',
-    position: 'Founder of Coinbase',
-    avatarSrc: '/images/avatars/9.png'
-  },
-  {
-    desc: 'Materio is awesome, and I particularly enjoy knowing that if I get stuck on something.',
-    svg: <Dribbble color='#ea4c89' />,
-    rating: 5,
-    name: 'Tommy haffman',
-    position: 'Founder of Dribbble',
-    avatarSrc: '/images/avatars/10.png'
-  }
-]
+const data: LandingCustomerReview[] = db.landing.customerReviews
+
+// Maps the fake-db logo keys to their inline SVG brand marks
+const reviewLogos: Record<LandingCustomerReview['logo'], (color: string) => ReactNode> = {
+  pinterest: color => <Pinterest color={color} />,
+  netflix: color => <Netflix color={color} />,
+  airbnb: color => <Airbnb color={color} />,
+  coinbase: color => <Coinbase color={color} />,
+  dribbble: color => <Dribbble color={color} />,
+  hubspot: color => <HubSpot color={color} />
+}
 
 const CustomerReviews = () => {
   // Hooks
@@ -207,7 +147,7 @@ const CustomerReviews = () => {
                   <Card elevation={8} className='flex items-start'>
                     <CardContent className='p-8 items-center mlb-auto'>
                       <div className='flex flex-col gap-4 items-start'>
-                        {item.svg}
+                        {reviewLogos[item.logo](item.logoColor)}
                         <Typography>{item.desc}</Typography>
                         <Rating value={item.rating} readOnly />
                         <div className='flex items-center gap-x-3'>

@@ -10,8 +10,8 @@ import type { TypographyProps } from '@mui/material/Typography'
 import { styled } from '@mui/material/styles'
 
 // Component Imports
-import CustomInputVertical from '@core/components/custom-inputs/Vertical'
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomInputVertical, CustomTextField } from '@galaxy/ui'
+
 import DirectionalIcon from '@components/DirectionalIcon'
 import type { CustomInputVerticalData } from '@core/components/custom-inputs/types'
 

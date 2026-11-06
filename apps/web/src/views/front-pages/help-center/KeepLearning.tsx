@@ -11,6 +11,8 @@ import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
 
 // SVG Imports
+import { db } from '@galaxy/fake-db/pages/frontPages'
+
 import Laptop from '@assets/svg/front-pages/help-center/Laptop'
 import Bulb from '@assets/svg/front-pages/help-center/Bulb'
 import Discord from '@assets/svg/front-pages/help-center/Discord'
@@ -18,35 +20,23 @@ import Discord from '@assets/svg/front-pages/help-center/Discord'
 // Styles Imports
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 
-// Types
-type keepLearningType = {
-  slug: string
-  title: string
-  svg: ReactNode
-  subtitle: string
-}
+// Type Imports
+import type { HelpCenterGraphicArticle } from '@/types/pages/frontPagesTypes'
+
+// Data Imports
 
 // Data
-const keepLearning: keepLearningType[] = [
-  {
-    slug: 'blogging',
-    title: 'Blogging',
-    svg: <Laptop color='var(--mui-palette-text-secondary)' />,
-    subtitle: 'Expert tips & tools to improve your website or online store using blog.'
-  },
-  {
-    slug: 'inspiration-center',
-    title: 'Inspiration Center',
-    svg: <Bulb color='var(--mui-palette-text-secondary)' />,
-    subtitle: 'Inspiration from experts to help you start and grow your big ideas.'
-  },
-  {
-    slug: 'community',
-    title: 'Community',
-    svg: <Discord color='var(--mui-palette-text-secondary)' />,
-    subtitle: 'A group of people living in the same place or having a particular.'
-  }
-]
+const keepLearning: HelpCenterGraphicArticle[] = db.helpCenter.keepLearning
+
+// Maps the fake-db icon keys to their inline SVG components
+const articleIcons: Record<HelpCenterGraphicArticle['icon'], ReactNode> = {
+  rocket: <Laptop color='var(--mui-palette-text-secondary)' />,
+  gift: <Bulb color='var(--mui-palette-text-secondary)' />,
+  file: <Discord color='var(--mui-palette-text-secondary)' />,
+  laptop: <Laptop color='var(--mui-palette-text-secondary)' />,
+  bulb: <Bulb color='var(--mui-palette-text-secondary)' />,
+  discord: <Discord color='var(--mui-palette-text-secondary)' />
+}
 
 const KeepLearning = () => {
   return (
@@ -61,7 +51,7 @@ const KeepLearning = () => {
               <Grid size={{ xs: 12, lg: 4 }} key={index}>
                 <Card variant='outlined'>
                   <CardContent className='flex flex-col items-center justify-center gap-3 text-center'>
-                    {article.svg}
+                    {articleIcons[article.icon]}
                     <Typography variant='h5'>{article.title}</Typography>
                     <Typography>{article.subtitle}</Typography>
                     <Button

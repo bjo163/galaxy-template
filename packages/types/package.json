@@ -6,7 +6,8 @@
     ".": "./src/index.ts",
     "./base": "./src/base.ts",
     "./apps/*": "./src/apps/*.ts",
-    "./pages/*": "./src/pages/*.ts"
+    "./pages/*": "./src/pages/*.ts",
+    "./navigation/*": "./src/navigation/*.ts"
   },
   "types": "./src/index.ts",
   "scripts": {

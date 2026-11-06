@@ -6,7 +6,7 @@ import CardContent from '@mui/material/CardContent'
 import Alert from '@mui/material/Alert'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
 
 const Profile = () => {
   return (

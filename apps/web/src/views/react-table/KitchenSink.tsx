@@ -28,11 +28,12 @@ import type { Column, Table, ColumnFiltersState, FilterFn, ColumnDef } from '@ta
 import type { RankingInfo } from '@tanstack/match-sorter-utils'
 
 // Type Imports
+import { CustomTextField } from '@galaxy/ui'
+
 import type { DataType } from '@/types/apps/reactTableTypes'
 
 // Component Imports
 import TablePaginationComponent from '@components/TablePaginationComponent'
-import CustomTextField from '@core/components/mui/TextField'
 
 // Icon Imports
 import ChevronRight from '@menu/svg/ChevronRight'
@@ -131,12 +132,12 @@ const Filter = ({ column, table }: { column: Column<any, unknown>; table: Table<
   )
 }
 
-const KitchenSink = ({ data: defaultData }: { data: DataType[] }) => {
+const KitchenSink = ({ data }: { data?: DataType[] }) => {
   // States
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [data, setData] = useState<DataType[]>(() => defaultData)
+  const [rows, setRows] = useState<DataType[]>(() => data ?? [])
 
   // Hooks
   const columns = useMemo<ColumnDef<DataType, any>[]>(
@@ -167,7 +168,7 @@ const KitchenSink = ({ data: defaultData }: { data: DataType[] }) => {
   )
 
   const table = useReactTable({
-    data,
+    data: rows,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter

@@ -19,70 +19,54 @@ import type { ButtonProps } from '@mui/material/Button'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomInputHorizontal } from '@galaxy/ui'
+
+import { CustomTextField } from '@galaxy/ui'
+
+import { db } from '@galaxy/fake-db/pages/frontPages'
+
 import type { CustomInputHorizontalData } from '@core/components/custom-inputs/types'
 import type { PricingPlanType } from '@/types/pages/pricingTypes'
 
 // Component Imports
-import CustomInputHorizontal from '@core/components/custom-inputs/Horizontal'
 import PricingDialog from '@components/dialogs/pricing'
 import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
 import DirectionalIcon from '@components/DirectionalIcon'
 import { useSettings } from '@core/hooks/useSettings'
-import CustomTextField from '@core/components/mui/TextField'
+
+
 
 // Styles Imports
 import frontCommonStyles from '@views/front-pages/styles.module.css'
 
-// Data
-const cardData: CustomInputHorizontalData[] = [
-  {
-    title: (
-      <div className='flex items-center gap-4'>
-        <Avatar
-          variant='rounded'
-          className='is-[58px] bs-[34px]'
-          sx={theme => ({
-            backgroundColor: 'var(--mui-palette-action-hover)',
-            ...theme.applyStyles('dark', {
-              backgroundColor: 'var(--mui-palette-common-white)'
-            })
-          })}
-        >
-          <img src='/images/logos/visa.png' alt='plan' className='bs-3' />
-        </Avatar>
-        <Typography color='text.primary' className='font-medium'>
-          Credit Card
-        </Typography>
-      </div>
-    ),
-    value: 'credit-card',
-    isSelected: true
-  },
-  {
-    title: (
-      <div className='flex items-center gap-4'>
-        <Avatar
-          variant='rounded'
-          className='is-[58px] bs-[34px]'
-          sx={theme => ({
-            backgroundColor: 'var(--mui-palette-action-hover)',
-            ...theme.applyStyles('dark', {
-              backgroundColor: 'var(--mui-palette-common-white)'
-            })
-          })}
-        >
-          <img src='/images/logos/paypal.png' alt='plan' className='bs-5' />
-        </Avatar>
-        <Typography color='text.primary' className='font-medium'>
-          Paypal
-        </Typography>
-      </div>
-    ),
-    value: 'paypal'
-  }
-]
+// Data Imports
 
-const countries = ['Australia', 'Brazil', 'Canada', 'India', 'United Arab Emirates', 'United Kingdom', 'United States']
+// Data
+const cardData: CustomInputHorizontalData[] = db.payment.methods.map(method => ({
+  title: (
+    <div className='flex items-center gap-4'>
+      <Avatar
+        variant='rounded'
+        className='is-[58px] bs-[34px]'
+        sx={theme => ({
+          backgroundColor: 'var(--mui-palette-action-hover)',
+          ...theme.applyStyles('dark', {
+            backgroundColor: 'var(--mui-palette-common-white)'
+          })
+        })}
+      >
+        <img src={method.img} alt='plan' className={method.imgHeightClass} />
+      </Avatar>
+      <Typography color='text.primary' className='font-medium'>
+        {method.label}
+      </Typography>
+    </div>
+  ),
+  value: method.value,
+  ...(method.isSelected && { isSelected: true })
+}))
+
+const countries = db.payment.countries
 
 const Payment = ({ data }: { data: PricingPlanType[] }) => {
   // Vars

@@ -20,7 +20,7 @@ import { email, object, minLength, string, pipe, nonEmpty } from 'valibot'
 import type { InferInput } from 'valibot'
 
 // Components Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
 
 type FormData = InferInput<typeof schema>
 

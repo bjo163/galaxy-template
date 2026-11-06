@@ -12,7 +12,8 @@ import type { Theme } from '@mui/material/styles'
 import classNames from 'classnames'
 
 //Components Imports
-import CustomIconButton from '@core/components/mui/IconButton'
+import { CustomIconButton } from '@galaxy/ui'
+
 import FleetSidebar from './FleetSidebar'
 import FleetMap from './FleetMap'
 

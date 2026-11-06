@@ -15,7 +15,8 @@ const card = (skin: Skin): Theme['components'] => {
       styleOverrides: {
         root: ({ ownerState }) => ({
           ...(ownerState.variant !== 'outlined' && {
-            boxShadow: 'var(--mui-customShadows-md)'
+            boxShadow: '0 1px 2px rgb(var(--mui-mainColorChannels-shadow) / 0.06)',
+            border: '1px solid var(--mui-palette-divider)'
           })
         })
       }
@@ -23,7 +24,7 @@ const card = (skin: Skin): Theme['components'] => {
     MuiCardHeader: {
       styleOverrides: {
         root: ({ theme }) => ({
-          padding: theme.spacing(6),
+          padding: theme.spacing(4),
           '& + .MuiCardContent-root, & + .MuiCardActions-root': {
             paddingBlockStart: 0
           },
@@ -50,10 +51,10 @@ const card = (skin: Skin): Theme['components'] => {
     MuiCardContent: {
       styleOverrides: {
         root: ({ theme }) => ({
-          padding: theme.spacing(6),
+          padding: theme.spacing(4),
           color: 'var(--mui-palette-text-secondary)',
           '&:last-child': {
-            paddingBlockEnd: theme.spacing(6)
+            paddingBlockEnd: theme.spacing(4)
           },
           '& + .MuiCardHeader-root, & + .MuiCardContent-root, & + .MuiCardActions-root': {
             paddingBlockStart: 0
@@ -68,7 +69,7 @@ const card = (skin: Skin): Theme['components'] => {
     MuiCardActions: {
       styleOverrides: {
         root: ({ theme }) => ({
-          padding: theme.spacing(6),
+          padding: theme.spacing(4),
           '& .MuiButtonBase-root:not(:first-of-type)': {
             marginInlineStart: theme.spacing(4)
           },

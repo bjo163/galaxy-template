@@ -24,8 +24,9 @@ import classnames from 'classnames'
 import type { ApexOptions } from 'apexcharts'
 
 // Components Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import OptionMenu from '@core/components/option-menu'
-import CustomAvatar from '@core/components/mui/Avatar'
 
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))

@@ -1,0 +1,75 @@
+name: Arsy PostgreSQL RLS
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/arsy-postgres-rls.yml"
+      - "apps/arsy/**"
+      - "packages/database/**"
+  push:
+    paths:
+      - ".github/workflows/arsy-postgres-rls.yml"
+      - "apps/arsy/**"
+      - "packages/database/**"
+  workflow_dispatch:
+
+jobs:
+  postgres-rls:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: arsy_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d arsy_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.0.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Generate isolated database role credentials
+        run: |
+          migrator_password="$(openssl rand -hex 32)"
+          runtime_password="$(openssl rand -hex 32)"
+          echo "::add-mask::$migrator_password"
+          echo "::add-mask::$runtime_password"
+          echo "ARSY_MIGRATOR_PASSWORD=$migrator_password" >> "$GITHUB_ENV"
+          echo "ARSY_RUNTIME_PASSWORD=$runtime_password" >> "$GITHUB_ENV"
+
+      - name: Provision PostgreSQL roles through database layer
+        run: |
+          export ARSY_POSTGRES_ADMIN_URL="postgresql://postgres:postgres@localhost:5432/arsy_test"
+          pnpm --filter arsy db:provision-roles
+
+      - name: Apply migrations as owner
+        run: |
+          export DATABASE_ADAPTER=postgres
+          DATABASE_URL="postgresql://arsy_migrator:${ARSY_MIGRATOR_PASSWORD}@localhost:5432/arsy_test" \
+            pnpm --filter arsy db:migrate
+
+      - name: Grant runtime access to migrated tables
+        run: |
+          export ARSY_POSTGRES_ADMIN_URL="postgresql://postgres:postgres@localhost:5432/arsy_test"
+          pnpm --filter arsy db:provision-roles
+
+      - name: Run Arsy tests as runtime role
+        run: |
+          export DATABASE_ADAPTER=postgres
+          export DATABASE_URL="postgresql://arsy_runtime:${ARSY_RUNTIME_PASSWORD}@localhost:5432/arsy_test"
+          export ARSY_POSTGRES_TEST_URL="$DATABASE_URL"
+          pnpm --filter arsy test

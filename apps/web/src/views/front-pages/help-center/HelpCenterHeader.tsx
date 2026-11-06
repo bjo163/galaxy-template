@@ -8,7 +8,8 @@ import type { TextFieldProps } from '@mui/material/TextField'
 import classnames from 'classnames'
 
 // Components Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
+
 
 // Styles imports
 import styles from './styles.module.css'

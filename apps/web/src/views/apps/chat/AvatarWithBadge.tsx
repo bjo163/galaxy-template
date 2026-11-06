@@ -12,11 +12,11 @@ import classnames from 'classnames'
 // Type Imports
 import { getInitials } from '@galaxy/utils'
 
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-
 // Util Imports
 
 const BadgeContentSpan = styled('span', {

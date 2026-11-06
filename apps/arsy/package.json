@@ -1,0 +1,43 @@
+{
+  "name": "arsy",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "predev": "pnpm --filter @galaxy/database build",
+    "dev": "node ../../.scripts/load-env.mjs . node_modules/tsx/dist/cli.mjs watch src/server.ts",
+    "prebuild": "pnpm --filter @galaxy/database build",
+    "build": "pnpm build:server",
+    "build:server": "tsc -p tsconfig.build.json",
+    "pretest": "pnpm --filter @galaxy/database build",
+    "prestart": "pnpm --filter @galaxy/database build",
+    "db:migrate": "pnpm build && node ../../.scripts/load-env.mjs . node dist/cli/migrations.js up",
+    "db:rollback": "pnpm build && node ../../.scripts/load-env.mjs . node dist/cli/migrations.js down",
+    "db:status": "pnpm build && node ../../.scripts/load-env.mjs . node dist/cli/migrations.js status",
+    "db:provision-roles": "pnpm build && node ../../.scripts/load-env.mjs . node dist/cli/postgres-roles.js",
+    "start": "node ../../.scripts/load-env.mjs . node dist/server.js",
+    "test": "tsx --test src/**/*.test.ts",
+    "pretypecheck": "pnpm --filter @galaxy/database build",
+    "typecheck": "pnpm typecheck:server",
+    "typecheck:server": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fastify/cors": "11.4.1",
+    "@fastify/helmet": "13.2.0",
+    "@fastify/rate-limit": "11.2.2",
+    "@fastify/swagger": "9.9.3",
+    "@fastify/swagger-ui": "5.2.6",
+    "@galaxy/database": "workspace:*",
+    "@prometheus-io/client": "0.16.1",
+    "fastify": "5.12.8"
+  },
+  "devDependencies": {
+    "@galaxy/tsconfig": "workspace:^",
+    "@types/node": "24.10.1",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3"
+  }
+}

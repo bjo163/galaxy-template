@@ -7,7 +7,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Typography from '@mui/material/Typography'
 
 // Component Imports
-import CustomTextField from '@core/components/mui/TextField'
+import { CustomTextField } from '@galaxy/ui'
 
 const OrderIdFormat = () => {
   return (

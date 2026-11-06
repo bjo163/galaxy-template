@@ -16,12 +16,11 @@ import AccordionDetails from '@mui/material/AccordionDetails'
 import classnames from 'classnames'
 
 // Type Imports
+import { CustomAvatar, CustomTabList } from '@galaxy/ui'
+
 import type { FaqType } from '@/types/pages/faqTypes'
 
 // Component Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-import CustomTabList from '@core/components/mui/TabList'
-
 type props = {
   faqData?: FaqType[]
   searchValue: string
