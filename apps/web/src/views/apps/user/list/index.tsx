@@ -2,8 +2,9 @@
 import Grid from '@mui/material/Grid'
 
 // Type Imports
-import type { UsersType } from '@/types/apps/userTypes'
 import type { userListCards } from '@galaxy/fake-db/apps/userListCards'
+
+import type { UsersType } from '@/types/apps/userTypes'
 
 // Component Imports
 import UserListTable from './UserListTable'
