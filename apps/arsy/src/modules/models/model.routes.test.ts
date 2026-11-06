@@ -4,6 +4,7 @@ import { describe, it } from "node:test";
 import { createApp } from "../../app.js";
 import { loadConfig } from "../../config/env.js";
 import { up as migrateControlPlane } from "../../migrations/0001_arsy_control_plane.js";
+import { up as migrateAuthRateLimits } from "../../migrations/0003_auth_rate_limits.js";
 
 describe("Arsy model and data API", () => {
   it("publishes tenant-scoped models and validates record CRUD and filters", async () => {
@@ -15,6 +16,7 @@ describe("Arsy model and data API", () => {
       await app.ready();
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
+      await migrateAuthRateLimits(app.database.knex);
       const owner = await register(app, "model-owner@example.com");
       const workspace = await createWorkspace(app, owner.accessToken);
       const project = await createProject(app, owner.accessToken, workspace.id);
@@ -289,6 +291,7 @@ describe("Arsy model and data API", () => {
       await app.ready();
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
+      await migrateAuthRateLimits(app.database.knex);
       const owner = await register(app, "model-tenant@example.com");
       const workspace = await createWorkspace(app, owner.accessToken);
       const firstProject = await createProject(
@@ -370,6 +373,7 @@ describe("Arsy model and data API", () => {
       await app.ready();
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
+      await migrateAuthRateLimits(app.database.knex);
       const owner = await register(app, "private-owner@example.com");
       const user = await register(app, "private-user@example.com");
       const workspace = await createWorkspace(app, owner.accessToken);

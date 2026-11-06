@@ -4,6 +4,7 @@ import { describe, it } from "node:test";
 import { createApp } from "../../app.js";
 import { loadConfig } from "../../config/env.js";
 import { up as migrateControlPlane } from "../../migrations/0001_arsy_control_plane.js";
+import { up as migrateAuthRateLimits } from "../../migrations/0003_auth_rate_limits.js";
 
 describe("Arsy control plane", () => {
   it("creates accounts, workspaces, projects, and revocable project credentials", async () => {
@@ -15,6 +16,7 @@ describe("Arsy control plane", () => {
       await app.ready();
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
+      await migrateAuthRateLimits(app.database.knex);
 
       const registration = await app.inject({
         method: "POST",
@@ -127,6 +129,7 @@ describe("Arsy control plane", () => {
       await app.ready();
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
+      await migrateAuthRateLimits(app.database.knex);
       const registration = await app.inject({
         method: "POST",
         url: "/api/v1/auth/register",
@@ -199,6 +202,7 @@ describe("Arsy control plane", () => {
       await app.ready();
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
+      await migrateAuthRateLimits(app.database.knex);
 
       const ownerResponse = await app.inject({
         method: "POST",
@@ -261,6 +265,7 @@ describe("Arsy control plane", () => {
       await app.ready();
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
+      await migrateAuthRateLimits(app.database.knex);
 
       const weakPasswordResponse = await app.inject({
         method: "POST",
