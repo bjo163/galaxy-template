@@ -60,7 +60,7 @@ const LogisticsDashboard = async () => {
         <LogisticsStatisticsCard data={data?.statsHorizontalWithBorder} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
-        <LogisticsVehicleOverview />
+        <LogisticsVehicleOverview data={vehicleData.vehicleOverview} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
         <LogisticsShipmentStatistics />

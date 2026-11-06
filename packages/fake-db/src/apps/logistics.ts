@@ -1,6 +1,44 @@
 import type { logisticsType } from '@galaxy/types/apps/logisticsTypes'
 
 export const db: logisticsType = {
+  vehicleOverview: [
+    {
+      icon: 'tabler-car',
+      heading: 'On the way',
+      time: '2hr 10min',
+      progressColor: 'action',
+      progressColorVariant: 'hover',
+      progressData: '38.7%',
+      widthClass: 'is-[38.7%]'
+    },
+    {
+      icon: 'tabler-circle-arrow-down',
+      heading: 'Unloading',
+      time: '3hr 15min',
+      progressColor: 'primary',
+      progressColorVariant: 'main',
+      progressData: '27.3%',
+      widthClass: 'is-[27.3%]'
+    },
+    {
+      icon: 'tabler-circle-arrow-up',
+      heading: 'Loading',
+      time: '1hr 24min',
+      progressColor: 'info',
+      progressColorVariant: 'main',
+      progressData: '17.4%',
+      widthClass: 'is-[17.4%]'
+    },
+    {
+      icon: 'tabler-clock',
+      heading: 'Waiting',
+      time: '5hr 19min',
+      progressColor: 'SnackbarContent',
+      progressColorVariant: 'bg',
+      progressData: '16.6%',
+      widthClass: 'is-[16.6%]'
+    }
+  ],
   vehicles: [
     {
       id: 1,
