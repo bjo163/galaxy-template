@@ -618,6 +618,99 @@ async function recreateFieldIndexes(
   }
 }
 
+type IdempotencyRecord = {
+  id: string;
+  replay?: { statusCode: number; body: unknown };
+};
+
+async function beginIdempotency(
+  trx: Knex.Transaction,
+  actor: ProjectActor,
+  method: string,
+  routeKey: string,
+  key: string | undefined,
+  body: unknown,
+): Promise<IdempotencyRecord | null> {
+  if (!key) return null;
+  if (!/^[A-Za-z0-9._:-]{16,128}$/.test(key)) {
+    throw new HttpError(400, "Idempotency-Key must contain 16 to 128 safe characters.");
+  }
+  const keyHash = createHash("sha256").update(key).digest("hex");
+  const requestHash = createHash("sha256").update(canonicalJson(body ?? null)).digest("hex");
+  const identity = {
+    workspace_id: actor.workspaceId,
+    project_id: actor.projectId,
+    actor_id: actor.accountId,
+    method,
+    route_key: routeKey,
+    key_hash: keyHash,
+  };
+  const inserted = await trx("arsy_idempotency_keys")
+    .insert({
+      id: randomUUID(),
+      ...identity,
+      request_hash: requestHash,
+      response_status: null,
+      response_body: null,
+      created_at: new Date(),
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    })
+    .onConflict([
+      "workspace_id",
+      "project_id",
+      "actor_id",
+      "method",
+      "route_key",
+      "key_hash",
+    ])
+    .ignore()
+    .returning("id");
+  if (inserted.length > 0) return { id: inserted[0].id as string };
+
+  const existing = await trx("arsy_idempotency_keys")
+    .select("id", "request_hash as requestHash", "response_status as responseStatus", "response_body as responseBody")
+    .where(identity)
+    .forUpdate()
+    .first();
+  if (!existing) {
+    throw new HttpError(409, "The idempotent request is currently being processed.");
+  }
+  if (existing.requestHash !== requestHash) {
+    throw new HttpError(409, "Idempotency-Key was already used with a different request.");
+  }
+  if (existing.responseStatus === null || existing.responseStatus === undefined) {
+    throw new HttpError(409, "The idempotent request is currently being processed.");
+  }
+  return {
+    id: existing.id as string,
+    replay: {
+      statusCode: Number(existing.responseStatus),
+      body: existing.responseBody,
+    },
+  };
+}
+
+async function completeIdempotency(
+  trx: Knex.Transaction,
+  record: IdempotencyRecord | null,
+  statusCode: number,
+  body: unknown,
+): Promise<void> {
+  if (!record || record.replay) return;
+  await trx("arsy_idempotency_keys")
+    .where({ id: record.id })
+    .update({ response_status: statusCode, response_body: body ?? null });
+}
+
+function getIdempotencyKey(request: FastifyRequest): string | undefined {
+  const value = request.headers["idempotency-key"];
+  if (value === undefined) return undefined;
+  if (typeof value !== "string") {
+    throw new HttpError(400, "Idempotency-Key must be a single header value.");
+  }
+  return value;
+}
+
 async function resolveDataActor(
   request: FastifyRequest,
   knex: Knex,
@@ -1148,6 +1241,17 @@ export async function registerModelRoutes(
             actor.projectId,
             request.params.modelKey,
           );
+          const idempotency = await beginIdempotency(
+            trx,
+            actor,
+            "POST",
+            `/data/${request.params.modelKey}`,
+            getIdempotencyKey(request),
+            request.body,
+          );
+          if (idempotency?.replay) {
+            return reply.code(idempotency.replay.statusCode).send(idempotency.replay.body);
+          }
           const payload = validateRecordPayload(model.definition, request.body);
           const now = new Date();
           const id = randomUUID();
@@ -1181,14 +1285,16 @@ export async function registerModelRoutes(
             resourceId: id,
             metadata: { modelKey: request.params.modelKey, fieldCount: Object.keys(payload).length },
           });
-          return reply.code(201).send({
+          const responseBody = {
             id,
             ...payload,
             ownerUserId: actor.accountId,
             modelRevision: model.activeRevision,
             createdAt: now.toISOString(),
             updatedAt: now.toISOString(),
-          });
+          };
+          await completeIdempotency(trx, idempotency, 201, responseBody);
+          return reply.code(201).send(responseBody);
         },
       );
     },
@@ -1251,7 +1357,7 @@ export async function registerModelRoutes(
         body: { type: "object", additionalProperties: true },
       },
     },
-    async (request) => {
+    async (request, reply) => {
       const actor = await resolveProjectActor(request, getKnex(app));
       requireCredentialScope(actor, "records:write");
       return withProjectTransaction(
@@ -1264,6 +1370,17 @@ export async function registerModelRoutes(
             actor.projectId,
             request.params.modelKey,
           );
+          const idempotency = await beginIdempotency(
+            trx,
+            actor,
+            "PATCH",
+            `/data/${request.params.modelKey}/${request.params.recordId}`,
+            getIdempotencyKey(request),
+            request.body,
+          );
+          if (idempotency?.replay) {
+            return reply.code(idempotency.replay.statusCode).send(idempotency.replay.body);
+          }
           const query = trx("arsy_records")
             .select("id", "payload", "owner_user_id as ownerUserId")
             .where({
@@ -1308,13 +1425,15 @@ export async function registerModelRoutes(
             resourceId: request.params.recordId as string,
             metadata: { modelKey: request.params.modelKey, changedFields: Object.keys(request.body as Record<string, unknown>) },
           });
-          return {
+          const responseBody = {
             id: row.id,
             ...payload,
             ownerUserId: row.ownerUserId,
             modelRevision: model.activeRevision,
             updatedAt: now.toISOString(),
           };
+          await completeIdempotency(trx, idempotency, 200, responseBody);
+          return responseBody;
         },
       );
     },
@@ -1335,6 +1454,17 @@ export async function registerModelRoutes(
             actor.projectId,
             request.params.modelKey,
           );
+          const idempotency = await beginIdempotency(
+            trx,
+            actor,
+            "DELETE",
+            `/data/${request.params.modelKey}/${request.params.recordId}`,
+            getIdempotencyKey(request),
+            null,
+          );
+          if (idempotency?.replay) {
+            return reply.code(idempotency.replay.statusCode).send();
+          }
           const query = trx("arsy_records").where({
             id: request.params.recordId,
             workspace_id: actor.workspaceId,
@@ -1357,6 +1487,7 @@ export async function registerModelRoutes(
             resourceId: request.params.recordId as string,
             metadata: { modelKey: request.params.modelKey },
           });
+          await completeIdempotency(trx, idempotency, 204, null);
           return reply.code(204).send();
         },
       );
