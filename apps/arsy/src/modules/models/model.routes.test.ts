@@ -97,6 +97,18 @@ describe("Arsy model and data API", () => {
         payload: { name: "Grace", score: 43 },
       });
       assert.equal(writeOnlyCreate.statusCode, 201, writeOnlyCreate.body);
+
+      const auditResponse = await app.inject({
+        method: "GET",
+        url: `/api/v1/workspaces/${workspace.id}/audit`,
+        headers: managementHeaders,
+      });
+      assert.equal(auditResponse.statusCode, 200, auditResponse.body);
+      assert.ok(auditResponse.json().data.some(
+        (event: { action: string; resourceId: string }) =>
+          event.action === "record.created" && event.resourceId === writeOnlyCreate.json().id,
+      ));
+
       const writeOnlyRead = await app.inject({
         method: "POST", url: "/api/v1/data/contacts/query",
         headers: { authorization: `Bearer ${writeOnly.secret}` }, payload: {},
@@ -140,6 +152,36 @@ describe("Arsy model and data API", () => {
       assert.equal(queryResponse.statusCode, 200, queryResponse.body);
       assert.equal(queryResponse.json().data.length, 1);
       assert.equal(queryResponse.json().data[0].id, record.id);
+
+      const firstPage = await app.inject({
+        method: "POST",
+        url: "/api/v1/data/contacts/query",
+        headers: dataHeaders,
+        payload: { limit: 1 },
+      });
+      assert.equal(firstPage.statusCode, 200, firstPage.body);
+      const firstPageBody = firstPage.json() as {
+        data: Array<{ id: string }>;
+        nextCursor: string | null;
+      };
+      assert.equal(firstPageBody.data.length, 1);
+      assert.ok(firstPageBody.nextCursor);
+      const secondPage = await app.inject({
+        method: "POST",
+        url: "/api/v1/data/contacts/query",
+        headers: dataHeaders,
+        payload: { limit: 1, cursor: firstPageBody.nextCursor },
+      });
+      assert.equal(secondPage.statusCode, 200, secondPage.body);
+      assert.notEqual(secondPage.json().data[0].id, firstPageBody.data[0].id);
+
+      const mismatchedCursor = await app.inject({
+        method: "POST",
+        url: "/api/v1/data/contacts/query",
+        headers: { authorization: `Bearer ${readOnly.secret}` },
+        payload: { limit: 1, cursor: firstPageBody.nextCursor },
+      });
+      assert.equal(mismatchedCursor.statusCode, 400);
 
       const injectionFilter = await app.inject({
         method: "POST",
