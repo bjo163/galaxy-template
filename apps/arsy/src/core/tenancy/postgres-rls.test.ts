@@ -58,7 +58,7 @@ it(
       const knex = database.knex;
       poolDatabase = await createDatabase({
         adapter: "postgres",
-        connectionString,
+        connectionString: connectionString!,
         pool: { min: 0, max: 1 },
       });
 
