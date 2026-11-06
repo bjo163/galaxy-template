@@ -1,0 +1,29 @@
+{
+  "name": "@galaxy/types",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./base": "./src/base.ts",
+    "./apps/*": "./src/apps/*.ts",
+    "./pages/*": "./src/pages/*.ts"
+  },
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "clean": "rimraf .turbo"
+  },
+  "dependencies": {
+    "@mui/material": "7.3.6",
+    "apexcharts": "3.49.0"
+  },
+  "devDependencies": {
+    "@galaxy/tsconfig": "workspace:*",
+    "@galaxy/eslint-config": "workspace:*",
+    "@types/react": "19.2.7",
+    "eslint": "8.57.1",
+    "rimraf": "5.0.7",
+    "typescript": "5.9.3"
+  }
+}
