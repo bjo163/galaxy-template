@@ -10,21 +10,10 @@ import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 
-type DataType = {
-  rating: number
-  value: number
-}
+// Types Imports
+import type { RatingDistribution } from '@/types/apps/ecommerceTypes'
 
-// Vars
-const totalReviewsData: DataType[] = [
-  { rating: 5, value: 109 },
-  { rating: 4, value: 40 },
-  { rating: 3, value: 18 },
-  { rating: 2, value: 12 },
-  { rating: 1, value: 8 }
-]
-
-const TotalReviews = () => {
+const TotalReviews = ({ data }: { data: RatingDistribution[] }) => {
   // Hooks
   const theme = useTheme()
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
@@ -48,7 +37,7 @@ const TotalReviews = () => {
           </div>
           <Divider orientation={isSmallScreen ? 'horizontal' : 'vertical'} flexItem />
           <div className='flex flex-col gap-3 is-full sm:is-6/12'>
-            {totalReviewsData.map((item, index) => (
+            {data.map((item, index) => (
               <div key={index} className='flex items-center gap-2'>
                 <Typography variant='body2' className='text-nowrap'>
                   {item.rating} Star

@@ -34,7 +34,7 @@ const eCommerceManageReviews = async () => {
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12, md: 6 }}>
-        <TotalReviews />
+        <TotalReviews data={data?.totalReviews} />
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
         <ReviewsStatistics />

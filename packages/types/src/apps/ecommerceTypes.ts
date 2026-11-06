@@ -67,10 +67,16 @@ export type OrderType = {
   methodNumber: number
 }
 
+export type RatingDistribution = {
+  rating: number
+  value: number
+}
+
 export type ECommerceType = {
   products: ProductType[]
   orderData: OrderType[]
   customerData: Customer[]
   reviews: ReviewType[]
   referrals: ReferralsType[]
+  totalReviews: RatingDistribution[]
 }

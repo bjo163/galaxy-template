@@ -2,6 +2,13 @@
 import type { ECommerceType } from '@galaxy/types/apps/ecommerceTypes'
 
 export const db: ECommerceType = {
+  totalReviews: [
+    { rating: 5, value: 109 },
+    { rating: 4, value: 40 },
+    { rating: 3, value: 18 },
+    { rating: 2, value: 12 },
+    { rating: 1, value: 8 }
+  ],
   products: [
     {
       id: 1,
