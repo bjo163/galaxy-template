@@ -316,6 +316,25 @@ export async function processModelIndexJob(
       }
     }
     const message = error instanceof Error ? error.message.slice(0, 2_000) : "Unknown online index error";
+    if (job.operation === "create") {
+      const model = await knex("arsy_model_definitions")
+        .select("active_revision")
+        .where({ id: job.definition_id })
+        .first();
+      if (Number(model?.active_revision ?? 0) < job.revision) {
+        await knex("arsy_model_migration_jobs")
+          .where({
+            definition_id: job.definition_id,
+            to_revision: job.revision,
+            status: "ready",
+          })
+          .update({
+            status: "failed",
+            last_error: `Required index ${job.index_name} failed: ${message}`,
+            updated_at: new Date(),
+          });
+      }
+    }
     await knex("arsy_model_index_jobs").where({ id: jobId }).update({
       status: "failed",
       last_error: message,
