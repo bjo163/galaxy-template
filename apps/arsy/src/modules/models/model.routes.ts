@@ -1023,6 +1023,15 @@ export async function registerModelRoutes(
               status: "ready",
             })
             .first();
+          if (
+            migrationJob &&
+            Number(migrationJob.from_revision ?? 0) !== Number(model.activeRevision ?? 0)
+          ) {
+            throw new HttpError(
+              409,
+              "This migration was prepared from a different active model revision. Create a fresh migration job before publishing.",
+            );
+          }
           if (!migrationJob) {
             await validateExistingRecordsForRevision(
               trx,
