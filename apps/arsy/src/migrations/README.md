@@ -50,7 +50,7 @@ tested forward-fix path whenever rolling back could affect application data.
 Model changes with existing records should use the lifecycle API rather than attempting a large synchronous publish:
 
 1. Create a draft revision using the model revision endpoint.
-2. Call `POST .../revisions/:revision/migration-preview` with declarative `rename`, `set_default`, `remove`, and validated `cast` operations. Preview samples up to 100 records and reports the total record count and index changes.
+2. Call `POST .../revisions/:revision/migration-preview` with declarative `rename`, `set_default`, `remove`, validated `cast`, and explicit enum `map` operations. Preview samples up to 100 records and reports the total record count and index changes.
 3. Enqueue the validated plan with `POST .../revisions/:revision/migration-jobs`.
 4. Run `pnpm --filter arsy db:lifecycle:work` as the dedicated migrator role. Schedule repeated one-shot invocations until the migration and index jobs reach terminal states.
 5. Inspect `GET .../migration-jobs` and `GET .../index-jobs`. Failed migration jobs can be resumed through the retry endpoint after the underlying cause is addressed.
