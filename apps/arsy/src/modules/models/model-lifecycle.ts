@@ -264,6 +264,19 @@ export async function processModelIndexJob(
         last_error: "Maximum online index attempts reached.",
         updated_at: new Date(),
       });
+      if (row.operation === "create") {
+        await trx("arsy_model_migration_jobs")
+          .where({
+            definition_id: row.definition_id,
+            to_revision: row.revision,
+            status: "ready",
+          })
+          .update({
+            status: "failed",
+            last_error: "A required online index exhausted its retry budget.",
+            updated_at: new Date(),
+          });
+      }
       return { ...row, status: "failed" };
     }
     await trx("arsy_model_index_jobs").where({ id: jobId }).update({
