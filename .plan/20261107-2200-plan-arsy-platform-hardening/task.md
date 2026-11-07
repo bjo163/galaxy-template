@@ -12,8 +12,11 @@ Legend: [x] implementation present in the reviewed branch; [ ] remaining accepta
 ## P1 — Schema and data correctness
 - [x] Align typed JSONB filters with typed index expressions. (#15)
 - [ ] Verify typed indexes with PostgreSQL EXPLAIN/ANALYZE and representative data. (#15)
-- [ ] Implement resumable schema-transform jobs, progress, retry/recovery, staged publication and forward-fix/rollback contract. (#14)
-- [ ] Implement persistent asynchronous index lifecycle (requested/building/ready/failed/retiring/removed), concurrent DDL outside transactions, retry/lock policy and publication gating. (#16)
+- [x] Implement resumable schema-transform jobs, progress, bounded batches, staged publication, retry/recovery and write pause. (#14)
+- [x] Refresh failed-job record snapshot under the model-definition lock before retry; reject stale-source migration publication and only enqueue the next sequential revision. (#14)
+- [ ] Add direct PostgreSQL retry-after-mutation, worker restart, concurrent write/read and production-sized cutover tests. (#14)
+- [x] Implement persistent asynchronous index lifecycle (requested/building/ready/failed/retiring/removed), concurrent DDL outside transactions, advisory locking, bounded retries and publication gating. (#16)
+- [ ] Add PostgreSQL invalid-index recovery, worker crash/restart, concurrent publish, schema-qualified validity checks and production-size timing evidence. (#16)
 - [x] Enforce record payload byte/depth/node/property/array/string budgets. (#21)
 - [x] Add scoped idempotency persistence and replay to record mutations. (#22)
 - [ ] Verify idempotency under real PostgreSQL concurrency, rollback, expiry and cross-project isolation. (#22)
@@ -38,11 +41,12 @@ Legend: [x] implementation present in the reviewed branch; [ ] remaining accepta
 - [x] Define audit retention policy and add project-scoped NDJSON export plus local digest/count verification. (#30)
 - [ ] Add KMS encryption, immutable object storage, automated restore/readback and lifecycle/deletion policy; coordinate ownership decisions in #8. (#30)
 - [x] Add PostgreSQL migration rollback/re-apply to the CI RLS workflow. (#31)
-- [ ] Add interrupted migration/retry, prior-version upgrade, rolling deployment and role-grant verification. (#31)
+- [ ] Add deterministic interrupted migration/retry injection, prior-version upgrade from an explicitly supported schema, rolling deployment compatibility and role-grant verification. (#31)
 
 ## CI evidence recorded
-- [x] Monorepo Quality run passed on reviewed head: https://github.com/bjo163/galaxy-template/actions/runs/42301441922
-- [x] PostgreSQL 17/18 RLS workflow passed on reviewed head: https://github.com/bjo163/galaxy-template/actions/runs/42301441904
+- [ ] Monorepo Quality passes on the latest PR head `3b96ad37a44605940179a8d561271eff77c0111d`.
+- [ ] PostgreSQL 17/18 RLS workflow passes on the latest PR head `3b96ad37a44605940179a8d561271eff77c0111d`.
+- [x] Earlier successful runs were explicitly marked as historical and not reused as evidence for later commits.
 - [ ] Record real deployment, restore, online-index and remaining issue-specific acceptance evidence.
 
 ## Merge-safety guards for incomplete model lifecycle
@@ -55,7 +59,7 @@ Legend: [x] implementation present in the reviewed branch; [ ] remaining accepta
 - [x] Clarify that concurrent index DDL cannot run inside the current transactional migration runner and that model index publication remains a blocker until an online lifecycle exists.
 
 ## Completion gate
-- [ ] Finish #14 and #16 implementation.
+- [x] Finish first implementation pass for #14 and #16; keep acceptance/production verification open.
 - [ ] Complete outstanding acceptance tests and production verification for #12–#31.
 - [ ] Complete backup/restore issue #3 and ownership/retention decisions where required.
 - [ ] Update each GitHub issue with exact implementation/test evidence; close only when its acceptance criteria are met.
