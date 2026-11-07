@@ -64,7 +64,7 @@ Before declaring migration compatibility complete, CI must exercise each support
 - Expand/contract compatibility with old and new application versions running concurrently.
 - A real PostgreSQL test for concurrent reads/writes while a model revision is staged and published.
 
-The existing PostgreSQL 17/18 workflow covers fresh migration, latest-batch rollback/re-apply, and the Arsy test suite. It does not yet establish the full matrix above or prove a production deployment/restore.
+The PostgreSQL 17/18 workflow covers fresh migration, latest-batch rollback/re-apply, RLS/forced-RLS, runtime grants and privilege separation, migrator lock timeout, tenant-scoped transform staging, concurrent index create/retire, and the Arsy test suite. Shared database tests also exercise interrupted migration retry and expand-upgrade semantics in PGlite. This still does not establish a full prior-version Arsy schema upgrade, overlapping old/new application versions, or production backup/restore.
 
 ## Release blockers tracked separately
 
