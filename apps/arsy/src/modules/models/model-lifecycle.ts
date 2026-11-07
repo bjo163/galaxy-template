@@ -234,6 +234,11 @@ export async function processModelIndexJob(
 ): Promise<"ready" | "running" | "failed" | "missing"> {
   const candidate = await knex("arsy_model_index_jobs").where({ id: jobId }).first() as IndexJob | undefined;
   if (candidate?.operation === "drop") {
+    const model = await knex("arsy_model_definitions")
+      .select("active_revision")
+      .where({ id: candidate.definition_id })
+      .first();
+    if (Number(model?.active_revision ?? 0) < candidate.revision) return "running";
     const replacementBuild = await knex("arsy_model_index_jobs")
       .select("id")
       .where({
