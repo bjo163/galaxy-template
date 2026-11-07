@@ -69,6 +69,15 @@ export function applyModelMigrationPlan(
       if (!Object.hasOwn(output, operation.field) && Object.hasOwn(operation, "value")) {
         output[operation.field] = operation.value;
       }
+    } else if (operation.op === "map") {
+      const valueMap = operation.values;
+      if (typeof valueMap !== "object" || valueMap === null || Array.isArray(valueMap)) {
+        throw new Error("Enum map operation requires an object value map.");
+      }
+      const valueKey = String(output[operation.field]);
+      if (Object.hasOwn(valueMap, valueKey)) {
+        output[operation.field] = (valueMap as Record<string, unknown>)[valueKey];
+      }
     } else if (operation.op === "cast") {
       const value = output[operation.field];
       if (value === undefined || value === null) continue;
