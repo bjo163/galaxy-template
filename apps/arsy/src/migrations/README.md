@@ -53,8 +53,8 @@ Model changes with existing records should use the lifecycle API rather than att
 2. Call `POST .../revisions/:revision/migration-preview` with declarative `rename`, `set_default`, `remove`, validated `cast`, and explicit enum `map` operations. Preview samples up to 100 records and reports the total record count and index changes.
 3. Enqueue the validated plan with `POST .../revisions/:revision/migration-jobs`.
 4. Run `pnpm --filter arsy db:lifecycle:work` as the dedicated migrator role. Schedule repeated one-shot invocations until the migration and index jobs reach terminal states.
-5. Inspect `GET .../migration-jobs` and `GET .../index-jobs`. Failed migration jobs can be resumed through the retry endpoint after the underlying cause is addressed.
-6. Publish the revision only after the transform job is ready and every required index job is ready/removed.
+5. Inspect `GET .../migration-jobs` and `GET .../index-jobs`. Failed migration jobs can be restarted through the migration retry endpoint after the underlying cause is addressed; it clears staged payloads and resets associated failed index-build attempts. A failed post-publication index retirement can be retried through the index-job retry endpoint.
+6. Publish the revision only after the transform job is ready and every required index build is ready. Index retirement jobs run after cutover.
 
 Transforms are deterministic JSON operations; arbitrary JavaScript is never evaluated. Backfilled payloads are staged separately and become live in the publication transaction. Record writes are rejected with HTTP 409 while a migration is queued/running; reads continue against the active revision. Publication performs a single cutover transaction, so large models still require a maintenance/lock-duration assessment before production use.
 
