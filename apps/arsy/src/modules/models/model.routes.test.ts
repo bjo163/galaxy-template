@@ -41,14 +41,11 @@ describe("Arsy model and data API", () => {
             key: "name",
             type: "string",
             required: true,
-            indexed: true,
-            unique: true,
           },
           {
             key: "score",
             type: "integer",
             required: true,
-            indexed: true,
             minimum: 0,
             maximum: 100,
           },
@@ -73,6 +70,27 @@ describe("Arsy model and data API", () => {
       });
       assert.equal(publishResponse.statusCode, 200, publishResponse.body);
       assert.equal(publishResponse.json().revision, 1);
+
+      const indexedModel = await app.inject({
+        method: "POST",
+        url: modelUrl,
+        headers: managementHeaders,
+        payload: {
+          key: "indexed_contacts",
+          displayName: "Indexed contacts",
+          fields: [{ key: "email", type: "string", required: true, indexed: true, unique: true }],
+          access: { defaultVisibility: "project" },
+        },
+      });
+      assert.equal(indexedModel.statusCode, 201, indexedModel.body);
+      const blockedIndexPublish = await app.inject({
+        method: "POST",
+        url: `${modelUrl}/indexed_contacts/publish`,
+        headers: managementHeaders,
+        payload: { revision: 1 },
+      });
+      assert.equal(blockedIndexPublish.statusCode, 409);
+      assert.match(blockedIndexPublish.body, /online index lifecycle/i);
 
       const modelListResponse = await app.inject({
         method: "GET",
