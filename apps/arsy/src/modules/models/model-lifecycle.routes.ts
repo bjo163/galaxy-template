@@ -29,6 +29,7 @@ type Operation = {
   field: string;
   to?: string;
   value?: unknown;
+  values?: Record<string, unknown>;
 };
 
 function classifyRevision(previous: ModelDefinition | null, next: ModelDefinition): "compatible" | "conditional" | "breaking" {
