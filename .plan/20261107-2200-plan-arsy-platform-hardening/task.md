@@ -45,6 +45,11 @@ Legend: [x] implementation present in the reviewed branch; [ ] remaining accepta
 - [x] PostgreSQL 17/18 RLS workflow passed on reviewed head: https://github.com/bjo163/galaxy-template/actions/runs/42301441904
 - [ ] Record real deployment, restore, online-index and remaining issue-specific acceptance evidence.
 
+## Merge-safety guards for incomplete model lifecycle
+- [x] Bound synchronous model revision validation/backfill to at most 500 records; reject larger revisions until resumable jobs are implemented. (#14 mitigation)
+- [x] Remove synchronous transactional index DDL from model publication; reject changed/new indexed-field definitions until online index jobs are implemented. (#16 mitigation)
+- [x] Add regression coverage for rejected index lifecycle changes.
+
 ## Migration safety documentation
 - [x] Add production migration runbook covering expand/contract, dedicated migrator execution, transactional runner constraints, interrupted migration recovery, and required verification matrix.
 - [x] Clarify that concurrent index DDL cannot run inside the current transactional migration runner and that model index publication remains a blocker until an online lifecycle exists.
