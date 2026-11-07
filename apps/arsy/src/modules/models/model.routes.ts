@@ -1040,6 +1040,26 @@ export async function registerModelRoutes(
               "The model revision cannot be published until all required online index jobs are ready.",
             );
           }
+          if (migrationJob) {
+            await trx("arsy_records as records")
+              .join("arsy_model_migration_records as staged", function joinStagedPayload() {
+                this.on("staged.record_id", "=", "records.id");
+              })
+              .where({
+                "staged.job_id": migrationJob.id,
+                "records.workspace_id": request.params.workspaceId,
+                "records.project_id": request.params.projectId,
+                "records.definition_id": model.id,
+              })
+              .update({
+                payload: trx.ref("staged.payload"),
+                model_revision: request.body.revision,
+                updated_at: new Date(),
+              });
+            await trx("arsy_model_migration_records")
+              .where({ job_id: migrationJob.id })
+              .delete();
+          }
           if (!migrationJob) {
             assertIndexDefinitionUnchanged(previousDefinition, definition);
           }
