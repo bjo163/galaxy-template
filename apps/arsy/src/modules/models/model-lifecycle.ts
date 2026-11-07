@@ -101,10 +101,11 @@ export function makeModelIndexName(
   projectId: string,
   modelKey: string,
   fieldKey: string,
+  fieldType: string,
   unique: boolean,
 ): string {
   const digest = createHash("sha256")
-    .update([projectId, modelKey, fieldKey, unique ? "unique" : "plain"].join(":"))
+    .update([projectId, modelKey, fieldKey, fieldType, unique ? "unique" : "plain"].join(":"))
     .digest("hex")
     .slice(0, 20);
   return `arsy_mi_${digest}`;
