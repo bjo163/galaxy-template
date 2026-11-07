@@ -430,6 +430,9 @@ export async function registerModelLifecycleRoutes(app: FastifyInstance): Promis
         }).forUpdate().first();
         if (!job) throw new HttpError(404, "The index job was not found.");
         if (job.status !== "failed") throw new HttpError(409, "Only failed index jobs can be retried.");
+        if (job.operation === "create") {
+          throw new HttpError(409, "Retry the associated failed model migration job to rebuild its required index safely.");
+        }
         await trx("arsy_model_index_jobs").where({ id: request.params.jobId }).update({
           status: "requested",
           attempts: 0,
