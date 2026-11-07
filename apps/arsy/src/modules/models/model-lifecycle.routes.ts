@@ -379,6 +379,33 @@ export async function registerModelLifecycleRoutes(app: FastifyInstance): Promis
         }).forUpdate().first();
         if (!job) throw new HttpError(404, "The migration job was not found.");
         if (job.status !== "failed") throw new HttpError(409, "Only failed migration jobs can be retried.");
+
+        // A failed job releases the model write pause. Records may therefore
+        // have changed since the original snapshot. Lock the definition row
+        // (record writers take a share lock on it), then refresh the snapshot
+        // before re-queuing so the restarted cursor covers the current dataset.
+        const definition = await trx("arsy_model_definitions")
+          .select("id", "active_revision")
+          .where({
+            id: job.definition_id,
+            workspace_id: request.params.workspaceId,
+            project_id: request.params.projectId,
+            model_key: request.params.modelKey,
+          })
+          .forUpdate()
+          .first();
+        if (!definition) throw new HttpError(404, "The model was not found.");
+        if (Number(definition.active_revision ?? 0) >= Number(job.to_revision)) {
+          throw new HttpError(409, "The target revision is already active; this migration job cannot be retried.");
+        }
+        const snapshot = await trx("arsy_records")
+          .where({
+            workspace_id: request.params.workspaceId,
+            project_id: request.params.projectId,
+            definition_id: job.definition_id,
+          })
+          .count({ total: "id" })
+          .first();
         await trx("arsy_model_migration_records").where({ job_id: request.params.jobId }).delete();
         await trx("arsy_model_index_jobs")
           .where({
@@ -395,6 +422,7 @@ export async function registerModelLifecycleRoutes(app: FastifyInstance): Promis
         await trx("arsy_model_migration_jobs").where({ id: request.params.jobId }).update({
           status: "queued",
           last_record_id: null,
+          total_records: Number(snapshot?.total ?? 0),
           processed_records: 0,
           failed_records: 0,
           last_error: null,
