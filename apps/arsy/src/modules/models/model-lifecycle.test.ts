@@ -114,10 +114,10 @@ describe("model lifecycle primitives", () => {
     const workspaceId = "00000000-0000-4000-8000-000000000002";
     const projectId = "00000000-0000-4000-8000-000000000003";
     const definitionId = "00000000-0000-4000-8000-000000000004";
-    const recordIds = [
-      "00000000-0000-4000-8000-000000000005",
-      "00000000-0000-4000-8000-000000000006",
-    ];
+    const recordIds = Array.from(
+      { length: 101 },
+      (_, index) => `00000000-0000-4000-8000-${(index + 5).toString(16).padStart(12, "0")}`,
+    );
     const targetDefinition = {
       key: "contacts",
       displayName: "Contacts",
@@ -136,7 +136,7 @@ describe("model lifecycle primitives", () => {
       to_revision: 2,
       status: "queued",
       plan: JSON.stringify(plan),
-      total_records: 2,
+      total_records: recordIds.length,
       processed_records: 0,
       failed_records: 0,
       updated_at: new Date(),
@@ -152,18 +152,21 @@ describe("model lifecycle primitives", () => {
     })));
 
     assert.equal(await processModelMigrationBatch(knex, jobId), "running");
+    const firstProgress = await knex("arsy_model_migration_jobs").select("processed_records").where({ id: jobId }).first();
+    assert.equal(Number(firstProgress?.processed_records), 100);
+    assert.equal(await processModelMigrationBatch(knex, jobId), "running");
     assert.equal(await processModelMigrationBatch(knex, jobId), "ready");
     const live = await knex("arsy_records").select("payload", "model_revision").orderBy("id");
     assert.equal(live[0].model_revision, 1);
     assert.deepEqual(live[0].payload, { name: recordIds[0] });
     const staged = await knex("arsy_model_migration_records").select("payload").orderBy("record_id");
-    assert.equal(staged.length, 2);
+    assert.equal(staged.length, 101);
     assert.deepEqual(staged[0].payload, { display_name: recordIds[0] });
   });
 
   it("creates deterministic and type-sensitive online index names", () => {
     const first = makeModelIndexName("project", "contacts", "email", "string", false, 1);
-    assert.equal(first, makeModelIndexName("project", "contacts", "email", "string", false));
+    assert.equal(first, makeModelIndexName("project", "contacts", "email", "string", false, 1));
     assert.notEqual(first, makeModelIndexName("project", "contacts", "email", "uuid", false, 1));
     assert.notEqual(first, makeModelIndexName("project", "contacts", "email", "string", true, 1));
     assert.match(first, /^arsy_mi_[a-f0-9]{20}$/);
