@@ -18,6 +18,8 @@ type MigrationJob = {
 
 type IndexJob = {
   id: string;
+  definition_id: string;
+  revision: number;
   field_key: string;
   field_type: string;
   index_name: string;
@@ -229,6 +231,20 @@ export async function processModelIndexJob(
   knex: Knex,
   jobId: string,
 ): Promise<"ready" | "running" | "failed" | "missing"> {
+  const candidate = await knex("arsy_model_index_jobs").where({ id: jobId }).first() as IndexJob | undefined;
+  if (candidate?.operation === "drop") {
+    const replacementBuild = await knex("arsy_model_index_jobs")
+      .select("id")
+      .where({
+        definition_id: candidate.definition_id,
+        revision: candidate.revision,
+        field_key: candidate.field_key,
+        operation: "create",
+      })
+      .whereNot("status", "ready")
+      .first();
+    if (replacementBuild) return "running";
+  }
   const job = await knex.transaction(async (trx) => {
     const row = await trx("arsy_model_index_jobs")
       .where({ id: jobId })
