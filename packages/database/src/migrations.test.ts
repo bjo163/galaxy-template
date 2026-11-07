@@ -124,4 +124,46 @@ describe("database migrations", () => {
     });
     assert.equal(await database.knex.schema.hasTable("retryable_probe"), true);
   });
+
+  it("upgrades an already-migrated database without reapplying prior migrations", async () => {
+    const database = await createDatabase({ adapter: "pglite" });
+    databases.push(database);
+    const directory = await mkdtemp(join(tmpdir(), "galaxy-migrations-upgrade-"));
+    temporaryDirectories.push(directory);
+
+    await writeFile(
+      join(directory, "001_initial.js"),
+      [
+        "export async function up(knex) {",
+        "  await knex.schema.createTable('upgrade_probe', (table) => { table.increments('id').primary(); });",
+        "}",
+        "export async function down(knex) { await knex.schema.dropTableIfExists('upgrade_probe'); }",
+        "",
+      ].join("\n"),
+    );
+    await runMigrations(database.knex, directory, "up");
+    await database.knex("upgrade_probe").insert({});
+
+    await writeFile(
+      join(directory, "002_expand.js"),
+      [
+        "export async function up(knex) {",
+        "  await knex.schema.alterTable('upgrade_probe', (table) => { table.string('expanded_value').nullable(); });",
+        "}",
+        "export async function down(knex) {",
+        "  await knex.schema.alterTable('upgrade_probe', (table) => { table.dropColumn('expanded_value'); });",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    const upgraded = await runMigrations(database.knex, directory, "up");
+    assert.deepEqual(upgraded, {
+      batch: 2,
+      completed: ["001_initial.js", "002_expand.js"],
+      pending: [],
+    });
+    assert.equal(await database.knex.schema.hasColumn("upgrade_probe", "expanded_value"), true);
+    assert.equal(await database.knex("upgrade_probe").count({ total: "id" }).first().then((row) => Number(row?.total)), 1);
+  });
 });
