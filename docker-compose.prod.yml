@@ -45,3 +45,44 @@ services:
       timeout: 5s
       start_period: 20s
       retries: 3
+
+  # Background model migration/index worker. This must use the dedicated
+  # migrator role, never the application runtime credentials.
+  arsy-lifecycle-worker:
+    image: ${ARSY_IMAGE:-arsy:local}
+    build:
+      context: .
+      dockerfile: apps/arsy/Dockerfile
+    restart: unless-stopped
+    init: true
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          node apps/arsy/dist/cli/model-lifecycle-worker.js
+          sleep 15
+        done
+    environment:
+      NODE_ENV: production
+      DATABASE_ADAPTER: postgres
+      DATABASE_URL: ${ARSY_MIGRATOR_DATABASE_URL:?Set ARSY_MIGRATOR_DATABASE_URL to the dedicated arsy_migrator connection}
+      CORS_ORIGINS: ${CORS_ORIGINS:?Set explicit browser origins}
+      DB_POOL_MIN: 1
+      DB_POOL_MAX: 2
+      DB_POOL_ACQUIRE_TIMEOUT_MS: ${DB_POOL_ACQUIRE_TIMEOUT_MS:-30000}
+      DB_POOL_IDLE_TIMEOUT_MS: ${DB_POOL_IDLE_TIMEOUT_MS:-10000}
+      DB_POOL_CREATE_TIMEOUT_MS: ${DB_POOL_CREATE_TIMEOUT_MS:-30000}
+      SHUTDOWN_TIMEOUT_MS: ${SHUTDOWN_TIMEOUT_MS:-10000}
+    healthcheck:
+      disable: true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512m
+    cpus: 0.5
+    stop_grace_period: 30s
