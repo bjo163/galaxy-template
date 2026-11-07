@@ -993,14 +993,38 @@ export async function registerModelRoutes(
               )
             : undefined;
           const previousDefinition = previous?.definition;
-          await validateExistingRecordsForRevision(
-            trx,
-            request.params.projectId,
-            request.params.modelKey,
-            request.body.revision,
-            definition,
-          );
-          assertIndexDefinitionUnchanged(previousDefinition, definition);
+          const migrationJob = await trx("arsy_model_migration_jobs")
+            .where({
+              definition_id: model.id,
+              to_revision: request.body.revision,
+              status: "ready",
+            })
+            .first();
+          if (!migrationJob) {
+            await validateExistingRecordsForRevision(
+              trx,
+              request.params.projectId,
+              request.params.modelKey,
+              request.body.revision,
+              definition,
+            );
+          }
+          const pendingIndexJob = await trx("arsy_model_index_jobs")
+            .where({
+              definition_id: model.id,
+              revision: request.body.revision,
+            })
+            .whereNotIn("status", ["ready", "removed"])
+            .first();
+          if (pendingIndexJob) {
+            throw new HttpError(
+              409,
+              "The model revision cannot be published until all required online index jobs are ready.",
+            );
+          }
+          if (!migrationJob) {
+            assertIndexDefinitionUnchanged(previousDefinition, definition);
+          }
           await trx("arsy_model_revisions")
             .where({ id: next.id })
             .update({ status: "published" });
