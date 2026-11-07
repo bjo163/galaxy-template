@@ -27,7 +27,7 @@ try {
 
   const indexJobs = await knex("arsy_model_index_jobs")
     .select("id")
-    .whereIn("status", ["requested", "failed"])
+    .whereIn("status", ["requested", "building", "retiring", "failed"])
     .orderBy("created_at", "asc")
     .limit(20);
 
