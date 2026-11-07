@@ -8,7 +8,7 @@ This runbook describes the safe release procedure for the current migration runn
 - `pnpm --filter arsy db:migrate` runs the shared Knex migrator using the configured `DATABASE_URL`.
 - The shared migrator currently runs migrations in transactions (`disableTransactions: false`). Do not put PostgreSQL commands that are forbidden in a transaction (notably `CREATE INDEX CONCURRENTLY` and `DROP INDEX CONCURRENTLY`) in these migrations.
 - The production Compose profile starts the application with the least-privilege `arsy_runtime` connection. It does not run migrations automatically. Run migration commands as the separately provisioned `arsy_migrator` role.
-- Model publication currently validates existing records and performs field-index replacement inside the publish transaction. That is not an online/resumable index lifecycle. Large datasets or index changes must be treated as a release blocker until the asynchronous index-job lifecycle is implemented and verified.
+- Model publication validates at most 500 existing records synchronously. Larger models are rejected and require the resumable transform lifecycle. Index-definition changes are rejected with HTTP 409; model publication does not execute index DDL. New/changed indexes remain unavailable until the asynchronous online index-job lifecycle is implemented and verified.
 - Model revision publication currently does not provide resumable transform jobs, staged rollout, or a complete forward-fix workflow. Breaking schema changes must not be treated as zero-downtime deployable.
 
 ## Required expand/contract sequence
