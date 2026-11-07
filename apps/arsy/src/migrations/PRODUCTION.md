@@ -75,3 +75,18 @@ The existing PostgreSQL 17/18 workflow covers fresh migration, latest-batch roll
 - Issue #30: approved retention/deletion policy, immutable archive storage, encryption/key management, automated readback, and retention tests.
 
 Do not close these issues solely because this runbook exists. Each requires implementation and executable evidence.
+
+
+## Model lifecycle operations
+
+For revisions that need record transforms or index changes, use the model lifecycle preview/job endpoints and run the one-shot worker as `arsy_migrator`:
+
+```sh
+pnpm --filter arsy db:lifecycle:work
+```
+
+Repeat the command until migration jobs report `ready` and index jobs report `ready` or `removed`. The worker can safely be restarted: transform batches persist their cursor and staged payloads, while concurrent index jobs persist their state and attempt count. Failed transform jobs expose a retry endpoint; correct the underlying issue before retrying. Do not manually alter job cursors or delete staging rows.
+
+The migration API pauses writes to the affected model while a transform is queued/running; reads continue against the currently active revision. Publication verifies transform/index readiness and switches staged payloads plus the active revision in one transaction. The cutover transaction may lock many record rows for a large model; measure lock duration on a production-sized clone and schedule a maintenance window if necessary. This is not a claim of zero-downtime publication.
+
+The online index worker deliberately uses non-transactional concurrent DDL. It must run with a role that owns the target index/table and can access the lifecycle job tables. Never run this worker using the ordinary application runtime role.
