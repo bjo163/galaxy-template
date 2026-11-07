@@ -1050,6 +1050,13 @@ export async function registerModelRoutes(
             if (Number(migrationJob.processed_records) !== Number(migrationJob.total_records)) {
               throw new HttpError(409, "The staged migration record count does not match the migration snapshot.");
             }
+            const stagedCount = await trx("arsy_model_migration_records")
+              .where({ job_id: migrationJob.id })
+              .count({ total: "record_id" })
+              .first();
+            if (Number(stagedCount?.total ?? 0) !== Number(migrationJob.total_records)) {
+              throw new HttpError(409, "The staged payload set is incomplete; retry the migration before publication.");
+            }
             await trx("arsy_records as records")
               .join("arsy_model_migration_records as staged", function joinStagedPayload() {
                 this.on("staged.record_id", "=", "records.id");
