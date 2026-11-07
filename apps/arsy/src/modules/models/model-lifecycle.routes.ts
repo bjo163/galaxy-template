@@ -376,12 +376,30 @@ export async function registerModelLifecycleRoutes(app: FastifyInstance): Promis
         }).forUpdate().first();
         if (!job) throw new HttpError(404, "The migration job was not found.");
         if (job.status !== "failed") throw new HttpError(409, "Only failed migration jobs can be retried.");
+        await trx("arsy_model_migration_records").where({ job_id: request.params.jobId }).delete();
+        await trx("arsy_model_index_jobs")
+          .where({
+            definition_id: job.definition_id,
+            revision: job.to_revision,
+            status: "failed",
+          })
+          .update({
+            status: "requested",
+            attempts: 0,
+            last_error: null,
+            updated_at: new Date(),
+          });
         await trx("arsy_model_migration_jobs").where({ id: request.params.jobId }).update({
           status: "queued",
+          last_record_id: null,
+          processed_records: 0,
+          failed_records: 0,
           last_error: null,
+          started_at: null,
+          completed_at: null,
           updated_at: new Date(),
         });
-        return { id: request.params.jobId, status: "queued", resumedFromRecordId: job.last_record_id };
+        return { id: request.params.jobId, status: "queued", restartedFromBeginning: true };
       });
     },
   );
