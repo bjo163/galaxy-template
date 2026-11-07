@@ -240,7 +240,6 @@ export async function processModelIndexJob(
 
   try {
     const expression = fieldSqlExpression(job.field_key, job.field_type);
-    await knex.raw("SET lock_timeout = '5s'");
     if (job.operation === "create") {
       await knex.raw(`${job.is_unique ? "CREATE UNIQUE INDEX CONCURRENTLY" : "CREATE INDEX CONCURRENTLY"} IF NOT EXISTS "${job.index_name}" ON "arsy_records" ("workspace_id", "project_id", "model_key", ${expression})`);
       const validity = await knex({ i: "pg_index" })
@@ -267,6 +266,13 @@ export async function processModelIndexJob(
     });
     return "ready";
   } catch (error) {
+    if (job.operation === "create") {
+      try {
+        await knex.raw(`DROP INDEX CONCURRENTLY IF EXISTS "${job.index_name}"`);
+      } catch {
+        // Preserve the original failure; the next worker attempt can retry cleanup.
+      }
+    }
     const message = error instanceof Error ? error.message.slice(0, 2_000) : "Unknown online index error";
     await knex("arsy_model_index_jobs").where({ id: jobId }).update({
       status: "failed",
