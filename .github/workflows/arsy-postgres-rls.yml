@@ -1,5 +1,9 @@
 name: Arsy PostgreSQL RLS
 
+concurrency:
+  group: arsy-postgres-rls-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
     paths:
