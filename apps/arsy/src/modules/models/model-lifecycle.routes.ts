@@ -201,6 +201,9 @@ export async function registerModelLifecycleRoutes(app: FastifyInstance): Promis
           }).forUpdate().first();
         if (!model) throw new HttpError(404, "The model was not found.");
         const revision = Number(request.params.revision);
+        if (revision !== Number(model.activeRevision ?? 0) + 1) {
+          throw new HttpError(409, "A migration job can only target the next revision after the currently active model revision.");
+        }
         const draft = await trx("arsy_model_revisions").select("definition", "status")
           .where({ definition_id: model.id, revision, status: "draft" }).first();
         if (!draft) throw new HttpError(404, "The draft model revision was not found.");
