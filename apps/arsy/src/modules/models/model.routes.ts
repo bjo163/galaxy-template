@@ -207,6 +207,7 @@ async function getActiveDefinition(
       "arsy_model_definitions.model_key": modelKey,
       "arsy_model_definitions.status": "active",
     })
+    .forShare()
     .first();
   if (!row) {
     throw new HttpError(404, "The published model was not found.");
@@ -533,6 +534,23 @@ function applyDomain(
     `${fieldExpression(field)} ${operator} ?`,
     [expression.field, scalarFilterValue(field, expression.value)],
   );
+}
+
+async function assertModelWritesAllowed(
+  trx: Knex.Transaction,
+  definitionId: string,
+): Promise<void> {
+  const job = await trx("arsy_model_migration_jobs")
+    .select("id")
+    .where({ definition_id: definitionId })
+    .whereIn("status", ["queued", "running"])
+    .first();
+  if (job) {
+    throw new HttpError(
+      409,
+      "Writes are temporarily paused while this model revision is being migrated. Retry after the migration is ready.",
+    );
+  }
 }
 
 async function validateExistingRecordsForRevision(
@@ -1247,6 +1265,7 @@ export async function registerModelRoutes(
             actor.projectId,
             request.params.modelKey,
           );
+          await assertModelWritesAllowed(trx, model.definitionId);
           const idempotency = await beginIdempotency(
             trx,
             actor,
