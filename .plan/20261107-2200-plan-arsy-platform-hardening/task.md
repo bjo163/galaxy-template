@@ -45,6 +45,10 @@ Legend: [x] implementation present in the reviewed branch; [ ] remaining accepta
 - [x] PostgreSQL 17/18 RLS workflow passed on reviewed head: https://github.com/bjo163/galaxy-template/actions/runs/42301441904
 - [ ] Record real deployment, restore, online-index and remaining issue-specific acceptance evidence.
 
+## Migration safety documentation
+- [x] Add production migration runbook covering expand/contract, dedicated migrator execution, transactional runner constraints, interrupted migration recovery, and required verification matrix.
+- [x] Clarify that concurrent index DDL cannot run inside the current transactional migration runner and that model index publication remains a blocker until an online lifecycle exists.
+
 ## Completion gate
 - [ ] Finish #14 and #16 implementation.
 - [ ] Complete outstanding acceptance tests and production verification for #12–#31.
