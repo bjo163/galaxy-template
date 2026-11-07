@@ -33,6 +33,16 @@ describe("model lifecycle primitives", () => {
     assert.deepEqual(result, { display_name: "Ada", enabled: true });
   });
 
+  it("remaps enum values through explicit deterministic mappings", () => {
+    assert.deepEqual(
+      applyModelMigrationPlan(
+        { status: "legacy" },
+        { operations: [{ op: "map", field: "status", values: { legacy: "active" } }] },
+      ),
+      { status: "active" },
+    );
+  });
+
   it("casts field values only through explicit safe conversions", () => {
     assert.deepEqual(
       applyModelMigrationPlan(
