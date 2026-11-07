@@ -160,10 +160,10 @@ describe("model lifecycle primitives", () => {
   });
 
   it("creates deterministic and type-sensitive online index names", () => {
-    const first = makeModelIndexName("project", "contacts", "email", "string", false);
+    const first = makeModelIndexName("project", "contacts", "email", "string", false, 1);
     assert.equal(first, makeModelIndexName("project", "contacts", "email", "string", false));
-    assert.notEqual(first, makeModelIndexName("project", "contacts", "email", "uuid", false));
-    assert.notEqual(first, makeModelIndexName("project", "contacts", "email", "string", true));
+    assert.notEqual(first, makeModelIndexName("project", "contacts", "email", "uuid", false, 1));
+    assert.notEqual(first, makeModelIndexName("project", "contacts", "email", "string", true, 1));
     assert.match(first, /^arsy_mi_[a-f0-9]{20}$/);
   });
 });
