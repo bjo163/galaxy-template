@@ -3,7 +3,7 @@
 **Status:** IN PROGRESS — implementation branch has passing CI, but production acceptance is not complete.  
 **Branch:** `feat-arsy-issues-12-31`  
 **Scope:** GitHub issues #12–#31  
-**Reviewed head:** `2502258a98e29915b6ee0c581f13f8ddb4c3bbc9`
+**Reviewed head:** `6e716a0df0db5fb5e7e41cef7910565552a66bfb`
 
 ## Implemented in this branch
 
@@ -27,6 +27,12 @@
 - [ ] #14 — Revision compatibility checks and transactional record validation/backfill exist, but resumable transform jobs, progress/failure recovery and staged rollout are not implemented.
 - [ ] #16 — Dynamic index creation/removal is not yet an asynchronous online lifecycle. Persistent job states, concurrent DDL outside transactions, retries and publication gating remain required.
 - [ ] #31 — PostgreSQL CI now verifies migration rollback/re-apply and RLS behavior. Interrupted migration/retry, supported-version upgrade compatibility and rolling-deployment verification remain incomplete.
+
+## Migration safety documentation added
+
+- Added `apps/arsy/src/migrations/PRODUCTION.md` with expand/contract rollout, out-of-band migrator procedure, interruption/recovery rules, and explicit verification gates.
+- Updated `apps/arsy/src/migrations/README.md` to document the current transactional Knex runner and prohibit concurrent index DDL inside migration transactions.
+- The runbook intentionally records that #14/#16/#31 and production recovery remain incomplete; documentation is not a substitute for their executable acceptance evidence.
 
 ## CI evidence
 
