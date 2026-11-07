@@ -33,6 +33,20 @@ export async function up(knex: Knex): Promise<void> {
     table.check("?? >= 0 AND ?? >= 0 AND ?? >= 0", ["total_records", "processed_records", "failed_records"]);
   });
 
+  await knex.schema.createTable("arsy_model_migration_records", (table) => {
+    table.uuid("job_id").notNullable();
+    table.uuid("workspace_id").notNullable();
+    table.uuid("project_id").notNullable();
+    table.uuid("record_id").notNullable();
+    table.jsonb("payload").notNullable();
+    table.timestamp("updated_at", { useTz: true }).notNullable();
+    table.primary(["job_id", "record_id"]);
+    table.foreign("job_id").references("id").inTable("arsy_model_migration_jobs").onDelete("CASCADE");
+    table.foreign(["workspace_id", "project_id"])
+      .references(["workspace_id", "id"]).inTable("arsy_projects").onDelete("CASCADE");
+    table.foreign("record_id").references("id").inTable("arsy_records").onDelete("CASCADE");
+  });
+
   await knex.schema.createTable("arsy_model_index_jobs", (table) => {
     table.uuid("id").primary();
     table.uuid("workspace_id").notNullable();
@@ -64,7 +78,7 @@ export async function up(knex: Knex): Promise<void> {
     table.check("?? IN ('requested', 'building', 'ready', 'failed', 'retiring', 'removed')", ["status"]);
   });
 
-  for (const tableName of ["arsy_model_migration_jobs", "arsy_model_index_jobs"] as const) {
+  for (const tableName of ["arsy_model_migration_jobs", "arsy_model_migration_records", "arsy_model_index_jobs"] as const) {
     await knex.raw(`ALTER TABLE "${tableName}" ENABLE ROW LEVEL SECURITY`);
     await knex.raw(`ALTER TABLE "${tableName}" FORCE ROW LEVEL SECURITY`);
     await knex.raw(`
@@ -89,7 +103,7 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  for (const tableName of ["arsy_model_index_jobs", "arsy_model_migration_jobs"] as const) {
+  for (const tableName of ["arsy_model_index_jobs", "arsy_model_migration_records", "arsy_model_migration_jobs"] as const) {
     await knex.raw(`DROP POLICY IF EXISTS "${tableName}_project_isolation" ON "${tableName}"`);
     await knex.raw(`ALTER TABLE "${tableName}" DISABLE ROW LEVEL SECURITY`);
     await knex.schema.dropTableIfExists(tableName);
