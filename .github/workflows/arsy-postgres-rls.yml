@@ -61,6 +61,12 @@ jobs:
           export ARSY_POSTGRES_ADMIN_URL="postgresql://postgres:postgres@localhost:5432/arsy_test"
           pnpm --filter arsy db:provision-roles
 
+      - name: Verify migrator lock timeout policy
+        run: |
+          migrator_url="postgresql://arsy_migrator:${ARSY_MIGRATOR_PASSWORD}@localhost:5432/arsy_test"
+          actual="$(psql "$migrator_url" -Atqc "SHOW lock_timeout")"
+          test "$actual" = "5s"
+
       - name: Apply migrations as owner
         run: |
           export DATABASE_ADAPTER=postgres
