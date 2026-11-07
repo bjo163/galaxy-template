@@ -540,10 +540,15 @@ async function assertModelWritesAllowed(
   trx: Knex.Transaction,
   definitionId: string,
 ): Promise<void> {
-  const job = await trx("arsy_model_migration_jobs")
-    .select("id")
-    .where({ definition_id: definitionId })
-    .whereIn("status", ["queued", "running", "ready"])
+  const job = await trx("arsy_model_migration_jobs as jobs")
+    .join("arsy_model_definitions as definitions", "definitions.id", "jobs.definition_id")
+    .select("jobs.id")
+    .where("jobs.definition_id", definitionId)
+    .whereIn("jobs.status", ["queued", "running", "ready"])
+    .andWhere(function pendingCutover() {
+      this.whereNull("definitions.active_revision")
+        .orWhereRaw("definitions.active_revision < jobs.to_revision");
+    })
     .first();
   if (job) {
     throw new HttpError(
