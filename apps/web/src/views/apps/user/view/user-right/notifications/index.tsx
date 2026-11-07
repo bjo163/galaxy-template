@@ -9,40 +9,7 @@ import Button from '@mui/material/Button'
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
-type TableDataType = {
-  type: string
-  app: boolean
-  email: boolean
-  browser: boolean
-}
-
-// Vars
-const tableData: TableDataType[] = [
-  {
-    app: false,
-    email: true,
-    browser: false,
-    type: 'New for you'
-  },
-  {
-    app: true,
-    email: false,
-    browser: true,
-    type: 'Account activity'
-  },
-  {
-    app: true,
-    email: true,
-    browser: true,
-    type: 'A new browser used to sign in'
-  },
-  {
-    app: false,
-    email: false,
-    browser: true,
-    type: 'A new device is linked'
-  }
-]
+import { db as accountSettingsData } from '@galaxy/fake-db/pages/accountSettings'
 
 const NotificationsTab = () => {
   return (
@@ -59,7 +26,7 @@ const NotificationsTab = () => {
             </tr>
           </thead>
           <tbody className='border-be'>
-            {tableData.map((data, index) => (
+            {accountSettingsData.userNotifications.map((data, index) => (
               <tr key={index}>
                 <td>
                   <Typography color='text.primary'>{data.type}</Typography>

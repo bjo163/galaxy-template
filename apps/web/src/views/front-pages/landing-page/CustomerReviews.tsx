@@ -19,6 +19,7 @@ import { CustomIconButton, CustomAvatar } from '@galaxy/ui'
 // Styled Component Imports
 import { db } from '@galaxy/fake-db/pages/frontPages'
 
+import { LOGO_MAP } from '@/app/client/iconMap'
 import AppKeenSlider from '@/libs/styles/AppKeenSlider'
 
 // SVG Imports
@@ -42,16 +43,6 @@ import type { LandingCustomerReview } from '@/types/pages/frontPagesTypes'
 
 // Data
 const data: LandingCustomerReview[] = db.landing.customerReviews
-
-// Maps the fake-db logo keys to their inline SVG brand marks
-const reviewLogos: Record<LandingCustomerReview['logo'], (color: string) => ReactNode> = {
-  pinterest: color => <Pinterest color={color} />,
-  netflix: color => <Netflix color={color} />,
-  airbnb: color => <Airbnb color={color} />,
-  coinbase: color => <Coinbase color={color} />,
-  dribbble: color => <Dribbble color={color} />,
-  hubspot: color => <HubSpot color={color} />
-}
 
 const CustomerReviews = () => {
   // Hooks
@@ -147,7 +138,7 @@ const CustomerReviews = () => {
                   <Card elevation={8} className='flex items-start'>
                     <CardContent className='p-8 items-center mlb-auto'>
                       <div className='flex flex-col gap-4 items-start'>
-                        {reviewLogos[item.logo](item.logoColor)}
+                        {LOGO_MAP[item.logo]!(item.logoColor)}
                         <Typography>{item.desc}</Typography>
                         <Rating value={item.rating} readOnly />
                         <div className='flex items-center gap-x-3'>

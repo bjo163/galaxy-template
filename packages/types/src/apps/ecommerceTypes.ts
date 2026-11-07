@@ -72,6 +72,57 @@ export type RatingDistribution = {
   value: number
 }
 
+export type ShippingRate = {
+  rate: string
+  condition: string
+  price: string
+}
+
+export type NotificationSetting = {
+  type: string
+  email: boolean
+  app: boolean
+}
+
+export type OrderItem = {
+  productName: string
+  productImage: string
+  brand: string
+  price: number
+  quantity: number
+  total: number
+}
+
+export type AddressData = {
+  firstName: string
+  lastName: string
+  email: string
+  country: string
+  address1: string
+  address2: string
+  landmark: string
+  city: string
+  state: string
+  zipCode: string
+  taxId: string
+  vatNumber: string
+  contact: string
+}
+
+export type UserDialogData = {
+  firstName: string
+  lastName: string
+  userName: string
+  billingEmail: string
+  status: string
+  role: string
+  taxId: string
+  contact: string
+  language: string[]
+  country: string
+  useAsBillingAddress: boolean
+}
+
 export type ECommerceType = {
   products: ProductType[]
   orderData: OrderType[]
@@ -79,4 +130,10 @@ export type ECommerceType = {
   reviews: ReviewType[]
   referrals: ReferralsType[]
   totalReviews: RatingDistribution[]
+  shippingRates: Record<'domestic' | 'international', ShippingRate[]>
+  notificationSettings: Record<'customer' | 'shipping' | 'orders', NotificationSetting[]>
+  orderItems: OrderItem[]
+  billingAddress: AddressData
+  shippingAddress: AddressData
+  userDialogData: UserDialogData
 }

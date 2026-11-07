@@ -23,6 +23,7 @@ import { db as frontPagesData } from '@galaxy/fake-db/pages/frontPages'
 import { db as profileData } from '@galaxy/fake-db/pages/userProfile'
 import { db as faqData } from '@galaxy/fake-db/pages/faq'
 import { db as pricingData } from '@galaxy/fake-db/pages/pricing'
+import { db as statisticsCardData } from '@galaxy/fake-db/pages/statisticsCard'
 import { db as statisticsData } from '@galaxy/fake-db/pages/widgetExamples'
 import { db as widgetExamplesAdvancedData } from '@galaxy/fake-db/pages/widgetExamplesAdvanced'
 import { db as widgetExamplesChartsData } from '@galaxy/fake-db/pages/widgetExamplesCharts'
@@ -32,8 +33,13 @@ import { ecommerceOrderKPI } from '@galaxy/fake-db/apps/ecommerceOrderKPI'
 import { userListCards } from '@galaxy/fake-db/apps/userListCards'
 import { activityTimeline } from '@galaxy/fake-db/apps/activityTimeline'
 
+import { loadModuleData, resolveDataSource } from '@/app/server/data-source'
+
 export const getEcommerceData = async () => {
-  return eCommerceData
+  return loadModuleData(resolveDataSource(), {
+    staticData: eCommerceData,
+    endpointPath: '/apps/ecommerce',
+  })
 }
 
 export const getInvoiceKPIData = async () => {
@@ -90,6 +96,10 @@ export const getPricingData = async () => {
 
 export const getStatisticsData = async () => {
   return statisticsData
+}
+
+export const getStatisticsCardData = async () => {
+  return statisticsCardData
 }
 
 export const getReactTableData = async () => {

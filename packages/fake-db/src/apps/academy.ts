@@ -562,5 +562,111 @@ export const db: AcademyType = {
         ]
       }
     ]
-  }
+  },
+  popularInstructors: [
+    {
+      name: 'Jordan Stevenson',
+      profession: 'Business Intelligence',
+      totalCourses: 33,
+      avatar: '/images/avatars/1.png'
+    },
+    {
+      name: 'Bentlee Emblin',
+      profession: 'Digital Marketing',
+      totalCourses: 52,
+      avatar: '/images/avatars/2.png'
+    },
+    {
+      name: 'Benedetto Rossiter',
+      profession: 'UI/UX Design',
+      totalCourses: 12,
+      avatar: '/images/avatars/3.png'
+    },
+    {
+      name: 'Beverlie Krabbe',
+      profession: 'Vue',
+      totalCourses: 8,
+      avatar: '/images/avatars/4.png'
+    }
+  ],
+  topCourses: [
+    {
+      title: 'Videography Basic Design Course',
+      views: '1.2k',
+      icon: 'tabler-video',
+      color: 'primary'
+    },
+    {
+      title: 'Basic Front-end Development Course',
+      views: '834',
+      icon: 'tabler-code',
+      color: 'info'
+    },
+    {
+      title: 'Basic Fundamentals of Photography',
+      views: '3.7k',
+      icon: 'tabler-camera',
+      color: 'success'
+    },
+    {
+      title: 'Advance Dribble Base Visual Design',
+      views: '2.5k',
+      icon: 'tabler-brand-dribbble',
+      color: 'warning'
+    },
+    {
+      title: 'Your First Singing Lesson',
+      views: '948',
+      icon: 'tabler-microphone-2',
+      color: 'error'
+    }
+  ],
+  assignmentProgress: [
+    {
+      title: 'User Experience Design',
+      tasks: 120,
+      progress: 72,
+      color: 'primary'
+    },
+    {
+      title: 'Basic fundamentals',
+      tasks: 32,
+      progress: 48,
+      color: 'success'
+    },
+    {
+      title: 'React Native components',
+      tasks: 182,
+      progress: 15,
+      color: 'error'
+    },
+    {
+      title: 'Basic of music theory',
+      tasks: 56,
+      progress: 24,
+      color: 'info'
+    }
+  ],
+  upcomingWebinar: [
+    {
+      icon: 'tabler-calendar',
+      title: '17 Nov 23',
+      value: 'Date'
+    },
+    {
+      icon: 'tabler-clock',
+      title: '32 Minutes',
+      value: 'Duration'
+    }
+  ],
+  interestedTopicsData1: [
+    { title: 'UI Design', value: 35, colorClass: 'text-primary' },
+    { title: 'UX Design', value: 20, colorClass: 'text-info' },
+    { title: 'Music', value: 14, colorClass: 'text-success' }
+  ],
+  interestedTopicsData2: [
+    { title: 'Animation', value: 12, colorClass: 'text-secondary' },
+    { title: 'React', value: 10, colorClass: 'text-error' },
+    { title: 'SEO', value: 9, colorClass: 'text-warning' }
+  ]
 }

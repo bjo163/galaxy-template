@@ -9,15 +9,10 @@ import Typography from '@mui/material/Typography'
 // Type Imports
 import type { RecentDeviceItem } from '@/types/apps/userViewTypes'
 
+import { ICON_MAP } from '@/app/client/iconMap'
+
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
-
-const browserIconMap: Record<RecentDeviceItem['browserIcon'], ReactNode> = {
-  windows: <i className='tabler-brand-windows text-[22px] text-info' />,
-  android: <i className='tabler-brand-android text-[22px] text-success' />,
-  apple: <i className='tabler-brand-apple text-[22px] text-secondary' />,
-  mobile: <i className='tabler-device-mobile text-[22px] text-error' />
-}
 
 const RecentDevicesTable = ({ data }: { data: RecentDeviceItem[] }) => {
   return (
@@ -38,7 +33,7 @@ const RecentDevicesTable = ({ data }: { data: RecentDeviceItem[] }) => {
               <tr key={index}>
                 <td>
                   <div className='flex items-center gap-2.5'>
-                    {browserIconMap[device.browserIcon]}
+                    {ICON_MAP[device.browserIcon]}
                     <Typography className='font-medium' color='text.primary'>
                       {device.browser}
                     </Typography>

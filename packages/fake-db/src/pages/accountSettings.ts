@@ -4,7 +4,7 @@ import type {
   SocialAccount,
   PaymentMethodCard
 } from '@galaxy/types/apps/userViewTypes'
-import type { ApiKeyItem } from '@galaxy/types/pages/accountSettingsTypes'
+import type { ApiKeyItem, AccountNotification } from '@galaxy/types/pages/accountSettingsTypes'
 
 export const db: {
   recentDevices: RecentDeviceItem[]
@@ -12,6 +12,8 @@ export const db: {
   connectedAccounts: ConnectedAccount[]
   socialAccounts: SocialAccount[]
   paymentMethods: PaymentMethodCard[]
+  notifications: AccountNotification[]
+  userNotifications: AccountNotification[]
 } = {
   recentDevices: [
     {
@@ -110,5 +112,17 @@ export const db: {
       cardNumber: '4532 3616 2070 5678',
       imgSrc: '/images/logos/visa.png'
     }
+  ],
+  notifications: [
+    { type: 'New for you', app: true, email: true, browser: true },
+    { type: 'Account activity', app: true, email: true, browser: true },
+    { type: 'A new browser used to sign in', app: false, email: true, browser: true },
+    { type: 'A new device is linked', app: false, email: true, browser: false }
+  ],
+  userNotifications: [
+    { type: 'New for you', app: false, email: true, browser: false },
+    { type: 'Account activity', app: true, email: false, browser: true },
+    { type: 'A new browser used to sign in', app: true, email: true, browser: true },
+    { type: 'A new device is linked', app: false, email: false, browser: true }
   ]
 }

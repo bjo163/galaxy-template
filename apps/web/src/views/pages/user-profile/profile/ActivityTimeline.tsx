@@ -22,6 +22,8 @@ import { CustomAvatar } from '@galaxy/ui'
 // Type Imports
 import type { ActivityTimelineItem } from '@galaxy/fake-db/apps/activityTimeline'
 
+import { ICON_MAP } from '@/app/client/iconMap'
+
 // Styled Components
 const Timeline = styled(MuiTimeline)<TimelineProps>({
   '& .MuiTimelineItem-root': {
@@ -40,7 +42,7 @@ const ActivityTimeline = ({ data = [] }: ActivityTimelineProps) => {
     <Card>
       <CardHeader
         title='Activity Timeline'
-        avatar={<i className='tabler-chart-bar text-textSecondary' />}
+        avatar={ICON_MAP['chart-bar']}
         titleTypographyProps={{ variant: 'h5' }}
       />
       <CardContent>

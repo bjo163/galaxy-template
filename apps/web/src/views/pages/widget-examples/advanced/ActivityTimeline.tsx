@@ -17,10 +17,12 @@ import Typography from '@mui/material/Typography'
 import type { TimelineProps } from '@mui/lab/Timeline'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 // Type Imports
 import type { ActivityTimelineItem } from '@galaxy/fake-db/apps/activityTimeline'
+
+import { ICON_MAP } from '@/app/client/iconMap'
 
 // Styled Timeline component
 const Timeline = styled(MuiTimeline)<TimelineProps>({
@@ -42,7 +44,7 @@ const ActivityTimeline = ({ data = [] }: ActivityTimelineProps) => {
   return (
     <Card>
       <CardHeader
-        avatar={<i className='tabler-list-details text-xl' />}
+        avatar={ICON_MAP['list-details']}
         title='Activity Timeline'
         titleTypographyProps={{ variant: 'h5' }}
         action={<OptionMenu options={['Share timeline', 'Suggest edits', 'Report bug']} />}

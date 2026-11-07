@@ -5068,5 +5068,113 @@ export const db: ECommerceType = {
       totalSpent: 2838.35,
       avatar: '/images/avatars/7.png'
     }
-  ]
+  ],
+  shippingRates: {
+    domestic: [
+      { rate: 'Weight', condition: '5Kg-10Kg', price: '$9' },
+      { rate: 'VAT', condition: '12%', price: '$25' },
+      { rate: 'Duty', condition: '-', price: '-' }
+    ],
+    international: [
+      { rate: 'Weight', condition: '5Kg-10Kg', price: '$19' },
+      { rate: 'VAT', condition: '12%', price: '$25' },
+      { rate: 'Duty', condition: 'Japan', price: '$49' }
+    ]
+  },
+  notificationSettings: {
+    customer: [
+      { type: 'New customer sign up', email: true, app: false },
+      { type: 'Customer account password reset', email: false, app: true },
+      { type: 'Customer account invite', email: false, app: false }
+    ],
+    shipping: [
+      { type: 'Picked up', email: true, app: false },
+      { type: 'Shipping update ', email: false, app: true },
+      { type: 'Delivered', email: false, app: false }
+    ],
+    orders: [
+      { type: 'Order purchase', email: true, app: false },
+      { type: 'Order cancelled', email: false, app: true },
+      { type: 'Order refund request', email: false, app: false },
+      { type: 'Order confirmation', email: false, app: true },
+      { type: 'Payment error', email: false, app: true }
+    ]
+  },
+  orderItems: [
+    {
+      productName: 'OnePlus 7 Pro',
+      productImage: '/images/apps/ecommerce/product-21.png',
+      brand: 'OnePluse',
+      price: 799,
+      quantity: 1,
+      total: 799
+    },
+    {
+      productName: 'Magic Mouse',
+      productImage: '/images/apps/ecommerce/product-22.png',
+      brand: 'Google',
+      price: 89,
+      quantity: 1,
+      total: 89
+    },
+    {
+      productName: 'Wooden Chair',
+      productImage: '/images/apps/ecommerce/product-23.png',
+      brand: 'Insofar',
+      price: 289,
+      quantity: 2,
+      total: 578
+    },
+    {
+      productName: 'Air Jorden',
+      productImage: '/images/apps/ecommerce/product-24.png',
+      brand: 'Nike',
+      price: 299,
+      quantity: 2,
+      total: 598
+    }
+  ],
+  billingAddress: {
+    firstName: 'Roker',
+    lastName: 'Terrace',
+    email: 'sbaser0@boston.com',
+    country: 'UK',
+    address1: 'Latheronwheel',
+    address2: 'KW5 8NW, London',
+    landmark: 'Near Water Plant',
+    city: 'London',
+    state: 'Capholim',
+    zipCode: '403114',
+    taxId: 'TAX-875623',
+    vatNumber: 'SDF754K77',
+    contact: '+1 (609) 972-22-22'
+  },
+  shippingAddress: {
+    firstName: 'Roker',
+    lastName: 'Terrace',
+    email: 'sbaser0@boston.com',
+    country: 'UK',
+    address1: 'Latheronwheel',
+    address2: 'KW5 8NW, London',
+    landmark: 'Near Water Plant',
+    city: 'London',
+    state: 'Capholim',
+    zipCode: '403114',
+    taxId: 'TAX-875623',
+    vatNumber: 'SDF754K77',
+    contact: '+1 (609) 972-22-22'
+  },
+  userDialogData: {
+    firstName: 'Gabrielle',
+    lastName: 'Feyer',
+    userName: '@gabriellefeyer',
+    billingEmail: 'gfeyer0@nyu.edu',
+    status: 'active',
+    role: 'Customer',
+    taxId: 'Tax-8894',
+    contact: '+1 (234) 464-0600',
+    language: ['English'],
+    country: 'France',
+    useAsBillingAddress: true
+  }
 }

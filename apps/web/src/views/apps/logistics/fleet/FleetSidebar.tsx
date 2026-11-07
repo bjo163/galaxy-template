@@ -30,6 +30,8 @@ import { CustomAvatar } from '@galaxy/ui'
 
 import type { viewStateType } from './index'
 
+import type { VehicleTrackingDataType } from '@galaxy/types/apps/logisticsTypes'
+
 // Components Imports
 type Props = {
   backdropOpen: boolean
@@ -54,6 +56,9 @@ type Props = {
     }[]
   }
 }
+
+// Data Imports
+import { db as logisticsData } from '@galaxy/fake-db/apps/logistics'
 
 // Styled component for Accordion component
 const Accordion = styled(MuiAccordion)<AccordionProps>({
@@ -92,45 +97,6 @@ const Timeline = styled(MuiTimeline)<TimelineProps>({
     padding: 0
   }
 })
-
-type VehicleTrackingDataType = {
-  name: string
-  location: string
-  progress: number
-  driverName: string
-  passengerName: string
-}
-
-const vehicleTrackingData: VehicleTrackingDataType[] = [
-  {
-    name: 'VOL-342808',
-    location: 'Chelsea, NY, USA',
-    progress: 88,
-    driverName: 'Veronica Herman',
-    passengerName: 'Helen Jacobs'
-  },
-  {
-    name: 'VOL-954784',
-    location: 'Lincoln Harbor, NY, USA',
-    progress: 90,
-    driverName: 'Myrtle Ullrich',
-    passengerName: 'William Miller'
-  },
-  {
-    name: 'VOL-342808',
-    location: 'Midtown East, NY, USA',
-    progress: 60,
-    driverName: 'Barry Schowalter',
-    passengerName: 'Charles Anderson'
-  },
-  {
-    name: 'VOL-343908',
-    location: 'Hoboken, NY, USA',
-    progress: 28,
-    driverName: 'Frank Jones',
-    passengerName: 'Edward Smith'
-  }
-]
 
 const ScrollWrapper = ({ children, isBelowLgScreen }: { children: ReactNode; isBelowLgScreen: boolean }) => {
   if (isBelowLgScreen) {
@@ -304,7 +270,7 @@ const FleetSidebar = (props: Props) => {
         ) : null}
       </div>
       <ScrollWrapper isBelowLgScreen={isBelowLgScreen}>
-        {vehicleTrackingData.map((item, index) => (
+        {logisticsData.vehicleTracking.map((item, index) => (
           <VehicleTracking
             vehicleTrackingData={item}
             index={index}

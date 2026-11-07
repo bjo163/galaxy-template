@@ -7,3 +7,10 @@ export type ApiKeyItem = {
   date: string
   key: string
 }
+
+export type AccountNotification = {
+  type: string
+  app: boolean
+  email: boolean
+  browser: boolean
+}

@@ -1,6 +1,11 @@
-import type { logisticsType } from '@galaxy/types/apps/logisticsTypes'
+import type {
+  DeliveryPerformanceItem,
+  logisticsType,
+  OrderTimeline,
+  VehicleTrackingDataType
+} from '@galaxy/types/apps/logisticsTypes'
 
-export const db: logisticsType = {
+export const db = {
   vehicleOverview: [
     {
       icon: 'tabler-car',
@@ -290,5 +295,147 @@ export const db: logisticsType = {
       warnings: 'No Warnings',
       progress: 60
     }
+  ],
+  deliveryPerformance: [
+    {
+      title: 'Packages in transit',
+      value: '10k',
+      change: 25.8,
+      icon: 'tabler-box',
+      color: 'primary'
+    },
+    {
+      title: 'Packages out for delivery',
+      value: '5k',
+      change: 4.3,
+      icon: 'tabler-truck',
+      color: 'info'
+    },
+    {
+      title: 'Packages delivered',
+      value: '15k',
+      change: -12.5,
+      icon: 'tabler-circle-check',
+      color: 'success'
+    },
+    {
+      title: 'Delivery success rate',
+      value: '95%',
+      change: 35.6,
+      icon: 'tabler-percentage',
+      color: 'warning'
+    },
+    {
+      title: 'Average delivery time',
+      value: '2.5 Days',
+      change: -2.15,
+      icon: 'tabler-clock',
+      color: 'secondary'
+    },
+    {
+      title: 'Customer satisfaction',
+      value: '4.5/5',
+      change: 5.7,
+      icon: 'tabler-users',
+      color: 'error'
+    }
+  ],
+  ordersByCountries: {
+    new: [
+      {
+        sender: {
+          name: 'Micheal Hughes',
+          address: '101 Boulder, California (CA), 933130'
+        },
+        receiver: {
+          name: 'Daisy Coleman',
+          address: '939 Orange, California (CA), 910614'
+        }
+      },
+      {
+        sender: {
+          name: 'Glenn Todd',
+          address: '1713 Garnet, California (CA), 939573'
+        },
+        receiver: {
+          name: 'Arthur West',
+          address: '156 Blaze, California (CA), 925878'
+        }
+      }
+    ],
+    preparing: [
+      {
+        sender: {
+          name: 'Rose Cole',
+          address: '61 Unions, California (CA), 922523'
+        },
+        receiver: {
+          name: 'Polly Spencer',
+          address: '865 Delta, California (CA), 932830'
+        }
+      },
+      {
+        sender: {
+          name: 'Jerry Wood',
+          address: '37 Marjory, California (CA), 951958'
+        },
+        receiver: {
+          name: 'Sam McCormick',
+          address: '926 Reynolds, California (CA), 910279'
+        }
+      }
+    ],
+    shipping: [
+      {
+        sender: {
+          name: 'Alex Walton',
+          address: '78 Judson, California (CA), 956084'
+        },
+        receiver: {
+          name: 'Eula Griffin',
+          address: '56 Bernard, California (CA), 965084'
+        }
+      },
+      {
+        sender: {
+          name: 'Lula Barton',
+          address: '95 Gaylord, California (CA), 991955'
+        },
+        receiver: {
+          name: 'Craig Jacobs',
+          address: '73 Sandy, California (CA), 954566'
+        }
+      }
+    ]
+  },
+  vehicleTracking: [
+    {
+      name: 'VOL-342808',
+      location: 'Chelsea, NY, USA',
+      progress: 88,
+      driverName: 'Veronica Herman',
+      passengerName: 'Helen Jacobs'
+    },
+    {
+      name: 'VOL-954784',
+      location: 'Lincoln Harbor, NY, USA',
+      progress: 90,
+      driverName: 'Myrtle Ullrich',
+      passengerName: 'William Miller'
+    },
+    {
+      name: 'VOL-342808',
+      location: 'Midtown East, NY, USA',
+      progress: 60,
+      driverName: 'Barry Schowalter',
+      passengerName: 'Charles Anderson'
+    },
+    {
+      name: 'VOL-343908',
+      location: 'Hoboken, NY, USA',
+      progress: 28,
+      driverName: 'Frank Jones',
+      passengerName: 'Edward Smith'
+    }
   ]
-}
+} satisfies logisticsType

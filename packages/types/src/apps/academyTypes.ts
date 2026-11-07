@@ -59,8 +59,47 @@ export type ColoredCard = {
   bgColorClass?: string
 }
 
+export type AcademyInstructor = {
+  name: string
+  profession: string
+  totalCourses: number
+  avatar: string
+}
+
+export type AcademyTopCourse = {
+  title: string
+  views: string
+  icon: string
+  color: ThemeColor
+}
+
+export type AcademyAssignment = {
+  title: string
+  tasks: number
+  progress: number
+  color: ThemeColor
+}
+
+export type AcademyWebinarItem = {
+  icon: string
+  title: string
+  value: string
+}
+
+export type AcademyTopicStat = {
+  title: string
+  value: number
+  colorClass: string
+}
+
 export type AcademyType = {
   courses: Course[]
   courseDetails: CourseDetails
   coloredCards: ColoredCard[]
+  popularInstructors: AcademyInstructor[]
+  topCourses: AcademyTopCourse[]
+  assignmentProgress: AcademyAssignment[]
+  upcomingWebinar: AcademyWebinarItem[]
+  interestedTopicsData1: AcademyTopicStat[]
+  interestedTopicsData2: AcademyTopicStat[]
 }
