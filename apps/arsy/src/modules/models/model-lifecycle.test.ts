@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
 import { afterEach, describe, it } from "node:test";
 
 import { createDatabase } from "@galaxy/database";
@@ -6,6 +7,7 @@ import { validateModelDefinition } from "../../core/models/model-definition.js";
 import {
   applyModelMigrationPlan,
   makeModelIndexName,
+  processModelIndexJob,
   processModelMigrationBatch,
 } from "./model-lifecycle.js";
 
@@ -166,4 +168,126 @@ describe("model lifecycle primitives", () => {
     assert.notEqual(first, makeModelIndexName("project", "contacts", "email", "string", true, 1));
     assert.match(first, /^arsy_mi_[a-f0-9]{20}$/);
   });
+
+  if (process.env.ARSY_POSTGRES_ADMIN_URL && process.env.ARSY_POSTGRES_MIGRATOR_URL) {
+    it("builds and retires indexes concurrently using the migrator role", async () => {
+      const admin = await createDatabase({
+        adapter: "postgres",
+        connectionString: process.env.ARSY_POSTGRES_ADMIN_URL!,
+      });
+      const migrator = await createDatabase({
+        adapter: "postgres",
+        connectionString: process.env.ARSY_POSTGRES_MIGRATOR_URL!,
+      });
+      databases.push(admin, migrator);
+      const accountId = randomUUID();
+      const workspaceId = randomUUID();
+      const projectId = randomUUID();
+      const definitionId = randomUUID();
+      const createJobId = randomUUID();
+      const dropJobId = randomUUID();
+      const modelKey = `idx_test_${randomUUID().replace(/-/g, "").slice(0, 12)}`;
+      const now = new Date();
+      const newIndexName = makeModelIndexName(projectId, modelKey, "name", "string", false, 2);
+      const oldIndexName = makeModelIndexName(projectId, modelKey, "old_name", "string", false, 1);
+
+      try {
+        await admin.knex("arsy_accounts").insert({
+          id: accountId,
+          email: `${accountId}@example.test`,
+          display_name: "Index Lifecycle Test",
+          password_hash: "test-only",
+          status: "active",
+          created_at: now,
+          updated_at: now,
+        });
+        await admin.knex("arsy_workspaces").insert({
+          id: workspaceId,
+          name: "Index Lifecycle Test",
+          slug: `idx-${accountId.slice(0, 8)}`,
+          created_by: accountId,
+          created_at: now,
+          updated_at: now,
+        });
+        await admin.knex("arsy_projects").insert({
+          id: projectId,
+          workspace_id: workspaceId,
+          name: "Index Lifecycle Test",
+          slug: "index-test",
+          status: "active",
+          created_at: now,
+          updated_at: now,
+        });
+        await admin.knex("arsy_model_definitions").insert({
+          id: definitionId,
+          workspace_id: workspaceId,
+          project_id: projectId,
+          model_key: modelKey,
+          display_name: "Index Lifecycle Test",
+          active_revision: 2,
+          status: "active",
+          created_by: accountId,
+          created_at: now,
+          updated_at: now,
+        });
+        await admin.knex("arsy_model_index_jobs").insert({
+          id: createJobId,
+          workspace_id: workspaceId,
+          project_id: projectId,
+          definition_id: definitionId,
+          model_key: modelKey,
+          revision: 2,
+          field_key: "name",
+          field_type: "string",
+          is_unique: false,
+          index_name: newIndexName,
+          operation: "create",
+          status: "requested",
+          attempts: 0,
+          created_by: accountId,
+          created_at: now,
+          updated_at: now,
+        });
+        await migrator.knex.raw(
+          `CREATE INDEX CONCURRENTLY "${oldIndexName}" ON "arsy_records" ("workspace_id", "project_id", "model_key")`,
+        );
+        await admin.knex("arsy_model_index_jobs").insert({
+          id: dropJobId,
+          workspace_id: workspaceId,
+          project_id: projectId,
+          definition_id: definitionId,
+          model_key: modelKey,
+          revision: 2,
+          field_key: "old_name",
+          field_type: "string",
+          is_unique: false,
+          index_name: oldIndexName,
+          operation: "drop",
+          status: "requested",
+          attempts: 0,
+          created_by: accountId,
+          created_at: now,
+          updated_at: now,
+        });
+
+        assert.equal(await processModelIndexJob(migrator.knex, createJobId), "ready");
+        const newIndex = await migrator.knex({ i: "pg_index" })
+          .select("i.indisvalid as valid")
+          .join({ c: "pg_class" }, "c.oid", "i.indexrelid")
+          .where("c.relname", newIndexName)
+          .first();
+        assert.equal(newIndex?.valid, true);
+
+        assert.equal(await processModelIndexJob(migrator.knex, dropJobId), "ready");
+        const retiredIndex = await migrator.knex("pg_class").select("relname")
+          .where({ relname: oldIndexName }).first();
+        assert.equal(retiredIndex, undefined);
+      } finally {
+        await migrator.knex.raw(`DROP INDEX CONCURRENTLY IF EXISTS "${newIndexName}"`).catch(() => undefined);
+        await migrator.knex.raw(`DROP INDEX CONCURRENTLY IF EXISTS "${oldIndexName}"`).catch(() => undefined);
+        await admin.knex("arsy_workspaces").where({ id: workspaceId }).delete();
+        await admin.knex("arsy_accounts").where({ id: accountId }).delete();
+      }
+    });
+  }
 });
