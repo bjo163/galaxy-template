@@ -1036,6 +1036,7 @@ export async function registerModelRoutes(
             .where({
               definition_id: model.id,
               revision: request.body.revision,
+              operation: "create",
             })
             .whereNotIn("status", ["ready", "removed"])
             .first();
