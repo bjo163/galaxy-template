@@ -124,9 +124,10 @@ export function makeModelIndexName(
   fieldKey: string,
   fieldType: string,
   unique: boolean,
+  revision: number,
 ): string {
   const digest = createHash("sha256")
-    .update([projectId, modelKey, fieldKey, fieldType, unique ? "unique" : "plain"].join(":"))
+    .update([projectId, modelKey, fieldKey, fieldType, String(revision), unique ? "unique" : "plain"].join(":"))
     .digest("hex")
     .slice(0, 20);
   return `arsy_mi_${digest}`;
