@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 import type { Knex } from "@galaxy/database";
+import { validateModelDefinition, validateRecordPayload, type ModelDefinition } from "../../core/models/model-definition.js";
 
 type MigrationJob = {
   id: string;
@@ -21,6 +22,8 @@ type IndexJob = {
   field_type: string;
   index_name: string;
   operation: "create" | "drop";
+  model_key: string;
+  is_unique: boolean;
   status: string;
   attempts: number;
 };
@@ -85,7 +88,7 @@ function fieldSqlExpression(fieldKey: string, fieldType: string): string {
     case "datetime":
       return `(${value})::timestamptz`;
     case "text":
-    case "email":
+    case "uuid":
     case "url":
     case "enum":
       return value;
@@ -126,7 +129,7 @@ export async function processModelMigrationBatch(
     if (job.status === "failed" || job.status === "cancelled") return job.status as "failed";
 
     const plan = jsonObject(job.plan);
-    const target = jsonObject(plan.targetDefinition);
+    const target = validateModelDefinition(plan.targetDefinition) as ModelDefinition;
     if (!Array.isArray(target.fields)) {
       await trx("arsy_model_migration_jobs").where({ id: jobId }).update({
         status: "failed",
@@ -159,7 +162,7 @@ export async function processModelMigrationBatch(
 
     try {
       for (const row of rows) {
-        const migrated = applyPlan(jsonObject(row.payload), plan);
+        const migrated = validateRecordPayload(target, applyPlan(jsonObject(row.payload), plan));
         // The API's model validator is intentionally not duplicated here.
         // A caller must supply a plan that has passed preview validation.
         await trx("arsy_records").where({
@@ -238,8 +241,8 @@ export async function processModelIndexJob(
     const expression = fieldSqlExpression(job.field_key, job.field_type);
     await knex.raw("SET lock_timeout = '5s'");
     if (job.operation === "create") {
-      await knex.raw(`CREATE INDEX CONCURRENTLY IF NOT EXISTS "${job.index_name}" ON "arsy_records" (${expression})`);
-      const validity = await knex("pg_index")
+      await knex.raw(`${job.is_unique ? "CREATE UNIQUE INDEX CONCURRENTLY" : "CREATE INDEX CONCURRENTLY"} IF NOT EXISTS "${job.index_name}" ON "arsy_records" ("workspace_id", "project_id", "model_key", ${expression})`);
+      const validity = await knex({ i: "pg_index" })
         .select("i.indisvalid as valid")
         .join({ c: "pg_class" }, "c.oid", "i.indexrelid")
         .where("c.relname", job.index_name)
