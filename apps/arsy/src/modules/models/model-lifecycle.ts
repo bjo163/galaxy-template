@@ -87,10 +87,9 @@ function fieldSqlExpression(fieldKey: string, fieldType: string): string {
       return `(${value})::date`;
     case "datetime":
       return `(${value})::timestamptz`;
-    case "text":
+    case "string":
     case "uuid":
-    case "url":
-    case "enum":
+    case "json":
       return value;
     default:
       throw new Error("Unsupported indexed field type.");
@@ -166,14 +165,15 @@ export async function processModelMigrationBatch(
         const migrated = validateRecordPayload(target, applyModelMigrationPlan(jsonObject(row.payload), plan));
         // The API's model validator is intentionally not duplicated here.
         // A caller must supply a plan that has passed preview validation.
-        await trx("arsy_records").where({
-          id: row.id,
+        await trx("arsy_model_migration_records").insert({
+          job_id: job.id,
           workspace_id: job.workspace_id,
           project_id: job.project_id,
-          definition_id: job.definition_id,
-        }).update({
+          record_id: row.id,
           payload: JSON.stringify(migrated),
-          model_revision: job.to_revision,
+          updated_at: new Date(),
+        }).onConflict(["job_id", "record_id"]).merge({
+          payload: JSON.stringify(migrated),
           updated_at: new Date(),
         });
       }
