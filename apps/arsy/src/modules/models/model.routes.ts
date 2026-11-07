@@ -536,7 +536,7 @@ function applyDomain(
   );
 }
 
-async function assertModelWritesAllowed(
+export async function assertModelWritesAllowed(
   trx: Knex.Transaction,
   definitionId: string,
 ): Promise<void> {
