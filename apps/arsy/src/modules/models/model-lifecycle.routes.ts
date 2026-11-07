@@ -24,7 +24,8 @@ type Params = {
 };
 
 type Operation = {
-  op: "rename" | "set_default" | "remove";
+  op: "rename" | "set_default" | "remove" | "cast";
+  toType?: "string" | "integer" | "number" | "boolean" | "date" | "datetime" | "uuid";
   field: string;
   to?: string;
   value?: unknown;
