@@ -187,6 +187,14 @@ export async function processModelMigrationBatch(
     if (job.last_record_id) records.andWhere("id", ">", job.last_record_id);
     const rows = await records;
     if (rows.length === 0) {
+      if (Number(job.processed_records) !== Number(job.total_records)) {
+        await trx("arsy_model_migration_jobs").where({ id: jobId }).update({
+          status: "failed",
+          last_error: "The migration snapshot count changed while the job was running; restart the migration before publication.",
+          updated_at: new Date(),
+        });
+        return "failed";
+      }
       await trx("arsy_model_migration_jobs").where({ id: jobId }).update({
         status: "ready",
         completed_at: new Date(),
