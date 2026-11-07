@@ -406,4 +406,40 @@ export async function registerModelLifecycleRoutes(app: FastifyInstance): Promis
       });
     },
   );
+
+  app.post<{ Params: Params }>(
+    "/workspaces/:workspaceId/projects/:projectId/models/:modelKey/index-jobs/:jobId/retry",
+    async (request) => {
+      const knex = app.database?.knex;
+      if (!knex) throw new HttpError(503, "The database is unavailable.");
+      const account = await requireAccount(request, knex);
+      const role = await withWorkspaceTransaction(knex, request.params.workspaceId, async (trx) =>
+        trx("arsy_workspace_members").select("role").where({
+          workspace_id: request.params.workspaceId,
+          account_id: account.id,
+        }).first(),
+      );
+      if (!role || !["owner", "admin", "developer"].includes(role.role as string)) {
+        throw new HttpError(404, "The requested workspace was not found.");
+      }
+      return withProjectTransaction(knex, request.params.workspaceId, request.params.projectId, async (trx) => {
+        const job = await trx("arsy_model_index_jobs").where({
+          id: request.params.jobId,
+          workspace_id: request.params.workspaceId,
+          project_id: request.params.projectId,
+        }).forUpdate().first();
+        if (!job) throw new HttpError(404, "The index job was not found.");
+        if (job.status !== "failed") throw new HttpError(409, "Only failed index jobs can be retried.");
+        await trx("arsy_model_index_jobs").where({ id: request.params.jobId }).update({
+          status: "requested",
+          attempts: 0,
+          last_error: null,
+          started_at: null,
+          completed_at: null,
+          updated_at: new Date(),
+        });
+        return { id: request.params.jobId, status: "requested", operation: job.operation };
+      });
+    },
+  );
 }
