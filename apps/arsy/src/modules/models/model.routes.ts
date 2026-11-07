@@ -1395,6 +1395,7 @@ export async function registerModelRoutes(
             actor.projectId,
             request.params.modelKey,
           );
+          await assertModelWritesAllowed(trx, model.definitionId);
           const idempotency = await beginIdempotency(
             trx,
             actor,
@@ -1479,6 +1480,7 @@ export async function registerModelRoutes(
             actor.projectId,
             request.params.modelKey,
           );
+          await assertModelWritesAllowed(trx, model.definitionId);
           const idempotency = await beginIdempotency(
             trx,
             actor,
