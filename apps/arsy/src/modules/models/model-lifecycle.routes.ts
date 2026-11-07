@@ -226,9 +226,10 @@ export async function registerModelLifecycleRoutes(app: FastifyInstance): Promis
           validateRecordPayload(target, applyModelMigrationPlan(payload as Record<string, unknown>, plan));
         }
 
-        const existing = await trx("arsy_model_migration_jobs").select("id")
+        const existing = await trx("arsy_model_migration_jobs").select("id", "status")
           .where({ definition_id: model.id, to_revision: revision })
-          .whereIn("status", ["queued", "running", "ready"]).first();
+          .whereNot("status", "cancelled")
+          .first();
         if (existing) throw new HttpError(409, "A migration job already exists for this revision.");
 
         const id = randomUUID();
