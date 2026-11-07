@@ -80,6 +80,55 @@ jobs:
           export ARSY_POSTGRES_ADMIN_URL="postgresql://postgres:postgres@localhost:5432/arsy_test"
           pnpm --filter arsy db:provision-roles
 
+      - name: Verify schema, RLS, and least-privilege grants
+        env:
+          ARSY_POSTGRES_ADMIN_URL: postgresql://postgres:postgres@localhost:5432/arsy_test
+        run: |
+          psql "$ARSY_POSTGRES_ADMIN_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          DO $
+          DECLARE
+            invalid_rls integer;
+            invalid_indexes integer;
+          BEGIN
+            SELECT count(*) INTO invalid_rls
+            FROM pg_class c
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE n.nspname = 'public'
+              AND c.relname IN ('arsy_projects', 'arsy_records', 'arsy_model_definitions',
+                                'arsy_model_revisions', 'arsy_model_migration_jobs',
+                                'arsy_model_migration_records', 'arsy_model_index_jobs')
+              AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity);
+            IF invalid_rls <> 0 THEN
+              RAISE EXCEPTION 'RLS is not enabled and forced on % Arsy tables', invalid_rls;
+            END IF;
+
+            SELECT count(*) INTO invalid_indexes
+            FROM pg_index i
+            JOIN pg_class t ON t.oid = i.indrelid
+            JOIN pg_namespace n ON n.oid = t.relnamespace
+            WHERE n.nspname = 'public' AND t.relname LIKE 'arsy_%' AND NOT i.indisvalid;
+            IF invalid_indexes <> 0 THEN
+              RAISE EXCEPTION 'Found % invalid Arsy indexes', invalid_indexes;
+            END IF;
+
+            IF NOT has_table_privilege('arsy_runtime', 'public.arsy_records', 'SELECT,INSERT,UPDATE,DELETE') THEN
+              RAISE EXCEPTION 'Runtime role is missing required record privileges';
+            END IF;
+            IF has_schema_privilege('arsy_runtime', 'public', 'CREATE') THEN
+              RAISE EXCEPTION 'Runtime role must not have CREATE on public schema';
+            END IF;
+            IF pg_has_role('arsy_runtime', 'arsy_migrator', 'MEMBER') THEN
+              RAISE EXCEPTION 'Runtime role must not inherit migrator privileges';
+            END IF;
+          END $;
+          SQL
+
+      - name: Verify lifecycle worker can safely idle as migrator
+        run: |
+          export DATABASE_ADAPTER=postgres
+          DATABASE_URL="postgresql://arsy_migrator:${ARSY_MIGRATOR_PASSWORD}@localhost:5432/arsy_test" \
+            pnpm --filter arsy db:lifecycle:work
+
       - name: Run Arsy tests as runtime role
         run: |
           export DATABASE_ADAPTER=postgres
