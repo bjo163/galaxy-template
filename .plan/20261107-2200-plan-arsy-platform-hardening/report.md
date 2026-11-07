@@ -4,28 +4,30 @@
 **Branch:** `feat-arsy-issues-12-31`
 **PR:** [#32](https://github.com/bjo163/galaxy-template/pull/32)
 **Scope:** GitHub issues #12–#31
-**Reviewed head:** `3793ea1df21af1512ef63aff9eb3a7aad7e70a7a`
+**Reviewed head:** `a68d30e11358b3352678dbf9b48ed30c697ffe85`
 
 ## Current implementation snapshot
 
 - #12–#13 — Credential scope and project membership capability enforcement are implemented; keep open until all issue-specific regression evidence is linked.
-- #14 — Resumable migration-job code is present: bounded batches, persisted cursor/progress, staged payloads, validation, failure state, retry path, write pause, and gated publication. Remaining: verify failure/restart and concurrent mutation behavior on PostgreSQL, race-safe snapshot semantics, staged cutover under concurrent reads/writes, and large-model lock duration.
+- #14 — Resumable migration-job code is present: bounded batches, persisted cursor/progress, staged payloads, validation, failure state, retry path, write pause, and gated publication. Additional hardening in this pass: retry now locks the model definition and refreshes the record-count snapshot before resetting the cursor, because failed jobs release the write pause and records may change before retry. Remaining: add direct PostgreSQL failure/restart and retry-after-mutation evidence, race-safe snapshot semantics, staged cutover under concurrent reads/writes, and large-model lock duration.
 - #15 — Typed JSONB query/index expressions are implemented. PostgreSQL EXPLAIN evidence and representative selectivity/performance measurements remain.
 - #16 — Persistent online index-job code is present with concurrent DDL outside transactions, advisory locking, retry budget, validity checks, and deferred retirement. Remaining: PostgreSQL failure/restart and concurrent-publish tests, invalid-index cleanup/recovery evidence, and proof publication cannot pass with any required index not valid.
 - #17–#25 — Authentication throttling, session lifecycle, keyset pagination, bounded control-plane listings, payload budgets, idempotency, audit events, observability, and pool configuration have implementation in this branch. Issue-level acceptance gaps remain: abuse/concurrency behavior; reset/change session invalidation; cursor tamper/backward/concurrent mutation; endpoint/query-budget inventory; real-PostgreSQL idempotency and audit rollback/redaction; pool saturation, acquisition wait and graceful shutdown.
 - #26 — Monorepo quality workflow and workspace-boundary validation are added. Current-head run is queued; do not cite earlier-head CI as current evidence.
 - #27 — PostgreSQL 17/18 matrix is configured. Broader backup/restore and index lifecycle compatibility evidence remains.
-- #28 — Hardened non-root production image and Compose profile are present. A real deployment, health/smoke test, separate one-shot migrator operation, graceful shutdown and rolling upgrade remain unverified.
+- #28 — Hardened non-root production image and Compose profile are present. This pass added a dedicated `arsy-lifecycle-worker` Compose service using `ARSY_MIGRATOR_DATABASE_URL`, separate from the API's runtime credentials, polling every 15 seconds. A real deployment, health/smoke test, separate one-shot schema-migrator operation, graceful shutdown and rolling upgrade remain unverified.
 - #29 — Bounded cleanup jobs are present. Scheduler integration, verification-token/invitation coverage and operational telemetry remain.
 - #30 — Audit policy, project-scoped NDJSON export and integrity/count verification are present. KMS/key rotation, immutable archive storage, automated readback and deletion lifecycle remain unimplemented.
 - #31 — Migration runbook and rollback/re-apply checks are present. Full PostgreSQL interrupted-migration injection/retry, upgrade from explicitly supported prior Arsy schema versions, and overlapping old/new application compatibility remain unverified.
 
 ## Current CI state
 
-At the reviewed head, GitHub Actions runs are queued:
+At the reviewed head, GitHub Actions runs are pending:
 
-- Monorepo Quality: [run 42341932709](https://github.com/bjo163/galaxy-template/actions/runs/42341932709)
-- Arsy PostgreSQL RLS (PostgreSQL 17/18): [run 42341932723](https://github.com/bjo163/galaxy-template/actions/runs/42341932723)
+- Monorepo Quality: [run 42344403164](https://github.com/bjo163/galaxy-template/actions/runs/42344403164)
+- Arsy PostgreSQL RLS (PostgreSQL 17/18): [run 42344403163](https://github.com/bjo163/galaxy-template/actions/runs/42344403163)
+
+A separate code change in this pass also fixed failed-job retry snapshot handling: retry serializes with record writers by locking the model definition, recounts current records, and then resets the staged cursor.
 
 Earlier successful runs belong to a different commit and are not evidence for this head. Recheck both runs after completion and inspect failed jobs before changing this report.
 
