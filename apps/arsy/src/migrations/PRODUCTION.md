@@ -7,7 +7,7 @@ This runbook describes the safe release procedure for the current migration runn
 - Arsy migrations are discovered from compiled JavaScript in `apps/arsy/src/migrations`.
 - `pnpm --filter arsy db:migrate` runs the shared Knex migrator using the configured `DATABASE_URL`.
 - The shared migrator currently runs migrations in transactions (`disableTransactions: false`). Do not put PostgreSQL commands that are forbidden in a transaction (notably `CREATE INDEX CONCURRENTLY` and `DROP INDEX CONCURRENTLY`) in these migrations.
-- The production Compose profile starts the application with the least-privilege `arsy_runtime` connection. It does not run migrations automatically. Run migration commands as the separately provisioned `arsy_migrator` role.
+- The production Compose profile starts the API with the least-privilege `arsy_runtime` connection and a separate lifecycle worker with `ARSY_MIGRATOR_DATABASE_URL`. The worker polls for resumable transform/index jobs every 15 seconds. Schema migrations are still a separate one-shot operation using the `arsy_migrator` role.
 - Model publication validates at most 500 existing records synchronously. Larger models are rejected and require the resumable transform lifecycle. Index-definition changes are rejected with HTTP 409; model publication does not execute index DDL. New/changed indexes remain unavailable until the asynchronous online index-job lifecycle is implemented and verified.
 - Model revision publication currently does not provide resumable transform jobs, staged rollout, or a complete forward-fix workflow. Breaking schema changes must not be treated as zero-downtime deployable.
 
@@ -85,7 +85,7 @@ For revisions that need record transforms or index changes, use the model lifecy
 pnpm --filter arsy db:lifecycle:work
 ```
 
-Repeat the command until migration jobs report `ready` and index jobs report `ready` or `removed`. The worker can safely be restarted: transform batches persist their cursor and staged payloads, while concurrent index jobs persist their state and attempt count. Failed transform jobs expose a retry endpoint; correct the underlying issue before retrying. Do not manually alter job cursors or delete staging rows.
+The Compose `arsy-lifecycle-worker` service runs this one-shot worker every 15 seconds. For manual operation, run the command below until migration jobs report `ready` and index jobs report `ready` or `removed`. The worker can safely be restarted: transform batches persist their cursor and staged payloads, while concurrent index jobs persist their state and attempt count. Failed transform jobs expose a retry endpoint; correct the underlying issue before retrying. Do not manually alter job cursors or delete staging rows.
 
 The migration API pauses writes to the affected model while a transform is queued/running; reads continue against the currently active revision. Publication verifies transform/index readiness and switches staged payloads plus the active revision in one transaction. The cutover transaction may lock many record rows for a large model; measure lock duration on a production-sized clone and schedule a maintenance window if necessary. This is not a claim of zero-downtime publication.
 
