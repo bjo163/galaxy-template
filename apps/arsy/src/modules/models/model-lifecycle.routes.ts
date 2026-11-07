@@ -148,6 +148,33 @@ export async function registerModelLifecycleRoutes(app: FastifyInstance): Promis
 
   app.post<{ Params: Params; Body: { operations: Operation[] } }>(
     "/workspaces/:workspaceId/projects/:projectId/models/:modelKey/revisions/:revision/migration-jobs",
+    {
+      schema: {
+        body: {
+          type: "object",
+          additionalProperties: false,
+          required: ["operations"],
+          properties: {
+            operations: {
+              type: "array",
+              maxItems: 100,
+              items: {
+                type: "object",
+                additionalProperties: false,
+                required: ["op", "field"],
+                properties: {
+                  op: { type: "string", enum: ["rename", "set_default", "remove", "cast"] },
+                  field: { type: "string", pattern: "^[a-z][a-z0-9_]{0,62}$" },
+                  to: { type: "string", pattern: "^[a-z][a-z0-9_]{0,62}$" },
+                  toType: { type: "string", enum: ["string", "integer", "number", "boolean", "date", "datetime", "uuid"] },
+                  value: {},
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       const knex = app.database?.knex;
       if (!knex) throw new HttpError(503, "The database is unavailable.");
