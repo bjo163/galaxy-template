@@ -7,7 +7,17 @@ import {
 } from "../modules/models/model-lifecycle.js";
 
 const config = loadConfig();
-const database = await createDatabase(config.database);
+const databaseOptions = config.database.adapter === "postgres"
+  ? {
+      ...config.database,
+      pool: {
+        ...config.database.pool,
+        min: 0,
+        max: Math.max(config.database.pool?.max ?? 10, 2),
+      },
+    }
+  : config.database;
+const database = await createDatabase(databaseOptions);
 const knex = database.knex;
 
 try {
