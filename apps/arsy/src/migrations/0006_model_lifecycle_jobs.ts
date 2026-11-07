@@ -38,7 +38,9 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid("workspace_id").notNullable();
     table.uuid("project_id").notNullable();
     table.uuid("definition_id").notNullable();
+    table.string("model_key", 63).notNullable();
     table.integer("revision").notNullable();
+    table.boolean("is_unique").notNullable().defaultTo(false);
     table.string("field_key", 63).notNullable();
     table.string("field_type", 24).notNullable();
     table.string("index_name", 63).notNullable().unique();
@@ -76,8 +78,11 @@ export async function up(knex: Knex): Promise<void> {
         OR current_user = 'arsy_migrator'
       )
       WITH CHECK (
-        "workspace_id" = NULLIF(current_setting('arsy.workspace_id', true), '')::uuid
-        AND "project_id" = NULLIF(current_setting('arsy.project_id', true), '')::uuid
+        (
+          "workspace_id" = NULLIF(current_setting('arsy.workspace_id', true), '')::uuid
+          AND "project_id" = NULLIF(current_setting('arsy.project_id', true), '')::uuid
+        )
+        OR current_user = 'arsy_migrator'
       )
     `);
   }
