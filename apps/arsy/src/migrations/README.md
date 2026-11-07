@@ -24,6 +24,17 @@ and lock tables. Keep each migration reversible and avoid editing a migration
 after it has been applied to a shared environment.
 
 The PostgreSQL CI workflow exercises fresh migration, rollback of the latest
-batch, and re-application against PostgreSQL 17 and 18. Production releases
-should use expand/contract changes and retain a forward-fix path for migrations
-that are not safely reversible after application data has been written.
+batch, and re-application against PostgreSQL 17 and 18. This is not yet a full
+prior-version upgrade, interrupted-migration, or rolling-deployment test.
+
+The shared Knex migrator currently wraps migrations in transactions. Do not put
+`CREATE INDEX CONCURRENTLY` or `DROP INDEX CONCURRENTLY` in these migration
+files. Model field-index replacement is currently performed during model
+publication and is not yet an online/resumable lifecycle; see
+[`PRODUCTION.md`](./PRODUCTION.md) for the release procedure, recovery rules,
+and explicit outstanding gates.
+
+Production migrations must run out-of-band with the dedicated `arsy_migrator`
+role. The runtime service must use `arsy_runtime`; application startup must not
+silently apply privileged schema changes. Prefer expand/contract changes and a
+tested forward-fix path whenever rolling back could affect application data.
