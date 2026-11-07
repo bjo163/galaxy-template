@@ -39,7 +39,7 @@ function jsonObject(value: unknown): Record<string, unknown> {
   return parsed as Record<string, unknown>;
 }
 
-function applyPlan(
+export function applyModelMigrationPlan(
   input: Record<string, unknown>,
   plan: Record<string, unknown>,
 ): Record<string, unknown> {
@@ -162,7 +162,7 @@ export async function processModelMigrationBatch(
 
     try {
       for (const row of rows) {
-        const migrated = validateRecordPayload(target, applyPlan(jsonObject(row.payload), plan));
+        const migrated = validateRecordPayload(target, applyModelMigrationPlan(jsonObject(row.payload), plan));
         // The API's model validator is intentionally not duplicated here.
         // A caller must supply a plan that has passed preview validation.
         await trx("arsy_records").where({
