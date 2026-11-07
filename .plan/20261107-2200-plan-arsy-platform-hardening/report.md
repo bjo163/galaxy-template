@@ -4,12 +4,12 @@
 **Branch:** `feat-arsy-issues-12-31`
 **PR:** [#32](https://github.com/bjo163/galaxy-template/pull/32)
 **Scope:** GitHub issues #12–#31
-**Reviewed head:** `a68d30e11358b3352678dbf9b48ed30c697ffe85`
+**Reviewed head:** `d599bfb6ca53be590a2575e7b54ba5b83b1a7c6d`
 
 ## Current implementation snapshot
 
 - #12–#13 — Credential scope and project membership capability enforcement are implemented; keep open until all issue-specific regression evidence is linked.
-- #14 — Resumable migration-job code is present: bounded batches, persisted cursor/progress, staged payloads, validation, failure state, retry path, write pause, and gated publication. Additional hardening in this pass: retry now locks the model definition and refreshes the record-count snapshot before resetting the cursor, because failed jobs release the write pause and records may change before retry. Remaining: add direct PostgreSQL failure/restart and retry-after-mutation evidence, race-safe snapshot semantics, staged cutover under concurrent reads/writes, and large-model lock duration.
+- #14 — Resumable migration-job code is present: bounded batches, persisted cursor/progress, staged payloads, validation, failure state, retry path, write pause, and gated publication. Additional hardening in this pass: retry now locks the model definition and refreshes the record-count snapshot before resetting the cursor, because failed jobs release the write pause and records may change before retry. Enqueue now only accepts the next sequential revision; publication rejects a ready migration whose recorded `from_revision` no longer matches the currently active revision. Remaining: add direct PostgreSQL failure/restart and retry-after-mutation evidence, race-safe snapshot semantics, staged cutover under concurrent reads/writes, and large-model lock duration.
 - #15 — Typed JSONB query/index expressions are implemented. PostgreSQL EXPLAIN evidence and representative selectivity/performance measurements remain.
 - #16 — Persistent online index-job code is present with concurrent DDL outside transactions, advisory locking, retry budget, validity checks, and deferred retirement. Remaining: PostgreSQL failure/restart and concurrent-publish tests, invalid-index cleanup/recovery evidence, and proof publication cannot pass with any required index not valid.
 - #17–#25 — Authentication throttling, session lifecycle, keyset pagination, bounded control-plane listings, payload budgets, idempotency, audit events, observability, and pool configuration have implementation in this branch. Issue-level acceptance gaps remain: abuse/concurrency behavior; reset/change session invalidation; cursor tamper/backward/concurrent mutation; endpoint/query-budget inventory; real-PostgreSQL idempotency and audit rollback/redaction; pool saturation, acquisition wait and graceful shutdown.
@@ -22,14 +22,14 @@
 
 ## Current CI state
 
-At the reviewed head, GitHub Actions runs are pending:
+Earlier CI runs for commit `fdc6881207218fae82e0de988514b907b84b119a` remained queued when last checked:
 
-- Monorepo Quality: [run 42344403164](https://github.com/bjo163/galaxy-template/actions/runs/42344403164)
-- Arsy PostgreSQL RLS (PostgreSQL 17/18): [run 42344403163](https://github.com/bjo163/galaxy-template/actions/runs/42344403163)
+- Monorepo Quality: [run 42344435576](https://github.com/bjo163/galaxy-template/actions/runs/42344435576)
+- Arsy PostgreSQL RLS (PostgreSQL 17/18): [run 42344435806](https://github.com/bjo163/galaxy-template/actions/runs/42344435806)
 
-A separate code change in this pass also fixed failed-job retry snapshot handling: retry serializes with record writers by locking the model definition, recounts current records, and then resets the staged cursor.
+Those runs do not validate the later commits `bd81cc9` and `d599bfb`. GitHub did not yet return PR-triggered workflow runs for the latest head at report refresh time. Recheck the PR's Checks tab; do not treat the earlier queued runs as current-head evidence.
 
-Earlier successful runs belong to a different commit and are not evidence for this head. Recheck both runs after completion and inspect failed jobs before changing this report.
+Code hardening since the earlier report: retry refreshes its record snapshot under the model-definition lock; migration enqueue requires the next sequential revision; publication rejects a staged migration whose source revision is stale.
 
 ## Remaining release blockers
 
