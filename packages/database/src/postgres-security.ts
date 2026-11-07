@@ -106,6 +106,8 @@ export async function provisionPostgresRoles(
 
   await ensureRole(knex, "arsy_migrator", passwords.migrator);
   await ensureRole(knex, "arsy_runtime", passwords.runtime);
+  // Bound lock acquisition for online DDL and production migration commands.
+  await knex.raw("ALTER ROLE ?? SET lock_timeout = '5s'", ["arsy_migrator"]);
 
   const [database] = await knex("pg_catalog.pg_database")
     .select("datname")
