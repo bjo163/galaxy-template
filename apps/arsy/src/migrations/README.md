@@ -40,3 +40,19 @@ Production migrations must run out-of-band with the dedicated `arsy_migrator`
 role. The runtime service must use `arsy_runtime`; application startup must not
 silently apply privileged schema changes. Prefer expand/contract changes and a
 tested forward-fix path whenever rolling back could affect application data.
+
+
+## Model revision and index lifecycle
+
+Model changes with existing records should use the lifecycle API rather than attempting a large synchronous publish:
+
+1. Create a draft revision using the model revision endpoint.
+2. Call `POST .../revisions/:revision/migration-preview` with declarative `rename`, `set_default`, and `remove` operations. Preview samples up to 100 records and reports the total record count and index changes.
+3. Enqueue the validated plan with `POST .../revisions/:revision/migration-jobs`.
+4. Run `pnpm --filter arsy db:lifecycle:work` as the dedicated migrator role. Schedule repeated one-shot invocations until the migration and index jobs reach terminal states.
+5. Inspect `GET .../migration-jobs` and `GET .../index-jobs`. Failed migration jobs can be resumed through the retry endpoint after the underlying cause is addressed.
+6. Publish the revision only after the transform job is ready and every required index job is ready/removed.
+
+Transforms are deterministic JSON operations; arbitrary JavaScript is never evaluated. Backfilled payloads are staged separately and become live in the publication transaction. Record writes are rejected with HTTP 409 while a migration is queued/running; reads continue against the active revision. Publication performs a single cutover transaction, so large models still require a maintenance/lock-duration assessment before production use.
+
+Online index jobs use PostgreSQL `CREATE INDEX CONCURRENTLY` and `DROP INDEX CONCURRENTLY` outside Knex transactions. The worker persists attempts and status, resumes interrupted building/retiring jobs, and verifies `pg_index.indisvalid` before a create job is marked ready.
