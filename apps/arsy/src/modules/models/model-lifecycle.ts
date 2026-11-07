@@ -253,137 +253,176 @@ export async function processModelIndexJob(
   knex: Knex,
   jobId: string,
 ): Promise<"ready" | "running" | "failed" | "missing"> {
-  const candidate = await knex("arsy_model_index_jobs").where({ id: jobId }).first() as IndexJob | undefined;
-  if (candidate?.operation === "drop") {
-    const model = await knex.transaction(async (trx) => {
-      await setTransactionSetting(trx, "arsy.workspace_id", candidate.workspace_id);
-      await setTransactionSetting(trx, "arsy.project_id", candidate.project_id);
-      return trx("arsy_model_definitions")
-        .select("active_revision")
-        .where({ id: candidate.definition_id })
-        .first();
-    });
-    if (Number(model?.active_revision ?? 0) < candidate.revision) return "running";
-    const replacementBuild = await knex("arsy_model_index_jobs")
-      .select("id")
-      .where({
-        definition_id: candidate.definition_id,
-        revision: candidate.revision,
-        field_key: candidate.field_key,
-        operation: "create",
-      })
-      .whereNot("status", "ready")
-      .first();
-    if (replacementBuild) return "running";
-  }
-  const job = await knex.transaction(async (trx) => {
-    const row = await trx("arsy_model_index_jobs")
-      .where({ id: jobId })
-      .forUpdate()
-      .first() as IndexJob | undefined;
-    if (!row) return null;
-    if (row.status === "ready" || row.status === "removed") return row;
-    if (row.attempts >= MAX_ATTEMPTS) {
-      await trx("arsy_model_index_jobs").where({ id: jobId }).update({
-        status: "failed",
-        last_error: "Maximum online index attempts reached.",
-        updated_at: new Date(),
-      });
-      if (row.operation === "create") {
-        await trx("arsy_model_migration_jobs")
-          .where({
-            definition_id: row.definition_id,
-            to_revision: row.revision,
-            status: "ready",
-          })
-          .update({
-            status: "failed",
-            last_error: "A required online index exhausted its retry budget.",
-            updated_at: new Date(),
-          });
-      }
-      return { ...row, status: "failed" };
-    }
-    await trx("arsy_model_index_jobs").where({ id: jobId }).update({
-      status: row.operation === "create" ? "building" : "retiring",
-      attempts: row.attempts + 1,
-      started_at: trx.raw("COALESCE(started_at, ?)", [new Date()]),
-      updated_at: new Date(),
-      last_error: null,
-    });
-    return row;
-  });
-
-  if (!job) return "missing";
-  if (job.status === "ready" || job.status === "removed") return "ready";
-  if (job.status === "failed") return "failed";
-
+  // Hold a session advisory lock on the same PostgreSQL connection used for
+  // concurrent DDL. If the worker exits, PostgreSQL releases the lock.
+  const connection = await knex.client.acquireConnection();
+  let lockAcquired = false;
   try {
-    if (
-      !/^[a-z][a-z0-9_]{0,62}$/.test(job.index_name) ||
-      !/^[a-z][a-z0-9_]{0,62}$/.test(job.field_key)
-    ) {
-      throw new Error("Online index job contains an unsafe identifier.");
-    }
-    const expression = `(${fieldSqlExpression(job.field_key, job.field_type)})`;
-    if (job.operation === "create") {
-      await knex.raw(`${job.is_unique ? "CREATE UNIQUE INDEX CONCURRENTLY" : "CREATE INDEX CONCURRENTLY"} IF NOT EXISTS "${job.index_name}" ON "arsy_records" ("workspace_id", "project_id", "model_key", ${expression})`);
-      const validity = await knex({ i: "pg_index" })
-        .select("i.indisvalid as valid")
-        .join({ c: "pg_class" }, "c.oid", "i.indexrelid")
-        .where("c.relname", job.index_name)
+    const lockResult = await connection.query(
+      "SELECT pg_try_advisory_lock(hashtextextended($1, 0)) AS locked",
+      [jobId],
+    );
+    lockAcquired = Boolean(lockResult.rows[0]?.locked);
+    if (!lockAcquired) return "running";
+
+    const candidate = await knex("arsy_model_index_jobs")
+      .where({ id: jobId })
+      .first() as IndexJob | undefined;
+    if (!candidate) return "missing";
+
+    if (candidate.operation === "drop") {
+      const model = await knex.transaction(async (trx) => {
+        await setTransactionSetting(trx, "arsy.workspace_id", candidate.workspace_id);
+        await setTransactionSetting(trx, "arsy.project_id", candidate.project_id);
+        return trx("arsy_model_definitions")
+          .select("active_revision")
+          .where({ id: candidate.definition_id })
+          .first();
+      });
+      if (Number(model?.active_revision ?? 0) < candidate.revision) return "running";
+      const replacementBuild = await knex("arsy_model_index_jobs")
+        .select("id")
+        .where({
+          definition_id: candidate.definition_id,
+          revision: candidate.revision,
+          field_key: candidate.field_key,
+          operation: "create",
+        })
+        .whereNot("status", "ready")
         .first();
-      if (!validity?.valid) throw new Error("PostgreSQL reports the concurrent index as invalid.");
+      if (replacementBuild) return "running";
+    }
+
+    const job = await knex.transaction(async (trx) => {
+      const row = await trx("arsy_model_index_jobs")
+        .where({ id: jobId })
+        .forUpdate()
+        .first() as IndexJob | undefined;
+      if (!row) return null;
+      if (row.status === "ready" || row.status === "removed") return row;
+      if (row.attempts >= MAX_ATTEMPTS) {
+        await trx("arsy_model_index_jobs").where({ id: jobId }).update({
+          status: "failed",
+          last_error: "Maximum online index attempts reached.",
+          updated_at: new Date(),
+        });
+        if (row.operation === "create") {
+          await trx("arsy_model_migration_jobs")
+            .where({
+              definition_id: row.definition_id,
+              to_revision: row.revision,
+              status: "ready",
+            })
+            .update({
+              status: "failed",
+              last_error: "A required online index exhausted its retry budget.",
+              updated_at: new Date(),
+            });
+        }
+        return { ...row, status: "failed" };
+      }
+      await trx("arsy_model_index_jobs").where({ id: jobId }).update({
+        status: row.operation === "create" ? "building" : "retiring",
+        attempts: row.attempts + 1,
+        started_at: new Date(),
+        updated_at: new Date(),
+        last_error: null,
+      });
+      return row;
+    });
+
+    if (!job) return "missing";
+    if (job.status === "ready" || job.status === "removed") return "ready";
+    if (job.status === "failed") return "failed";
+
+    try {
+      if (
+        !/^[a-z][a-z0-9_]{0,62}$/.test(job.index_name) ||
+        !/^[a-z][a-z0-9_]{0,62}$/.test(job.field_key)
+      ) {
+        throw new Error("Online index job contains an unsafe identifier.");
+      }
+      const expression = `(${fieldSqlExpression(job.field_key, job.field_type)})`;
+      if (job.operation === "create") {
+        const method = job.is_unique
+          ? "CREATE UNIQUE INDEX CONCURRENTLY"
+          : "CREATE INDEX CONCURRENTLY";
+        await connection.query(
+          `${method} IF NOT EXISTS "${job.index_name}" ON "arsy_records" ("workspace_id", "project_id", "model_key", ${expression})`,
+        );
+        const validity = await knex({ i: "pg_index" })
+          .select("i.indisvalid as valid")
+          .join({ c: "pg_class" }, "c.oid", "i.indexrelid")
+          .where("c.relname", job.index_name)
+          .first();
+        if (!validity?.valid) {
+          throw new Error("PostgreSQL reports the concurrent index as invalid.");
+        }
+        await knex("arsy_model_index_jobs").where({ id: jobId }).update({
+          status: "ready",
+          completed_at: new Date(),
+          updated_at: new Date(),
+          last_error: null,
+        });
+        return "ready";
+      }
+
+      await connection.query(`DROP INDEX CONCURRENTLY IF EXISTS "${job.index_name}"`);
       await knex("arsy_model_index_jobs").where({ id: jobId }).update({
-        status: "ready",
+        status: "removed",
         completed_at: new Date(),
         updated_at: new Date(),
         last_error: null,
       });
       return "ready";
-    }
-
-    await knex.raw(`DROP INDEX CONCURRENTLY IF EXISTS "${job.index_name}"`);
-    await knex("arsy_model_index_jobs").where({ id: jobId }).update({
-      status: "removed",
-      completed_at: new Date(),
-      updated_at: new Date(),
-      last_error: null,
-    });
-    return "ready";
-  } catch (error) {
-    if (job.operation === "create") {
-      try {
-        await knex.raw(`DROP INDEX CONCURRENTLY IF EXISTS "${job.index_name}"`);
-      } catch {
-        // Preserve the original failure; the next worker attempt can retry cleanup.
+    } catch (error) {
+      if (job.operation === "create") {
+        try {
+          await connection.query(`DROP INDEX CONCURRENTLY IF EXISTS "${job.index_name}"`);
+        } catch {
+          // Preserve the original failure; a later worker attempt can retry cleanup.
+        }
       }
-    }
-    const message = error instanceof Error ? error.message.slice(0, 2_000) : "Unknown online index error";
-    if (job.operation === "create") {
-      const model = await knex("arsy_model_definitions")
-        .select("active_revision")
-        .where({ id: job.definition_id })
-        .first();
-      if (Number(model?.active_revision ?? 0) < job.revision) {
-        await knex("arsy_model_migration_jobs")
-          .where({
-            definition_id: job.definition_id,
-            to_revision: job.revision,
-            status: "ready",
-          })
-          .update({
-            status: "failed",
-            last_error: `Required index ${job.index_name} failed: ${message}`,
-            updated_at: new Date(),
-          });
+      const message = error instanceof Error
+        ? error.message.slice(0, 2_000)
+        : "Unknown online index error";
+      if (job.operation === "create") {
+        const model = await knex.transaction(async (trx) => {
+          await setTransactionSetting(trx, "arsy.workspace_id", job.workspace_id);
+          await setTransactionSetting(trx, "arsy.project_id", job.project_id);
+          return trx("arsy_model_definitions")
+            .select("active_revision")
+            .where({ id: job.definition_id })
+            .first();
+        });
+        if (Number(model?.active_revision ?? 0) < job.revision) {
+          await knex("arsy_model_migration_jobs")
+            .where({
+              definition_id: job.definition_id,
+              to_revision: job.revision,
+              status: "ready",
+            })
+            .update({
+              status: "failed",
+              last_error: `Required index ${job.index_name} failed: ${message}`,
+              updated_at: new Date(),
+            });
+        }
       }
+      await knex("arsy_model_index_jobs").where({ id: jobId }).update({
+        status: "failed",
+        last_error: message,
+        updated_at: new Date(),
+      });
+      return "failed";
     }
-    await knex("arsy_model_index_jobs").where({ id: jobId }).update({
-      status: "failed",
-      last_error: message,
-      updated_at: new Date(),
-    });
-    return "failed";
+  } finally {
+    if (lockAcquired) {
+      await connection.query(
+        "SELECT pg_advisory_unlock(hashtextextended($1, 0))",
+        [jobId],
+      ).catch(() => undefined);
+    }
+    await knex.client.releaseConnection(connection);
   }
 }
