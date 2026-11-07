@@ -543,7 +543,7 @@ async function assertModelWritesAllowed(
   const job = await trx("arsy_model_migration_jobs")
     .select("id")
     .where({ definition_id: definitionId })
-    .whereIn("status", ["queued", "running"])
+    .whereIn("status", ["queued", "running", "ready"])
     .first();
   if (job) {
     throw new HttpError(
@@ -1041,6 +1041,9 @@ export async function registerModelRoutes(
             );
           }
           if (migrationJob) {
+            if (Number(migrationJob.processed_records) !== Number(migrationJob.total_records)) {
+              throw new HttpError(409, "The staged migration record count does not match the migration snapshot.");
+            }
             await trx("arsy_records as records")
               .join("arsy_model_migration_records as staged", function joinStagedPayload() {
                 this.on("staged.record_id", "=", "records.id");
