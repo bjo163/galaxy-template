@@ -4,6 +4,7 @@ import { afterEach, describe, it } from "node:test";
 
 import { createDatabase } from "@galaxy/database";
 import { validateModelDefinition } from "../../core/models/model-definition.js";
+import { assertModelWritesAllowed } from "./model.routes.js";
 import {
   applyModelMigrationPlan,
   makeModelIndexName,
@@ -162,6 +163,36 @@ describe("model lifecycle primitives", () => {
     const staged = await knex("arsy_model_migration_records").select("payload").orderBy("record_id");
     assert.equal(staged.length, 101);
     assert.deepEqual(staged[0].payload, { display_name: recordIds[0] });
+  });
+
+  it("pauses writes until a staged revision has been published", async () => {
+    const database = await createDatabase({ adapter: "pglite" });
+    databases.push(database);
+    await database.knex.schema.createTable("arsy_model_definitions", (table) => {
+      table.uuid("id").primary();
+      table.integer("active_revision").nullable();
+    });
+    await database.knex.schema.createTable("arsy_model_migration_jobs", (table) => {
+      table.uuid("id").primary();
+      table.uuid("definition_id").notNullable();
+      table.integer("to_revision").notNullable();
+      table.string("status").notNullable();
+    });
+    const definitionId = "00000000-0000-4000-8000-000000000010";
+    await database.knex("arsy_model_definitions").insert({ id: definitionId, active_revision: 1 });
+    await database.knex("arsy_model_migration_jobs").insert({
+      id: "00000000-0000-4000-8000-000000000011",
+      definition_id: definitionId,
+      to_revision: 2,
+      status: "ready",
+    });
+
+    await assert.rejects(
+      database.knex.transaction((trx) => assertModelWritesAllowed(trx, definitionId)),
+      /Writes are temporarily paused/,
+    );
+    await database.knex("arsy_model_definitions").where({ id: definitionId }).update({ active_revision: 2 });
+    await database.knex.transaction((trx) => assertModelWritesAllowed(trx, definitionId));
   });
 
   it("creates deterministic and type-sensitive online index names", () => {
