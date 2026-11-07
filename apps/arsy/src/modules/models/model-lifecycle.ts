@@ -65,6 +65,26 @@ export function applyModelMigrationPlan(
       if (!Object.hasOwn(output, operation.field) && Object.hasOwn(operation, "value")) {
         output[operation.field] = operation.value;
       }
+    } else if (operation.op === "cast") {
+      const value = output[operation.field];
+      if (value === undefined || value === null) continue;
+      if (operation.toType === "string") {
+        output[operation.field] = String(value);
+      } else if (operation.toType === "integer" || operation.toType === "number") {
+        const converted = typeof value === "number" ? value : typeof value === "string" && value.trim() ? Number(value) : Number.NaN;
+        if (!Number.isFinite(converted) || (operation.toType === "integer" && !Number.isSafeInteger(converted))) {
+          throw new Error("Field cast produced an invalid numeric value.");
+        }
+        output[operation.field] = converted;
+      } else if (operation.toType === "boolean") {
+        if (value === true || value === false) output[operation.field] = value;
+        else if (value === "true" || value === "false") output[operation.field] = value === "true";
+        else throw new Error("Field cast produced an invalid boolean value.");
+      } else if (["date", "datetime", "uuid"].includes(String(operation.toType)) && typeof value === "string") {
+        output[operation.field] = value;
+      } else {
+        throw new Error("Unsupported or unsafe field cast.");
+      }
     } else if (operation.op === "remove") {
       delete output[operation.field];
     } else {
