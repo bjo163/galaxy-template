@@ -75,4 +75,53 @@ describe("database migrations", () => {
     });
     assert.equal(await database.knex.schema.hasTable("migration_probe"), false);
   });
+
+  it("rolls back an interrupted migration and safely retries it", async () => {
+    const database = await createDatabase({ adapter: "pglite" });
+    databases.push(database);
+    const directory = await mkdtemp(join(tmpdir(), "galaxy-migrations-retry-"));
+    temporaryDirectories.push(directory);
+    const migrationPath = join(directory, "001_retryable_probe.js");
+
+    await writeFile(
+      migrationPath,
+      [
+        "export async function up(knex) {",
+        "  await knex.schema.createTable('retryable_probe', (table) => table.increments('id').primary());",
+        "  throw new Error('injected migration interruption');",
+        "}",
+        "export async function down(knex) { await knex.schema.dropTableIfExists('retryable_probe'); }",
+        "",
+      ].join("\n"),
+    );
+
+    await assert.rejects(
+      runMigrations(database.knex, directory, "up"),
+      /injected migration interruption/,
+    );
+    assert.equal(await database.knex.schema.hasTable("retryable_probe"), false);
+    assert.deepEqual(await getMigrationStatus(database.knex, directory), {
+      completed: [],
+      pending: ["001_retryable_probe.js"],
+    });
+
+    await writeFile(
+      migrationPath,
+      [
+        "export async function up(knex) {",
+        "  await knex.schema.createTable('retryable_probe', (table) => table.increments('id').primary());",
+        "}",
+        "export async function down(knex) { await knex.schema.dropTableIfExists('retryable_probe'); }",
+        "",
+      ].join("\n"),
+    );
+
+    const retried = await runMigrations(database.knex, directory, "up");
+    assert.deepEqual(retried, {
+      batch: 1,
+      completed: ["001_retryable_probe.js"],
+      pending: [],
+    });
+    assert.equal(await database.knex.schema.hasTable("retryable_probe"), true);
+  });
 });
