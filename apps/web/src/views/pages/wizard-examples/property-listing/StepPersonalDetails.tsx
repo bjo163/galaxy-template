@@ -21,8 +21,8 @@ import { CustomTextField } from '@galaxy/ui'
 // Database Imports
 import { db } from '@galaxy/fake-db/pages/formOptions'
 
-import DirectionalIcon from '@components/DirectionalIcon'
-import type { CustomInputVerticalData } from '@core/components/custom-inputs/types'
+import { DirectionalIcon } from '@galaxy/ui'
+import type { CustomInputVerticalData } from '@galaxy/ui'
 
 type Props = {
   activeStep: number

@@ -18,9 +18,7 @@ import type { ThemeColor } from '@core/types'
 import type { PricingPlanType } from '@/types/pages/pricingTypes'
 
 // Component Imports
-import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
-import UpgradePlan from '@components/dialogs/upgrade-plan'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { ConfirmationDialog, UpgradePlanDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const CurrentPlan = ({ data }: { data?: PricingPlanType[] }) => {
   const buttonProps = (children: string, variant: ButtonProps['variant'], color: ThemeColor): ButtonProps => ({
@@ -75,7 +73,7 @@ const CurrentPlan = ({ data }: { data?: PricingPlanType[] }) => {
             <OpenDialogOnElementClick
               element={Button}
               elementProps={buttonProps('Upgrade plan', 'contained', 'primary')}
-              dialog={UpgradePlan}
+              dialog={UpgradePlanDialog}
               dialogProps={{ data: data }}
             />
             <OpenDialogOnElementClick

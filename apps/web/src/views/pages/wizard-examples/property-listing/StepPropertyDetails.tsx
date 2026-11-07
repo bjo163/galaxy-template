@@ -18,10 +18,10 @@ import { CustomInputVertical, CustomTextField } from '@galaxy/ui'
 
 import { db } from '@galaxy/fake-db/pages/formOptions'
 
-import type { CustomInputVerticalData } from '@core/components/custom-inputs/types'
+import type { CustomInputVerticalData } from '@galaxy/ui'
 
 // Component Imports
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 
 // Database Imports
 

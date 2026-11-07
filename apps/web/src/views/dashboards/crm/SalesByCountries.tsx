@@ -11,7 +11,7 @@ import classnames from 'classnames'
 import type { SalesByCountry } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 const SalesByCountries = ({ data }: { data: SalesByCountry[] }) => {
   return (

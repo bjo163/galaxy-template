@@ -9,8 +9,7 @@ import type { ThemeColor } from '@core/types'
 import type { OrderType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { ConfirmationDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 type PayementStatusType = {
   text: string

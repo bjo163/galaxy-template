@@ -29,10 +29,10 @@ import { CustomAvatar } from '@galaxy/ui'
 
 import { CustomTextField } from '@galaxy/ui'
 
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 
 // Styles Component Imports
-import StepperWrapper from '@core/styles/stepper'
+import { StepperWrapper } from '@galaxy/ui'
 
 type FormDataType = {
   username: string

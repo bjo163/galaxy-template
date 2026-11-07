@@ -26,7 +26,7 @@ import StepPropertyArea from './StepPropertyArea'
 import StepPriceDetails from './StepPriceDetails'
 
 // Styled Component Imports
-import StepperWrapper from '@core/styles/stepper'
+import { StepperWrapper } from '@galaxy/ui'
 
 // Vars
 const steps = [

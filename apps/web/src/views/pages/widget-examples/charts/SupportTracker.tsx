@@ -20,7 +20,7 @@ import { CustomAvatar } from '@galaxy/ui'
 import type { SupportTrackerItem } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))

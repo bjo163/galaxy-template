@@ -25,7 +25,7 @@ import LogisticsStatisticsCard from '@views/apps/logistics/dashboard/LogisticsSt
 import UserListCards from '@views/pages/widget-examples/statistics/UserListCards'
 
 // Data Imports
-import { getStatisticsData, getUserListCardsData } from '@/app/server/actions'
+import { getStatisticsCardData, getStatisticsData, getUserListCardsData } from '@/app/server/actions'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -48,12 +48,13 @@ import { getStatisticsData, getUserListCardsData } from '@/app/server/actions'
 const Statistics = async () => {
   // Vars
   const statsData = await getStatisticsData()
+  const statisticsCardData = await getStatisticsCardData()
   const userListData = await getUserListCardsData()
 
   return (
     <Grid container spacing={6}>
       <Grid size={{ xs: 12, md: 8 }}>
-        <StatisticsCard />
+        <StatisticsCard data={statisticsCardData.statisticsCard} />
       </Grid>
       <Grid size={{ xs: 12, md: 4 }}>
         <Square data={statsData.statsSquare} />

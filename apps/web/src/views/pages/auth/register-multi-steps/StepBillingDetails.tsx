@@ -12,8 +12,8 @@ import { styled } from '@mui/material/styles'
 // Component Imports
 import { CustomInputVertical, CustomTextField } from '@galaxy/ui'
 
-import DirectionalIcon from '@components/DirectionalIcon'
-import type { CustomInputVerticalData } from '@core/components/custom-inputs/types'
+import { DirectionalIcon } from '@galaxy/ui'
+import type { CustomInputVerticalData } from '@galaxy/ui'
 
 // Styled Components
 const Content = styled(Typography, {

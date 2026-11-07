@@ -36,7 +36,7 @@ import { CustomAvatar, CustomTextField } from '@galaxy/ui'
 import type { ProjectListItem } from '@/types/apps/userViewTypes'
 
 // Component Imports
-import TablePaginationComponent from '@components/TablePaginationComponent'
+import { TablePaginationComponent } from '@galaxy/ui'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'

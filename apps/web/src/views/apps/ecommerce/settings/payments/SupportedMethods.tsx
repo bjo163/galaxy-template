@@ -11,8 +11,7 @@ import type { ButtonProps } from '@mui/material/Button'
 
 // Component Imports
 import Link from '@components/Link'
-import PaymentMethod from '@components/dialogs/payment-method'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { PaymentMethodDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const SupportedMethods = () => {
   // Vars
@@ -72,7 +71,7 @@ const SupportedMethods = () => {
             </Grid>
           </Grid>
         </div>
-        <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={PaymentMethod} />
+        <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={PaymentMethodDialog} />
       </CardContent>
     </Card>
   )

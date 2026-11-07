@@ -44,10 +44,10 @@ import type { OrderType } from '@/types/apps/ecommerceTypes'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 
-import TablePaginationComponent from '@components/TablePaginationComponent'
+import { TablePaginationComponent } from '@galaxy/ui'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

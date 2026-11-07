@@ -9,8 +9,10 @@ import Typography from '@mui/material/Typography'
 // Component Imports
 import { CustomAvatar } from '@galaxy/ui'
 
+import { db as ecommerceData } from '@galaxy/fake-db/apps/ecommerce'
+
 import Link from '@components/Link'
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
@@ -22,19 +24,6 @@ type ShippingRateCardProps = {
   avatar: string
   data: tableData[]
 }
-
-// Vars
-const domesticTableData: tableData[] = [
-  { rate: 'Weight', condition: '5Kg-10Kg', price: '$9' },
-  { rate: 'VAT', condition: '12%', price: '$25' },
-  { rate: 'Duty', condition: '-', price: '-' }
-]
-
-const internationalTableData: tableData[] = [
-  { rate: 'Weight', condition: '5Kg-10Kg', price: '$19' },
-  { rate: 'VAT', condition: '12%', price: '$25' },
-  { rate: 'Duty', condition: 'Japan', price: '$49' }
-]
 
 const ShippingRateCard = (props: ShippingRateCardProps) => {
   // Props
@@ -109,8 +98,16 @@ const ShippingDelivery = () => {
         sx={{ '& .MuiCardHeader-action': { alignSelf: 'center' } }}
       />
       <CardContent className='flex flex-col gap-6'>
-        <ShippingRateCard title='Domestic' avatar='/images/avatars/1.png' data={domesticTableData} />
-        <ShippingRateCard title='International' avatar='/images/cards/us.png' data={internationalTableData} />
+        <ShippingRateCard
+          title='Domestic'
+          avatar='/images/avatars/1.png'
+          data={ecommerceData.shippingRates.domestic}
+        />
+        <ShippingRateCard
+          title='International'
+          avatar='/images/cards/us.png'
+          data={ecommerceData.shippingRates.international}
+        />
       </CardContent>
     </Card>
   )

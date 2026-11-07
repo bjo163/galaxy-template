@@ -15,7 +15,7 @@ import Transactions from '@views/apps/ecommerce/dashboard/Transactions'
 import InvoiceListTable from '@views/apps/ecommerce/dashboard/InvoiceListTable'
 
 // Data Imports
-import { getEcommerceDashboardData, getInvoiceData } from '@/app/server/actions'
+import { getEcommerceDashboardData, getInvoiceData, getStatisticsCardData } from '@/app/server/actions'
 
 /**
  * ! If you need data using an API call, uncomment the below API code, update the `process.env.API_URL` variable in the
@@ -40,6 +40,7 @@ const EcommerceDashboard = async () => {
   // Vars
   const invoiceData = await getInvoiceData()
   const ecommerceDashboardData = await getEcommerceDashboardData()
+  const statisticsCardData = await getStatisticsCardData()
 
   return (
     <Grid container spacing={6}>
@@ -47,7 +48,7 @@ const EcommerceDashboard = async () => {
         <CongratulationsJohn />
       </Grid>
       <Grid size={{ xs: 12, md: 8 }}>
-        <StatisticsCard />
+        <StatisticsCard data={statisticsCardData.statisticsCard} />
       </Grid>
       <Grid size={{ xs: 12, xl: 4 }}>
         <Grid container spacing={6}>
@@ -66,7 +67,7 @@ const EcommerceDashboard = async () => {
         <RevenueReport />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
-        <EarningReports />
+        <EarningReports data={ecommerceDashboardData.earningReports} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
         <PopularProducts data={ecommerceDashboardData.popularProducts} />
@@ -75,7 +76,7 @@ const EcommerceDashboard = async () => {
         <Orders />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
-        <Transactions />
+        <Transactions data={ecommerceDashboardData.transactions} />
       </Grid>
       <Grid size={{ xs: 12, lg: 8 }}>
         <InvoiceListTable invoiceData={invoiceData} />

@@ -25,13 +25,11 @@ import { CustomTextField } from '@galaxy/ui'
 
 import { db } from '@galaxy/fake-db/pages/frontPages'
 
-import type { CustomInputHorizontalData } from '@core/components/custom-inputs/types'
+import type { CustomInputHorizontalData } from '@galaxy/ui'
 import type { PricingPlanType } from '@/types/pages/pricingTypes'
 
 // Component Imports
-import PricingDialog from '@components/dialogs/pricing'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
-import DirectionalIcon from '@components/DirectionalIcon'
+import { PricingDialog, OpenDialogOnElementClick, DirectionalIcon } from '@galaxy/ui'
 import { useSettings } from '@core/hooks/useSettings'
 
 

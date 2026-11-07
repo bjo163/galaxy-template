@@ -13,8 +13,7 @@ import { CustomAvatar } from '@galaxy/ui'
 import type { Customer } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import EditUserInfo from '@components/dialogs/edit-user-info'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { EditUserInfoDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const CustomerDetails = ({ customerData }: { customerData?: Customer }) => {
   // Vars
@@ -91,7 +90,7 @@ const CustomerDetails = ({ customerData }: { customerData?: Customer }) => {
             </div>
           </div>
         </div>
-        <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={EditUserInfo} />
+        <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={EditUserInfoDialog} />
       </CardContent>
     </Card>
   )

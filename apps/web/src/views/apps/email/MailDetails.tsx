@@ -32,8 +32,8 @@ import type { Email } from '@/types/apps/emailTypes'
 import { moveEmailsToFolder, navigateEmails, toggleLabel } from '@/redux-store/slices/email'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
-import DirectionalIcon from '@components/DirectionalIcon'
+import { OptionMenu } from '@galaxy/ui'
+import { DirectionalIcon } from '@galaxy/ui'
 import MailCard from './MailCard'
 
 // Styles Imports

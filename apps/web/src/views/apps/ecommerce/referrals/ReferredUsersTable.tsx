@@ -42,7 +42,7 @@ import type { Locale } from '@configs/i18n'
 import type { ReferralsType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import TablePaginationComponent from '@components/TablePaginationComponent'
+import { TablePaginationComponent } from '@galaxy/ui'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

@@ -16,16 +16,14 @@ import classnames from 'classnames'
 import type { ApexOptions } from 'apexcharts'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
+
+import type { AcademyTopicStat } from '@galaxy/types/apps/academyTypes'
 
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
-type DataType = {
-  title: string
-  value: number
-  colorClass: string
-}
+type DataType = AcademyTopicStat
 
 // Vars
 const series = [
@@ -34,21 +32,9 @@ const series = [
   }
 ]
 
-const data1: DataType[] = [
-  { title: 'UI Design', value: 35, colorClass: 'text-primary' },
-  { title: 'UX Design', value: 20, colorClass: 'text-info' },
-  { title: 'Music', value: 14, colorClass: 'text-success' }
-]
-
-const data2: DataType[] = [
-  { title: 'Animation', value: 12, colorClass: 'text-secondary' },
-  { title: 'React', value: 10, colorClass: 'text-error' },
-  { title: 'SEO', value: 9, colorClass: 'text-warning' }
-]
-
 const labels = ['UI Design', 'UX Design', 'Music', 'Animation', 'React', 'SEO']
 
-const InterestedTopics = () => {
+const InterestedTopics = ({ data1, data2 }: { data1: DataType[]; data2: DataType[] }) => {
   // Hooks
   const theme = useTheme()
 

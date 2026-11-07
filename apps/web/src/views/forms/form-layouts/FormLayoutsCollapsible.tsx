@@ -26,7 +26,7 @@ import { CustomInputHorizontal, CustomTextField } from '@galaxy/ui'
 // Database Imports
 import { db } from '@galaxy/fake-db/pages/formOptions'
 
-import type { CustomInputHorizontalData } from '@core/components/custom-inputs/types'
+import type { CustomInputHorizontalData } from '@galaxy/ui'
 
 type FormData = {
   fullName: string

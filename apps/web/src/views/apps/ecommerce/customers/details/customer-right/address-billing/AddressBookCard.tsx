@@ -16,9 +16,7 @@ import type { ButtonProps } from '@mui/material/Button'
 import type { IconButtonProps } from '@mui/material/IconButton'
 
 // Component Imports
-import OptionMenu from '@core/components/option-menu'
-import AddNewAddress from '@components/dialogs/add-edit-address'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { OptionMenu, AddEditAddressDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 type propsType = {
   typeOfAddress: string
@@ -119,7 +117,7 @@ const CustomerAddress = (props: propsType) => {
           <OpenDialogOnElementClick
             element={IconButton}
             elementProps={iconButtonProps}
-            dialog={AddNewAddress}
+            dialog={AddEditAddressDialog}
             dialogProps={{ data }}
           />
           <IconButton>
@@ -160,7 +158,7 @@ const AddressBook = () => {
     <Card>
       <CardHeader
         title='Address Book'
-        action={<OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={AddNewAddress} />}
+        action={<OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={AddEditAddressDialog} />}
       />
       <CardContent>
         {propData.map((address, index) => (

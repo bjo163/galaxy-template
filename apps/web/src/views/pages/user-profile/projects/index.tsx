@@ -15,7 +15,7 @@ import { CustomAvatar } from '@galaxy/ui'
 import type { ProjectsTabType } from '@/types/pages/profileTypes'
 
 // Component Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 import Link from '@components/Link'
 
 const Projects = ({ data }: { data?: ProjectsTabType[] }) => {

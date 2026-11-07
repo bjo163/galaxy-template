@@ -12,7 +12,7 @@ import { CustomAvatar } from '@galaxy/ui'
 
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 import type { WidgetDeliveryPerformance } from '@/types/pages/widgetExamplesAdvancedTypes'
 

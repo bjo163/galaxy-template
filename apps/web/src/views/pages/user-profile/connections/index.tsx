@@ -13,7 +13,7 @@ import { CustomIconButton } from '@galaxy/ui'
 import type { ConnectionsTabType } from '@/types/pages/profileTypes'
 
 // Component Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 import Link from '@components/Link'
 
 const Connections = ({ data }: { data?: ConnectionsTabType[] }) => {

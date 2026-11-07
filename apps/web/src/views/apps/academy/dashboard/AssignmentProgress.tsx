@@ -11,25 +11,14 @@ import { CustomIconButton } from '@galaxy/ui'
 import type { ThemeColor } from '@core/types'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
-import DirectionalIcon from '@components/DirectionalIcon'
+import { OptionMenu } from '@galaxy/ui'
+import { DirectionalIcon } from '@galaxy/ui'
 
-type DataType = {
-  title: string
-  tasks: number
-  progress: number
-  color: ThemeColor
-}
+import type { AcademyAssignment } from '@galaxy/types/apps/academyTypes'
 
-// Vars
-const data: DataType[] = [
-  { title: 'User Experience Design', tasks: 120, progress: 72, color: 'primary' },
-  { title: 'Basic fundamentals', tasks: 32, progress: 48, color: 'success' },
-  { title: 'React Native components', tasks: 182, progress: 15, color: 'error' },
-  { title: 'Basic of music theory', tasks: 56, progress: 24, color: 'info' }
-]
+type DataType = AcademyAssignment
 
-const AssignmentProgress = () => {
+const AssignmentProgress = ({ data }: { data: DataType[] }) => {
   return (
     <Card>
       <CardHeader title='Assignment Progress' action={<OptionMenu options={['Refresh', 'Update', 'Share']} />} />

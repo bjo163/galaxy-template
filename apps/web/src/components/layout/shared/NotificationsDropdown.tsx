@@ -30,7 +30,7 @@ import { getInitials } from '@galaxy/utils'
 import { CustomAvatar } from '@galaxy/ui'
 
 import type { ThemeColor } from '@core/types'
-import type { CustomAvatarProps } from '@core/components/mui/Avatar'
+import type { CustomAvatarProps } from '@galaxy/ui'
 
 // Component Imports
 // Config Imports

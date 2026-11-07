@@ -7,26 +7,14 @@ import type { TypographyProps } from '@mui/material/Typography'
 // Type Imports
 import type { ThemeColor } from '@core/types'
 
+import { db as ecommerceData } from '@galaxy/fake-db/apps/ecommerce'
+
+import type { AddressData } from '@/types/apps/ecommerceTypes'
+
 // Component Imports
-import AddAddress from '@components/dialogs/add-edit-address'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { AddEditAddressDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 // Vars
-const data = {
-  firstName: 'Roker',
-  lastName: 'Terrace',
-  email: 'sbaser0@boston.com',
-  country: 'UK',
-  address1: 'Latheronwheel',
-  address2: 'KW5 8NW, London',
-  landmark: 'Near Water Plant',
-  city: 'London',
-  state: 'Capholim',
-  zipCode: '403114',
-  taxId: 'TAX-875623',
-  vatNumber: 'SDF754K77',
-  contact: '+1 (609) 972-22-22'
-}
 
 const BillingAddress = () => {
   // Vars
@@ -45,8 +33,8 @@ const BillingAddress = () => {
             <OpenDialogOnElementClick
               element={Typography}
               elementProps={typographyProps('Edit', 'primary', 'cursor-pointer font-medium')}
-              dialog={AddAddress}
-              dialogProps={{ type: 'Add address for billing address', data }}
+              dialog={AddEditAddressDialog}
+              dialogProps={{ type: 'Add address for billing address', data: ecommerceData.billingAddress as AddressData }}
             />
           </div>
           <div className='flex flex-col'>

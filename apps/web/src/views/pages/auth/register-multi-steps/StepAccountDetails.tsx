@@ -11,7 +11,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 // Component Imports
 import { CustomTextField } from '@galaxy/ui'
 
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 
 const StepAccountDetails = ({ handleNext }: { handleNext: () => void }) => {
   // States

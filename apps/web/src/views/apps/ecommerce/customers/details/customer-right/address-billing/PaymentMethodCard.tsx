@@ -17,11 +17,7 @@ import type { ButtonProps } from '@mui/material/Button'
 import type { IconButtonProps } from '@mui/material/IconButton'
 
 // Component Imports
-import { CustomAvatar } from '@galaxy/ui'
-
-import OptionMenu from '@core/components/option-menu'
-import AddNewCard from '@components/dialogs/billing-card'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { CustomAvatar, OptionMenu, BillingCardDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 type dataType = {
   typeOfCard: string
@@ -116,7 +112,7 @@ const CustomerAddress = (props: dataType) => {
           <OpenDialogOnElementClick
             element={IconButton}
             elementProps={iconButtonProps}
-            dialog={AddNewCard}
+            dialog={BillingCardDialog}
             dialogProps={{ data: editCardData }}
           />
           <IconButton>
@@ -225,7 +221,7 @@ const PaymentMethod = () => {
     <Card>
       <CardHeader
         title='Payment Methods'
-        action={<OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={AddNewCard} />}
+        action={<OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={BillingCardDialog} />}
         className='flex-wrap gap-4'
       />
       <CardContent>

@@ -13,8 +13,10 @@ import Button from '@mui/material/Button'
 // Component Imports
 import { CustomTextField } from '@galaxy/ui'
 
+import { db as accountSettingsData } from '@galaxy/fake-db/pages/accountSettings'
+
 import Link from '@components/Link'
-import Form from '@components/Form'
+import { Form } from '@galaxy/ui'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
@@ -25,34 +27,6 @@ type TableDataType = {
   email: boolean
   browser: boolean
 }
-
-// Vars
-const tableData: TableDataType[] = [
-  {
-    app: true,
-    email: true,
-    browser: true,
-    type: 'New for you'
-  },
-  {
-    app: true,
-    email: true,
-    browser: true,
-    type: 'Account activity'
-  },
-  {
-    app: false,
-    email: true,
-    browser: true,
-    type: 'A new browser used to sign in'
-  },
-  {
-    app: false,
-    email: true,
-    browser: false,
-    type: 'A new device is linked'
-  }
-]
 
 const Notifications = () => {
   return (
@@ -78,7 +52,7 @@ const Notifications = () => {
               </tr>
             </thead>
             <tbody className='border-be'>
-              {tableData.map((data, index) => (
+              {accountSettingsData.notifications.map((data, index) => (
                 <tr key={index}>
                   <td>
                     <Typography color='text.primary'>{data.type}</Typography>

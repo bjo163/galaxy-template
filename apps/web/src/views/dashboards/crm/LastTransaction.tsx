@@ -16,7 +16,7 @@ import type { SystemMode, ThemeColor } from '@core/types'
 import type { LastTransaction as LastTransactionType } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'

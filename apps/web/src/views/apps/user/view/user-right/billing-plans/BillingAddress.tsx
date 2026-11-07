@@ -8,8 +8,7 @@ import Typography from '@mui/material/Typography'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Component Imports
-import AddNewAddress from '@components/dialogs/add-edit-address'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { AddEditAddressDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 // Vars
 const data = {
@@ -45,7 +44,7 @@ const BillingAddress = () => {
             <OpenDialogOnElementClick
               element={Button}
               elementProps={buttonProps}
-              dialog={AddNewAddress}
+              dialog={AddEditAddressDialog}
               dialogProps={{ data }}
             />
           }

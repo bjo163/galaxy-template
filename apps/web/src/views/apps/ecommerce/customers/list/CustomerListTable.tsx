@@ -46,7 +46,7 @@ import type { Locale } from '@configs/i18n'
 
 // Component Imports
 import AddCustomerDrawer from './AddCustomerDrawer'
-import TablePaginationComponent from '@components/TablePaginationComponent'
+import { TablePaginationComponent } from '@galaxy/ui'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

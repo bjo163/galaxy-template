@@ -19,10 +19,10 @@ import StepCart from './StepCart'
 import StepAddress from './StepAddress'
 import StepPayment from './StepPayment'
 import StepConfirmation from './StepConfirmation'
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 
 // Styled Component Imports
-import StepperWrapper from '@core/styles/stepper'
+import { StepperWrapper } from '@galaxy/ui'
 
 // Vars
 const steps = [

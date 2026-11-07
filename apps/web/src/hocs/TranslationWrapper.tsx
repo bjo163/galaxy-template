@@ -5,7 +5,7 @@ import type { headers } from 'next/headers'
 import type { Locale } from '@configs/i18n'
 import type { ChildrenType } from '@core/types'
 
-// Component Imports
+// Component imports
 import LangRedirect from '@components/LangRedirect'
 
 // Config Imports

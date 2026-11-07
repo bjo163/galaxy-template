@@ -14,7 +14,7 @@ import { CustomAvatar } from '@galaxy/ui'
 import type { Email } from '@/types/apps/emailTypes'
 
 // Component Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 // Styles Imports
 import styles from './styles.module.css'

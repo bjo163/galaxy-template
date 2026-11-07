@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography'
 import CircularProgress from '@mui/material/CircularProgress'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 // Type Imports
 import type { WidgetBrowserState } from '@/types/pages/widgetExamplesAdvancedTypes'

@@ -25,7 +25,7 @@ import type { SystemMode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 import Logo from '@components/layout/shared/Logo'
 
 // Hook Imports

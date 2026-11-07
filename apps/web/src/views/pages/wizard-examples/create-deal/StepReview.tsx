@@ -11,7 +11,7 @@ import { useTheme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Component Imports
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 
 type Props = {
   activeStep: number

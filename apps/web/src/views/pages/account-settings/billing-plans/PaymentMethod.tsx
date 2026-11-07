@@ -23,8 +23,7 @@ import { CustomTextField } from '@galaxy/ui'
 import type { PaymentMethodCard } from '@/types/apps/userViewTypes'
 
 // Component Imports
-import BillingCard from '@components/dialogs/billing-card'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { BillingCardDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const PaymentMethod = ({ data }: { data: PaymentMethodCard[] }) => {
   // States
@@ -172,7 +171,7 @@ const PaymentMethod = ({ data }: { data: PaymentMethodCard[] }) => {
                     <OpenDialogOnElementClick
                       element={Button}
                       elementProps={buttonProps(index)}
-                      dialog={BillingCard}
+                      dialog={BillingCardDialog}
                       dialogProps={{ data: data[creditCard] }}
                     />
                     <Button variant='tonal' color='error' size='small'>

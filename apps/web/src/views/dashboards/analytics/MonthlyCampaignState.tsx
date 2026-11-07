@@ -11,8 +11,8 @@ import classnames from 'classnames'
 import type { MonthlyCampaignState as MonthlyCampaignStateType } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
-import CustomAvatar from '@core/components/mui/Avatar'
+import { OptionMenu } from '@galaxy/ui'
+import { CustomAvatar } from '@galaxy/ui'
 
 const MonthlyCampaignState = ({ data }: { data: MonthlyCampaignStateType[] }) => {
   return (

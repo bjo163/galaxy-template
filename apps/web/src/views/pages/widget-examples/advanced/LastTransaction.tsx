@@ -12,7 +12,7 @@ import { useColorScheme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 // Types Imports
 import type { ThemeColor, SystemMode } from '@core/types'

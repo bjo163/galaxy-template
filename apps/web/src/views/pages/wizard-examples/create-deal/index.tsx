@@ -25,7 +25,7 @@ import StepDealUsage from './StepDealUsage'
 import StepReview from './StepReview'
 
 // Styled Component Imports
-import StepperWrapper from '@core/styles/stepper'
+import { StepperWrapper } from '@galaxy/ui'
 
 // Vars
 const steps = [

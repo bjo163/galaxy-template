@@ -20,7 +20,7 @@ import type { AppDispatch } from '@/redux-store'
 import { addTask, editColumn, deleteColumn, updateColumnTaskIds } from '@/redux-store/slices/kanban'
 
 // Component Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 import TaskCard from './TaskCard'
 import NewTask from './NewTask'
 

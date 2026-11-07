@@ -9,7 +9,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 // Components Imports
 import { CustomTextField } from '@galaxy/ui'
 
-import Form from '@components/Form'
+import { Form } from '@galaxy/ui'
 
 const FormLayoutsWithIcon = () => {
   return (

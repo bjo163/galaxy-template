@@ -10,7 +10,7 @@ import Progress from '@mui/material/LinearProgress'
 import type { SubscribersOrdersProps } from '@/types/pages/widgetTypes'
 
 // Component Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 const SubscribersOrders = ({ data }: { data: SubscribersOrdersProps[] }) => {
   return (

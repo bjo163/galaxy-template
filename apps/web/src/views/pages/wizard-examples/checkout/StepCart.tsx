@@ -25,7 +25,7 @@ import { CustomTextField } from '@galaxy/ui'
 // Database Imports
 import { db } from '@galaxy/fake-db/pages/formOptions'
 
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 
 // Vars
 const products = db.checkout.cartProducts

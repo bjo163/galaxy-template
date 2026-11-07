@@ -20,13 +20,7 @@ import IconButton from '@mui/material/IconButton'
 import { toast } from 'react-toastify'
 
 // Component Imports
-import { CustomTextField } from '@galaxy/ui'
-
-import DirectionalIcon from '@components/DirectionalIcon'
-
-// Styled Component Imports
-import StepperWrapper from '@core/styles/stepper'
-import StepperCustomDot from '@components/stepper-dot'
+import { CustomTextField, DirectionalIcon, StepperWrapper, StepperCustomDot } from '@galaxy/ui'
 
 type FormDataType = {
   username: string

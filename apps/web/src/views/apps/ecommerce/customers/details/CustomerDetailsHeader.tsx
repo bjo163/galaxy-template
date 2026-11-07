@@ -7,8 +7,7 @@ import type { ButtonProps } from '@mui/material/Button'
 import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { ConfirmationDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const CustomerDetailHeader = ({ customerId }: { customerId: string }) => {
   // Vars

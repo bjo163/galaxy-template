@@ -8,24 +8,13 @@ import Typography from '@mui/material/Typography'
 // Components Imports
 import { CustomAvatar } from '@galaxy/ui'
 
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
-type DataType = {
-  name: string
-  profession: string
-  totalCourses: number
-  avatar: string
-}
+import type { AcademyInstructor } from '@galaxy/types/apps/academyTypes'
 
-// Vars
-const data: DataType[] = [
-  { name: 'Jordan Stevenson', profession: 'Business Intelligence', totalCourses: 33, avatar: '/images/avatars/1.png' },
-  { name: 'Bentlee Emblin', profession: 'Digital Marketing', totalCourses: 52, avatar: '/images/avatars/2.png' },
-  { name: 'Benedetto Rossiter', profession: 'UI/UX Design', totalCourses: 12, avatar: '/images/avatars/3.png' },
-  { name: 'Beverlie Krabbe', profession: 'Vue', totalCourses: 8, avatar: '/images/avatars/4.png' }
-]
+type DataType = AcademyInstructor
 
-const PopularInstructors = () => {
+const PopularInstructors = ({ data }: { data: DataType[] }) => {
   return (
     <Card className='bs-full'>
       <CardHeader title='Popular Instructors' action={<OptionMenu options={['Refresh', 'Update', 'Share']} />} />

@@ -16,8 +16,7 @@ import type { ButtonProps } from '@mui/material/Button'
 import type { PaymentMethodCard } from '@/types/apps/userViewTypes'
 
 // Component Imports
-import BillingCard from '@components/dialogs/billing-card'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { BillingCardDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const PaymentMethod = ({ data = [] }: { data?: PaymentMethodCard[] }) => {
   // States
@@ -53,7 +52,7 @@ const PaymentMethod = ({ data = [] }: { data?: PaymentMethodCard[] }) => {
       <Card>
         <CardHeader
           title='Payment Methods'
-          action={<OpenDialogOnElementClick element={Button} elementProps={addButtonProps} dialog={BillingCard} />}
+          action={<OpenDialogOnElementClick element={Button} elementProps={addButtonProps} dialog={BillingCardDialog} />}
         />
         <CardContent className='flex flex-col gap-4'>
           {data.map((item, index) => (
@@ -80,7 +79,7 @@ const PaymentMethod = ({ data = [] }: { data?: PaymentMethodCard[] }) => {
                   <OpenDialogOnElementClick
                     element={Button}
                     elementProps={editButtonProps(index)}
-                    dialog={BillingCard}
+                    dialog={BillingCardDialog}
                     dialogProps={{ data: data[creditCard] }}
                   />
                   <Button variant='tonal' color='error' size='small'>

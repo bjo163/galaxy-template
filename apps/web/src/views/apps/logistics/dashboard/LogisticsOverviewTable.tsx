@@ -41,8 +41,8 @@ import type { Locale } from '@configs/i18n'
 import type { Vehicle } from '@/types/apps/logisticsTypes'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
-import TablePaginationComponent from '@components/TablePaginationComponent'
+import { OptionMenu } from '@galaxy/ui'
+import { TablePaginationComponent } from '@galaxy/ui'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

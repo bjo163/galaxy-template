@@ -41,19 +41,19 @@ const AcademyDashboard = async () => {
         <WelcomeCard />
       </Grid>
       <Grid size={{ xs: 12, md: 8 }}>
-        <InterestedTopics />
+        <InterestedTopics data1={data.interestedTopicsData1} data2={data.interestedTopicsData2} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-        <PopularInstructors />
+        <PopularInstructors data={data.popularInstructors} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-        <TopCourses />
+        <TopCourses data={data.topCourses} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-        <UpcomingWebinar />
+        <UpcomingWebinar data={data.upcomingWebinar} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-        <AssignmentProgress />
+        <AssignmentProgress data={data.assignmentProgress} />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <CourseTable courseData={data?.courses} />

@@ -4,6 +4,8 @@ import CardContent from '@mui/material/CardContent'
 import Checkbox from '@mui/material/Checkbox'
 import Typography from '@mui/material/Typography'
 
+import { db as ecommerceData } from '@galaxy/fake-db/apps/ecommerce'
+
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
@@ -13,27 +15,6 @@ type CardProps = {
   title: string
   data: tableData[]
 }
-
-// Vars
-const customerData: tableData[] = [
-  { type: 'New customer sign up', email: true, app: false },
-  { type: 'Customer account password reset', email: false, app: true },
-  { type: 'Customer account invite', email: false, app: false }
-]
-
-const shippingData: tableData[] = [
-  { type: 'Picked up', email: true, app: false },
-  { type: 'Shipping update ', email: false, app: true },
-  { type: 'Delivered', email: false, app: false }
-]
-
-const ordersData: tableData[] = [
-  { type: 'Order purchase', email: true, app: false },
-  { type: 'Order cancelled', email: false, app: true },
-  { type: 'Order refund request', email: false, app: false },
-  { type: 'Order confirmation', email: false, app: true },
-  { type: 'Payment error', email: false, app: true }
-]
 
 const TableCard = (props: CardProps) => {
   // Props
@@ -74,9 +55,9 @@ const Notifications = () => {
   return (
     <Card>
       <CardContent className='flex flex-col gap-6'>
-        <TableCard title='Customer' data={customerData} />
-        <TableCard title='Orders' data={ordersData} />
-        <TableCard title='Shipping' data={shippingData} />
+        <TableCard title='Customer' data={ecommerceData.notificationSettings.customer} />
+        <TableCard title='Orders' data={ecommerceData.notificationSettings.orders} />
+        <TableCard title='Shipping' data={ecommerceData.notificationSettings.shipping} />
       </CardContent>
     </Card>
   )

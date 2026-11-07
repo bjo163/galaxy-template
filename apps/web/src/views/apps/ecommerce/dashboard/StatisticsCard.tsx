@@ -18,34 +18,7 @@ type DataType = {
   color: ThemeColor
 }
 
-const data: DataType[] = [
-  {
-    stats: '230k',
-    title: 'Sales',
-    color: 'primary',
-    icon: 'tabler-chart-pie-2'
-  },
-  {
-    color: 'info',
-    stats: '8.549k',
-    title: 'Customers',
-    icon: 'tabler-users'
-  },
-  {
-    color: 'error',
-    stats: '1.423k',
-    title: 'Products',
-    icon: 'tabler-shopping-cart'
-  },
-  {
-    stats: '$9745',
-    color: 'success',
-    title: 'Revenue',
-    icon: 'tabler-currency-dollar'
-  }
-]
-
-const StatisticsCard = () => {
+const StatisticsCard = ({ data }: { data: DataType[] }) => {
   return (
     <Card>
       <CardHeader

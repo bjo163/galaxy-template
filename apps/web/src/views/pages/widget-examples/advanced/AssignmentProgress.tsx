@@ -10,8 +10,8 @@ import { CustomIconButton } from '@galaxy/ui'
 
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
-import DirectionalIcon from '@components/DirectionalIcon'
+import { OptionMenu } from '@galaxy/ui'
+import { DirectionalIcon } from '@galaxy/ui'
 
 import type { WidgetAssignmentProgress } from '@/types/pages/widgetExamplesAdvancedTypes'
 

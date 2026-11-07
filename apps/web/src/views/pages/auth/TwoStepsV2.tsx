@@ -22,7 +22,7 @@ import type { SystemMode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import Form from '@components/Form'
+import { Form } from '@galaxy/ui'
 import Link from '@components/Link'
 import Logo from '@components/layout/shared/Logo'
 

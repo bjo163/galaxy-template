@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography'
 // Components Imports
 import { CustomAvatar } from '@galaxy/ui'
 
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 import type { WidgetPopularInstructor } from '@/types/pages/widgetExamplesAdvancedTypes'
 

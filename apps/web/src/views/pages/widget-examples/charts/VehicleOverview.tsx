@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography'
 import classnames from 'classnames'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'

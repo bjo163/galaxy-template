@@ -43,7 +43,7 @@ import type { Course } from '@/types/apps/academyTypes'
 import type { Locale } from '@configs/i18n'
 
 // Components Imports
-import TablePaginationComponent from '@components/TablePaginationComponent'
+import { TablePaginationComponent } from '@galaxy/ui'
 
 
 

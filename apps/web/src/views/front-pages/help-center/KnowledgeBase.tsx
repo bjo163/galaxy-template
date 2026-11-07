@@ -15,7 +15,7 @@ import { CustomAvatar } from '@galaxy/ui'
 
 import { db } from '@galaxy/fake-db/pages/frontPages'
 
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 
 // Styles Imports
 import frontCommonStyles from '@views/front-pages/styles.module.css'

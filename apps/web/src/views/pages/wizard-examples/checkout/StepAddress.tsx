@@ -24,11 +24,10 @@ import { CustomInputHorizontal, CustomInputVertical } from '@galaxy/ui'
 
 import { db } from '@galaxy/fake-db/pages/formOptions'
 
-import type { CustomInputHorizontalData, CustomInputVerticalData } from '@core/components/custom-inputs/types'
+import type { CustomInputHorizontalData, CustomInputVerticalData } from '@galaxy/ui'
 
 // Component Imports
-import AddEditAddress from '@components/dialogs/add-edit-address'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { AddEditAddressDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 // Database Imports
 
@@ -143,7 +142,7 @@ const StepAddress = ({ handleNext }: { handleNext: () => void }) => {
               />
             ))}
           </Grid>
-          <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={AddEditAddress} />
+          <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={AddEditAddressDialog} />
         </div>
         <div className='flex flex-col gap-4'>
           <Typography color='text.primary' className='font-medium self-start'>

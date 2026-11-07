@@ -17,7 +17,7 @@ import { CustomAvatar } from '@galaxy/ui'
 import type { ThemeColor } from '@core/types'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
@@ -35,34 +35,7 @@ type DataType = {
 // Vars
 const series = [{ data: [32, 98, 61, 41, 88, 47, 71] }]
 
-const data: DataType[] = [
-  {
-    amount: '$1,619',
-    trendNumber: 18.6,
-    title: 'Net Profit',
-    avatarColor: 'primary',
-    subtitle: '12.4k Sales',
-    avatarIcon: 'tabler-chart-pie-2'
-  },
-  {
-    amount: '$3,571',
-    trendNumber: 39.6,
-    title: 'Total Income',
-    avatarColor: 'success',
-    subtitle: 'Sales, Affiliation',
-    avatarIcon: 'tabler-currency-dollar'
-  },
-  {
-    amount: '$430',
-    trendNumber: 52.8,
-    title: 'Total Expenses',
-    avatarColor: 'secondary',
-    subtitle: 'ADVT, Marketing',
-    avatarIcon: 'tabler-credit-card'
-  }
-]
-
-const EarningReports = () => {
+const EarningReports = ({ data }: { data: DataType[] }) => {
   // Vars
   const primaryColorWithOpacity = 'var(--mui-palette-primary-lightOpacity)'
 

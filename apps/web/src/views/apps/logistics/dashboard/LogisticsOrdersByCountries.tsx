@@ -24,7 +24,9 @@ import MuiTimeline from '@mui/lab/Timeline'
 import type { TimelineProps } from '@mui/lab/Timeline'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
+
+import type { OrderTimeline } from '@galaxy/types/apps/logisticsTypes'
 
 type TimelineItemData = {
   name: string
@@ -33,7 +35,7 @@ type TimelineItemData = {
 
 type TimelineData = Record<'sender' | 'receiver', TimelineItemData>
 
-type Data = Record<'new' | 'preparing' | 'shipping', TimelineData[]>
+type Data = OrderTimeline
 
 // Styled Timeline component
 const Timeline = styled(MuiTimeline)<TimelineProps>({
@@ -51,77 +53,7 @@ const Timeline = styled(MuiTimeline)<TimelineProps>({
   }
 })
 
-// Vars
-const data: Data = {
-  new: [
-    {
-      sender: {
-        name: 'Micheal Hughes',
-        address: '101 Boulder, California (CA), 933130'
-      },
-      receiver: {
-        name: 'Daisy Coleman',
-        address: '939 Orange, California (CA), 910614'
-      }
-    },
-    {
-      sender: {
-        name: 'Glenn Todd',
-        address: '1713 Garnet, California (CA), 939573'
-      },
-      receiver: {
-        name: 'Arthur West',
-        address: '156 Blaze, California (CA), 925878'
-      }
-    }
-  ],
-  preparing: [
-    {
-      sender: {
-        name: 'Rose Cole',
-        address: '61 Unions, California (CA), 922523'
-      },
-      receiver: {
-        name: 'Polly Spencer',
-        address: '865 Delta, California (CA), 932830'
-      }
-    },
-    {
-      sender: {
-        name: 'Jerry Wood',
-        address: '37 Marjory, California (CA), 951958'
-      },
-      receiver: {
-        name: 'Sam McCormick',
-        address: '926 Reynolds, California (CA), 910279'
-      }
-    }
-  ],
-  shipping: [
-    {
-      sender: {
-        name: 'Alex Walton',
-        address: '78 Judson, California (CA), 956084'
-      },
-      receiver: {
-        name: 'Eula Griffin',
-        address: '56 Bernard, California (CA), 965133'
-      }
-    },
-    {
-      sender: {
-        name: 'Lula Barton',
-        address: '95 Gaylord, California (CA), 991955'
-      },
-      receiver: {
-        name: 'Craig Jacobs',
-        address: '73 Sandy, California (CA), 954566'
-      }
-    }
-  ]
-}
-
-const LogisticsOrdersByCountries = () => {
+const LogisticsOrdersByCountries = ({ data }: { data: Data }) => {
   // States
   const [value, setValue] = useState<string>('new')
 

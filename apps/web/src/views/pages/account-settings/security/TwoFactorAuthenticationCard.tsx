@@ -10,8 +10,7 @@ import type { ButtonProps } from '@mui/material/Button'
 import Link from '@components/Link'
 
 // Component Imports
-import TwoFactorAuth from '@components/dialogs/two-factor-auth'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { TwoFactorAuthDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const TwoFactorAuthenticationCard = () => {
   // Vars
@@ -35,7 +34,7 @@ const TwoFactorAuthenticationCard = () => {
               <Link className='text-primary'>Learn more.</Link>
             </Typography>
           </div>
-          <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={TwoFactorAuth} />
+          <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={TwoFactorAuthDialog} />
         </CardContent>
       </Card>
     </>

@@ -66,13 +66,13 @@ const LogisticsDashboard = async () => {
         <LogisticsShipmentStatistics />
       </Grid>
       <Grid size={{ xs: 12, md: 4 }}>
-        <LogisticsDeliveryPerformance />
+        <LogisticsDeliveryPerformance data={vehicleData.deliveryPerformance} />
       </Grid>
       <Grid size={{ xs: 12, md: 4 }}>
         <LogisticsDeliveryExceptions />
       </Grid>
       <Grid size={{ xs: 12, md: 4 }}>
-        <LogisticsOrdersByCountries />
+        <LogisticsOrdersByCountries data={vehicleData.ordersByCountries} />
       </Grid>
       <Grid size={{ xs: 12 }}>
         <LogisticsOverviewTable vehicleData={vehicleData?.vehicles} />

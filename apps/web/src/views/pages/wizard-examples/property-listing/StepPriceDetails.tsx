@@ -13,7 +13,7 @@ import Button from '@mui/material/Button'
 // Component Imports
 import { CustomTextField } from '@galaxy/ui'
 
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 
 type Props = {
   activeStep: number

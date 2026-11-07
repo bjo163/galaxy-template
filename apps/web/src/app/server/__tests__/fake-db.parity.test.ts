@@ -102,9 +102,9 @@ describe('fake-db parity: every extracted module exports non-empty db', () => {
     assert.ok(Array.isArray(userViewDb.paymentMethods), 'paymentMethods is array')
   })
 
-  it('dashboard: cards', () => {
+  it('dashboard: datasets', () => {
     assert.ok(dashboardDb, 'dashboard db exists')
-    assert.ok(Array.isArray(dashboardDb.cards) || Object.keys(dashboardDb).length > 0, 'dashboard has datasets')
+    assert.ok(Object.keys(dashboardDb).length > 0, 'dashboard has datasets')
   })
 
   it('permissions: roles/permissions datasets', () => {

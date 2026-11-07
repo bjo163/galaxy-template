@@ -13,7 +13,7 @@ import Chip from '@mui/material/Chip'
 import type { TeamsTabType } from '@/types/pages/profileTypes'
 
 // Component Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 import Link from '@components/Link'
 
 const Teams = ({ data }: { data?: TeamsTabType[] }) => {

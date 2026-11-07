@@ -13,7 +13,7 @@ import { CustomAvatar, CustomIconButton } from '@galaxy/ui'
 import type { ProfileTeamsTechType, ProfileConnectionsType } from '@/types/pages/profileTypes'
 
 // Component Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 import Link from '@components/Link'
 
 type Props = {

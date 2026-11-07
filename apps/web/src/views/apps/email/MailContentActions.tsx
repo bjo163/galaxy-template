@@ -14,7 +14,7 @@ import type { Email } from '@/types/apps/emailTypes'
 import { deleteTrashEmails, moveEmailsToFolder, toggleLabel, toggleReadEmails } from '@/redux-store/slices/email'
 
 // Component Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 // Data Imports
 import { labelColors } from './SidebarLeft'

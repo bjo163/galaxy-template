@@ -30,6 +30,10 @@ import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 // Component Imports
 import Link from '@components/Link'
 
+import { db as ecommerceData } from '@galaxy/fake-db/apps/ecommerce'
+
+import type { OrderItem } from '@galaxy/types/apps/ecommerceTypes'
+
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
 
@@ -46,49 +50,7 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed
 }
 
-type dataType = {
-  productName: string
-  productImage: string
-  brand: string
-  price: number
-  quantity: number
-  total: number
-}
-
-const orderData: dataType[] = [
-  {
-    productName: 'OnePlus 7 Pro',
-    productImage: '/images/apps/ecommerce/product-21.png',
-    brand: 'OnePluse',
-    price: 799,
-    quantity: 1,
-    total: 799
-  },
-  {
-    productName: 'Magic Mouse',
-    productImage: '/images/apps/ecommerce/product-22.png',
-    brand: 'Google',
-    price: 89,
-    quantity: 1,
-    total: 89
-  },
-  {
-    productName: 'Wooden Chair',
-    productImage: '/images/apps/ecommerce/product-23.png',
-    brand: 'Insofar',
-    price: 289,
-    quantity: 2,
-    total: 578
-  },
-  {
-    productName: 'Air Jorden',
-    productImage: '/images/apps/ecommerce/product-24.png',
-    brand: 'Nike',
-    price: 299,
-    quantity: 2,
-    total: 598
-  }
-]
+type dataType = OrderItem
 
 // Column Definitions
 const columnHelper = createColumnHelper<dataType>()
@@ -97,7 +59,7 @@ const OrderTable = () => {
   // States
   const [rowSelection, setRowSelection] = useState({})
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [data, setData] = useState(...[orderData])
+  const [data, setData] = useState<dataType[]>(ecommerceData.orderItems)
   const [globalFilter, setGlobalFilter] = useState('')
 
   const columns = useMemo<ColumnDef<dataType, any>[]>(

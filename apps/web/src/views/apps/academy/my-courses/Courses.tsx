@@ -27,7 +27,7 @@ import type { Locale } from '@configs/i18n'
 import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

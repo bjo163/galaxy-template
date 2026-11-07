@@ -9,7 +9,7 @@ import LinearProgress from '@mui/material/LinearProgress'
 import type { ActiveProject } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 const ActiveProjects = ({ data }: { data: ActiveProject[] }) => {
   return (

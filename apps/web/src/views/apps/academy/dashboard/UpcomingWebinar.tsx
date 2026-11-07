@@ -10,19 +10,11 @@ import classnames from 'classnames'
 // Components Imports
 import { CustomAvatar } from '@galaxy/ui'
 
-type DataType = {
-  icon: string
-  title: string
-  value: string
-}
+import type { AcademyWebinarItem } from '@galaxy/types/apps/academyTypes'
 
-// Vars
-const data: DataType[] = [
-  { icon: 'tabler-calendar', title: '17 Nov 23', value: 'Date' },
-  { icon: 'tabler-clock', title: '32 Minutes', value: 'Duration' }
-]
+type DataType = AcademyWebinarItem
 
-const UpcomingWebinar = () => {
+const UpcomingWebinar = ({ data }: { data: DataType[] }) => {
   return (
     <Card>
       <CardContent className='flex flex-col gap-4'>

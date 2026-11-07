@@ -18,8 +18,8 @@ import type { ApexOptions } from 'apexcharts'
 import type { SupportTrackerItem } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
-import CustomAvatar from '@core/components/mui/Avatar'
+import { OptionMenu } from '@galaxy/ui'
+import { CustomAvatar } from '@galaxy/ui'
 
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))

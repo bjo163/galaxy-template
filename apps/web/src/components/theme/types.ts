@@ -15,7 +15,7 @@ import type {
   CustomInputHorizontalProps,
   CustomInputVerticalProps,
   CustomInputImgProps
-} from '@core/components/custom-inputs/types'
+} from '@galaxy/ui'
 
 declare module '@mui/material/styles' {
   // eslint-disable-next-line lines-around-comment

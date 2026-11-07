@@ -9,8 +9,7 @@ import { styled } from '@mui/material/styles'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Component Imports
-import UpgradePlan from '@components/dialogs/upgrade-plan'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { UpgradePlanDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const Button = styled(MuiButton)<ButtonProps>(() => ({
   backgroundColor: 'var(--mui-palette-common-white) !important',
@@ -36,7 +35,7 @@ const CustomerPlan = () => {
           </div>
           <img src='/images/apps/ecommerce/3d-rocket.png' className='-mis-7 -mbe-7' />
         </div>
-        <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={UpgradePlan} />
+        <OpenDialogOnElementClick element={Button} elementProps={buttonProps} dialog={UpgradePlanDialog} />
       </CardContent>
     </Card>
   )

@@ -16,8 +16,7 @@ import type { CardProps } from '@mui/material/Card'
 import type { RoleCard } from '@/types/apps/rolesTypes'
 
 // Component Imports
-import RoleDialog from '@components/dialogs/role-dialog'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { RoleDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 import Link from '@components/Link'
 
 const RoleCards = ({ roleCards }: { roleCards: RoleCard[] }) => {

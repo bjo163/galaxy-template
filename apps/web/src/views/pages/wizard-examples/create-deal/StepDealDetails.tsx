@@ -22,7 +22,7 @@ import { formatDate } from 'date-fns/format'
 // Component Imports
 import { CustomTextField } from '@galaxy/ui'
 
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 
 // Styled Component Imports
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'

@@ -16,7 +16,7 @@ import classnames from 'classnames'
 import type { ApexOptions } from 'apexcharts'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 import type { WidgetInterestedTopic } from '@/types/pages/widgetExamplesChartsTypes'
 

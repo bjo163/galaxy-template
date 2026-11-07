@@ -8,14 +8,15 @@ import type { TypographyProps } from '@mui/material/Typography'
 // Type Imports
 import { getInitials } from '@galaxy/utils'
 
+import { db as ecommerceData } from '@galaxy/fake-db/apps/ecommerce'
+
 import { CustomAvatar } from '@galaxy/ui'
 
 import type { ThemeColor } from '@core/types'
-import type { OrderType } from '@/types/apps/ecommerceTypes'
+import type { OrderType, UserDialogData } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import EditUserInfo from '@components/dialogs/edit-user-info'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { EditUserInfoDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 // Util Imports
 
@@ -27,21 +28,6 @@ const getAvatar = (params: Pick<OrderType, 'avatar' | 'customer'>) => {
   } else {
     return <Avatar>{getInitials(customer as string)}</Avatar>
   }
-}
-
-// Vars
-const userData = {
-  firstName: 'Gabrielle',
-  lastName: 'Feyer',
-  userName: '@gabriellefeyer',
-  billingEmail: 'gfeyer0@nyu.edu',
-  status: 'active',
-  role: 'Customer',
-  taxId: 'Tax-8894',
-  contact: '+1 (234) 464-0600',
-  language: ['English'],
-  country: 'France',
-  useAsBillingAddress: true
 }
 
 const CustomerDetails = ({ orderData }: { orderData?: OrderType }) => {
@@ -81,8 +67,8 @@ const CustomerDetails = ({ orderData }: { orderData?: OrderType }) => {
             <OpenDialogOnElementClick
               element={Typography}
               elementProps={typographyProps('Edit', 'primary', 'cursor-pointer font-medium')}
-              dialog={EditUserInfo}
-              dialogProps={{ data: userData }}
+              dialog={EditUserInfoDialog}
+              dialogProps={{ data: ecommerceData.userDialogData as UserDialogData }}
             />
           </div>
           <Typography>Email: {orderData?.email}</Typography>

@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import LinearProgress from '@mui/material/LinearProgress'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 
 // Type Imports
 import type { ActiveProject } from '@/types/apps/dashboardTypes'

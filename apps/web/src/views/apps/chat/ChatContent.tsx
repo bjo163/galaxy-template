@@ -15,7 +15,7 @@ import type { AppDispatch } from '@/redux-store'
 import type { ChatDataType, ContactType } from '@/types/apps/chatTypes'
 
 // Component Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 import AvatarWithBadge from './AvatarWithBadge'
 import { statusObj } from './SidebarLeft'
 import ChatLog from './ChatLog'

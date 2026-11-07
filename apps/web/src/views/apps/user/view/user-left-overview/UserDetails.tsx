@@ -13,9 +13,7 @@ import { CustomAvatar } from '@galaxy/ui'
 import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import EditUserInfo from '@components/dialogs/edit-user-info'
-import ConfirmationDialog from '@components/dialogs/confirmation-dialog'
-import OpenDialogOnElementClick from '@components/dialogs/OpenDialogOnElementClick'
+import { EditUserInfoDialog, ConfirmationDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 
 // Vars
@@ -132,7 +130,7 @@ const UserDetails = () => {
             <OpenDialogOnElementClick
               element={Button}
               elementProps={buttonProps('Edit', 'primary', 'contained')}
-              dialog={EditUserInfo}
+              dialog={EditUserInfoDialog}
               dialogProps={{ data: userData }}
             />
             <OpenDialogOnElementClick

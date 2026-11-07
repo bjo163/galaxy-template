@@ -19,8 +19,7 @@ import { toast } from 'react-toastify'
 import classNames from 'classnames'
 
 // Component Imports
-import StepperWrapper from '@core/styles/stepper'
-import StepperCustomDot from '@components/stepper-dot'
+import { StepperWrapper, StepperCustomDot } from '@galaxy/ui'
 
 // Vars
 const steps = [

@@ -17,7 +17,7 @@ import { CustomAutocomplete, CustomTextField } from '@galaxy/ui'
 
 import { db } from '@galaxy/fake-db/pages/formOptions'
 
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 
 // Database Imports
 

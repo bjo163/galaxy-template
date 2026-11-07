@@ -37,7 +37,7 @@ import { CustomAvatar, CustomTextField } from '@galaxy/ui'
 import type { ProjectTableRowType } from '@/types/pages/profileTypes'
 
 // Component Imports
-import OptionMenu from '@core/components/option-menu'
+import { OptionMenu } from '@galaxy/ui'
 import TablePaginationComponent from '@/components/TablePaginationComponent'
 
 // Style Imports

@@ -38,7 +38,7 @@ describe('data-source emulation: static | db | api', () => {
   it('loadModuleData db uses dbQuery when supplied', async () => {
     const queryResult = { products: [{ id: 1, name: 'DB Product' }] }
     const result = await loadModuleData('db', {
-      staticData: ecommerceDb,
+      staticData: ecommerceDb as unknown as typeof queryResult,
       dbQuery: async () => queryResult,
     })
     assert.equal(result, queryResult)

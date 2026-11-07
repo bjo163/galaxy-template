@@ -33,7 +33,7 @@ import { CustomTextField } from '@galaxy/ui'
 import type { DataType } from '@/types/apps/reactTableTypes'
 
 // Component Imports
-import TablePaginationComponent from '@components/TablePaginationComponent'
+import { TablePaginationComponent } from '@galaxy/ui'
 
 // Icon Imports
 import ChevronRight from '@menu/svg/ChevronRight'

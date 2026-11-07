@@ -19,7 +19,7 @@ import type { KeenSliderPlugin } from 'keen-slider/react'
 import type { WebsiteAnalyticsSlide } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import { CustomAvatar } from '@galaxy/ui'
 
 import AppKeenSlider from '@/libs/styles/AppKeenSlider'
 

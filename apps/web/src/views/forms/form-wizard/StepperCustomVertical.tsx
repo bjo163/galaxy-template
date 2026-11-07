@@ -28,12 +28,7 @@ import { toast } from 'react-toastify'
 import classnames from 'classnames'
 
 // Components Imports
-import { CustomAvatar, CustomTextField } from '@galaxy/ui'
-
-import DirectionalIcon from '@components/DirectionalIcon'
-
-// Styled Component Imports
-import StepperWrapper from '@core/styles/stepper'
+import { CustomAvatar, CustomTextField, DirectionalIcon, StepperWrapper } from '@galaxy/ui'
 
 interface State {
   password: string

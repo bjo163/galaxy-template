@@ -26,9 +26,9 @@ import type { SystemMode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import DirectionalIcon from '@components/DirectionalIcon'
+import { DirectionalIcon } from '@galaxy/ui'
 import Logo from '@components/layout/shared/Logo'
-import StepperWrapper from '@core/styles/stepper'
+import { StepperWrapper } from '@galaxy/ui'
 import StepAccountDetails from './StepAccountDetails'
 import StepPersonalInfo from './StepPersonalInfo'
 import StepBillingDetails from './StepBillingDetails'
