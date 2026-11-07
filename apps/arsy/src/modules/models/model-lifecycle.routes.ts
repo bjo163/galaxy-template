@@ -297,4 +297,64 @@ export async function registerModelLifecycleRoutes(app: FastifyInstance): Promis
       }));
     },
   );
+
+  app.get<{ Params: Params }>(
+    "/workspaces/:workspaceId/projects/:projectId/models/:modelKey/index-jobs",
+    async (request) => {
+      const knex = app.database?.knex;
+      if (!knex) throw new HttpError(503, "The database is unavailable.");
+      const account = await requireAccount(request, knex);
+      const role = await withWorkspaceTransaction(knex, request.params.workspaceId, async (trx) =>
+        trx("arsy_workspace_members").select("role").where({
+          workspace_id: request.params.workspaceId,
+          account_id: account.id,
+        }).first(),
+      );
+      if (!role) throw new HttpError(404, "The requested workspace was not found.");
+      return withProjectTransaction(knex, request.params.workspaceId, request.params.projectId, async (trx) => ({
+        data: await trx("arsy_model_index_jobs")
+          .select("id", "revision", "field_key as fieldKey", "field_type as fieldType", "operation", "status", "attempts", "last_error as lastError", "created_at as createdAt", "completed_at as completedAt")
+          .whereIn("definition_id", trx("arsy_model_definitions").select("id").where({
+            workspace_id: request.params.workspaceId,
+            project_id: request.params.projectId,
+            model_key: request.params.modelKey,
+          }))
+          .orderBy("created_at", "desc")
+          .limit(100),
+      }));
+    },
+  );
+
+  app.post<{ Params: Params }>(
+    "/workspaces/:workspaceId/projects/:projectId/models/:modelKey/migration-jobs/:jobId/retry",
+    async (request) => {
+      const knex = app.database?.knex;
+      if (!knex) throw new HttpError(503, "The database is unavailable.");
+      const account = await requireAccount(request, knex);
+      const role = await withWorkspaceTransaction(knex, request.params.workspaceId, async (trx) =>
+        trx("arsy_workspace_members").select("role").where({
+          workspace_id: request.params.workspaceId,
+          account_id: account.id,
+        }).first(),
+      );
+      if (!role || !["owner", "admin", "developer"].includes(role.role as string)) {
+        throw new HttpError(404, "The requested workspace was not found.");
+      }
+      return withProjectTransaction(knex, request.params.workspaceId, request.params.projectId, async (trx) => {
+        const job = await trx("arsy_model_migration_jobs").where({
+          id: request.params.jobId,
+          workspace_id: request.params.workspaceId,
+          project_id: request.params.projectId,
+        }).forUpdate().first();
+        if (!job) throw new HttpError(404, "The migration job was not found.");
+        if (job.status !== "failed") throw new HttpError(409, "Only failed migration jobs can be retried.");
+        await trx("arsy_model_migration_jobs").where({ id: request.params.jobId }).update({
+          status: "queued",
+          last_error: null,
+          updated_at: new Date(),
+        });
+        return { id: request.params.jobId, status: "queued", resumedFromRecordId: job.last_record_id };
+      });
+    },
+  );
 }
