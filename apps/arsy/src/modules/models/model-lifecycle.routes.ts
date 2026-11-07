@@ -24,7 +24,7 @@ type Params = {
 };
 
 type Operation = {
-  op: "rename" | "set_default" | "remove" | "cast";
+  op: "rename" | "set_default" | "remove" | "cast" | "map";
   toType?: "string" | "integer" | "number" | "boolean" | "date" | "datetime" | "uuid";
   field: string;
   to?: string;
@@ -163,11 +163,12 @@ export async function registerModelLifecycleRoutes(app: FastifyInstance): Promis
                 additionalProperties: false,
                 required: ["op", "field"],
                 properties: {
-                  op: { type: "string", enum: ["rename", "set_default", "remove", "cast"] },
+                  op: { type: "string", enum: ["rename", "set_default", "remove", "cast", "map"] },
                   field: { type: "string", pattern: "^[a-z][a-z0-9_]{0,62}$" },
                   to: { type: "string", pattern: "^[a-z][a-z0-9_]{0,62}$" },
                   toType: { type: "string", enum: ["string", "integer", "number", "boolean", "date", "datetime", "uuid"] },
                   value: {},
+                  values: { type: "object", maxProperties: 100, additionalProperties: {} },
                 },
               },
             },
