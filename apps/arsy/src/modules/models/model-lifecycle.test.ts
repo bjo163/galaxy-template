@@ -186,6 +186,8 @@ describe("model lifecycle primitives", () => {
       const definitionId = randomUUID();
       const createJobId = randomUUID();
       const dropJobId = randomUUID();
+      const migrationJobId = randomUUID();
+      const recordId = randomUUID();
       const modelKey = `idx_test_${randomUUID().replace(/-/g, "").slice(0, 12)}`;
       const now = new Date();
       const newIndexName = makeModelIndexName(projectId, modelKey, "name", "string", false, 2);
@@ -230,6 +232,54 @@ describe("model lifecycle primitives", () => {
           created_at: now,
           updated_at: now,
         });
+        await admin.knex("arsy_records").insert({
+          id: recordId,
+          workspace_id: workspaceId,
+          project_id: projectId,
+          definition_id: definitionId,
+          model_key: modelKey,
+          owner_user_id: accountId,
+          created_by: accountId,
+          updated_by: accountId,
+          model_revision: 1,
+          payload: JSON.stringify({ old_name: "Ada" }),
+          created_at: now,
+          updated_at: now,
+        });
+        await admin.knex("arsy_model_migration_jobs").insert({
+          id: migrationJobId,
+          workspace_id: workspaceId,
+          project_id: projectId,
+          definition_id: definitionId,
+          from_revision: 1,
+          to_revision: 2,
+          status: "queued",
+          change_class: "conditional",
+          plan: JSON.stringify({
+            targetDefinition: {
+              key: modelKey,
+              displayName: "Index Lifecycle Test",
+              fields: [{ key: "display_name", type: "string", required: true, indexed: false, unique: false }],
+              access: { defaultVisibility: "project" },
+            },
+            operations: [{ op: "rename", field: "old_name", to: "display_name" }],
+          }),
+          total_records: 1,
+          processed_records: 0,
+          failed_records: 0,
+          created_by: accountId,
+          created_at: now,
+          updated_at: now,
+        });
+        assert.equal(await processModelMigrationBatch(migrator.knex, migrationJobId), "running");
+        assert.equal(await processModelMigrationBatch(migrator.knex, migrationJobId), "ready");
+        const stagedPayload = await admin.knex("arsy_model_migration_records")
+          .select("payload").where({ job_id: migrationJobId, record_id: recordId }).first();
+        const livePayload = await admin.knex("arsy_records")
+          .select("payload").where({ id: recordId }).first();
+        assert.deepEqual(stagedPayload?.payload, { display_name: "Ada" });
+        assert.deepEqual(livePayload?.payload, { old_name: "Ada" });
+
         await admin.knex("arsy_model_index_jobs").insert({
           id: createJobId,
           workspace_id: workspaceId,
