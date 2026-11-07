@@ -140,4 +140,6 @@ jobs:
           export DATABASE_ADAPTER=postgres
           export DATABASE_URL="postgresql://arsy_runtime:${ARSY_RUNTIME_PASSWORD}@localhost:5432/arsy_test"
           export ARSY_POSTGRES_TEST_URL="$DATABASE_URL"
+          export ARSY_POSTGRES_ADMIN_URL="postgresql://postgres:postgres@localhost:5432/arsy_test"
+          export ARSY_POSTGRES_MIGRATOR_URL="postgresql://arsy_migrator:${ARSY_MIGRATOR_PASSWORD}@localhost:5432/arsy_test"
           pnpm --filter arsy test
