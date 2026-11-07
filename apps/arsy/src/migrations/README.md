@@ -23,9 +23,12 @@ Migrations run in transactions and use the shared `galaxy_migrations` history
 and lock tables. Keep each migration reversible and avoid editing a migration
 after it has been applied to a shared environment.
 
-The PostgreSQL CI workflow exercises fresh migration, rollback of the latest
-batch, and re-application against PostgreSQL 17 and 18. This is not yet a full
-prior-version upgrade, interrupted-migration, or rolling-deployment test.
+The PostgreSQL CI workflow exercises fresh migration, rollback/re-application,
+RLS and grants, migrator lock policy, tenant-scoped transform staging, and
+concurrent index create/retire against PostgreSQL 17 and 18. The shared database
+package also tests interrupted migration retry and expand-upgrade behavior in
+PGlite. This is not yet a full prior-version Arsy schema upgrade or rolling
+old/new application deployment test.
 
 The shared Knex migrator currently wraps migrations in transactions. Do not put
 `CREATE INDEX CONCURRENTLY` or `DROP INDEX CONCURRENTLY` in these migration
