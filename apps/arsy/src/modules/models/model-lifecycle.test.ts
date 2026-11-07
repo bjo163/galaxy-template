@@ -369,7 +369,11 @@ describe("model lifecycle primitives", () => {
           updated_at: now,
         });
 
-        assert.equal(await processModelIndexJob(migrator.knex, createJobId), "ready");
+        const createResults = await Promise.all([
+          processModelIndexJob(migrator.knex, createJobId),
+          processModelIndexJob(migrator.knex, createJobId),
+        ]);
+        assert.ok(createResults.includes("ready"));
         const newIndex = await migrator.knex({ i: "pg_index" })
           .select("i.indisvalid as valid")
           .join({ c: "pg_class" }, "c.oid", "i.indexrelid")
