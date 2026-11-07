@@ -535,18 +535,6 @@ function applyDomain(
   );
 }
 
-function getIndexName(
-  projectId: string,
-  modelKey: string,
-  fieldKey: string,
-): string {
-  const digest = createHash("sha256")
-    .update(`${projectId}:${modelKey}:${fieldKey}`)
-    .digest("hex")
-    .slice(0, 40);
-  return `arsy_field_${digest}`;
-}
-
 async function validateExistingRecordsForRevision(
   trx: Knex.Transaction,
   projectId: string,
@@ -554,66 +542,66 @@ async function validateExistingRecordsForRevision(
   revision: number,
   definition: ModelDefinition,
 ): Promise<void> {
-  let lastId: string | undefined;
-  while (true) {
-    const query = trx("arsy_records")
-      .select("id", "payload")
-      .where({ project_id: projectId, model_key: modelKey })
-      .orderBy("id", "asc")
-      .limit(500);
-    if (lastId) query.andWhere("id", ">", lastId);
-    const rows = await query;
-    if (rows.length === 0) break;
+  // Synchronous publication is deliberately bounded. Large backfills need the
+  // resumable migration worker tracked in issue #14, not a long HTTP transaction.
+  const countRow = await trx("arsy_records")
+    .where({ project_id: projectId, model_key: modelKey })
+    .count({ total: "id" })
+    .first();
+  const total = Number(countRow?.total ?? 0);
+  if (total > 500) {
+    throw new HttpError(
+      409,
+      "This model has more than 500 records. A resumable data migration is required before publication.",
+    );
+  }
 
-    for (const row of rows) {
-      const existing = readJsonObject(row.payload);
-      let normalized: Record<string, unknown>;
-      try {
-        normalized = validateRecordPayload(definition, existing);
-      } catch {
-        throw new HttpError(
-          409,
-          `Model revision ${revision} is incompatible with existing records. A data migration is required before publication.`,
-        );
-      }
-      if (canonicalJson(normalized) !== canonicalJson(existing)) {
-        await trx("arsy_records")
-          .where({ id: row.id, project_id: projectId, model_key: modelKey })
-          .update({
-            payload: JSON.stringify(normalized),
-            model_revision: revision,
-          });
-      }
+  const rows = await trx("arsy_records")
+    .select("id", "payload")
+    .where({ project_id: projectId, model_key: modelKey })
+    .orderBy("id", "asc")
+    .limit(500);
+
+  for (const row of rows) {
+    const existing = readJsonObject(row.payload);
+    let normalized: Record<string, unknown>;
+    try {
+      normalized = validateRecordPayload(definition, existing);
+    } catch {
+      throw new HttpError(
+        409,
+        `Model revision ${revision} is incompatible with existing records. A data migration is required before publication.`,
+      );
     }
-    lastId = rows.at(-1)?.id as string;
+    if (canonicalJson(normalized) !== canonicalJson(existing)) {
+      await trx("arsy_records")
+        .where({ id: row.id, project_id: projectId, model_key: modelKey })
+        .update({
+          payload: JSON.stringify(normalized),
+          model_revision: revision,
+        });
+    }
   }
 }
 
-async function recreateFieldIndexes(
-  trx: Knex.Transaction,
-  projectId: string,
-  modelKey: string,
+function assertIndexDefinitionUnchanged(
   previous: ModelDefinition | undefined,
   next: ModelDefinition,
-): Promise<void> {
-  const indexedFields = new Map<string, ModelField>();
-  for (const field of [...(previous?.fields ?? []), ...next.fields]) {
-    if (field.indexed) {
-      indexedFields.set(field.key, field);
-    }
-  }
+): void {
+  const signature = (definition: ModelDefinition | undefined) =>
+    (definition?.fields ?? [])
+      .filter((field) => field.indexed)
+      .map((field) => ({
+        key: field.key,
+        type: field.type,
+        unique: Boolean(field.unique),
+      }))
+      .sort((left, right) => left.key.localeCompare(right.key));
 
-  for (const field of indexedFields.values()) {
-    const indexName = getIndexName(projectId, modelKey, field.key);
-    await trx.raw("DROP INDEX IF EXISTS ??", [indexName]);
-  }
-
-  for (const field of next.fields.filter((candidate) => candidate.indexed)) {
-    const indexName = getIndexName(projectId, modelKey, field.key);
-    const unique = field.unique ? "UNIQUE " : "";
-    await trx.raw(
-      `CREATE ${unique}INDEX ?? ON "arsy_records" ("workspace_id", "project_id", "model_key", (${fieldIndexExpression(field)}))`,
-      [indexName],
+  if (canonicalJson(signature(previous)) !== canonicalJson(signature(next))) {
+    throw new HttpError(
+      409,
+      "Index changes are temporarily blocked until the online index lifecycle is available. Keep indexed fields unchanged and retry after the index job is ready.",
     );
   }
 }
@@ -1012,13 +1000,7 @@ export async function registerModelRoutes(
             request.body.revision,
             definition,
           );
-          await recreateFieldIndexes(
-            trx,
-            request.params.projectId,
-            request.params.modelKey,
-            previousDefinition,
-            definition,
-          );
+          assertIndexDefinitionUnchanged(previousDefinition, definition);
           await trx("arsy_model_revisions")
             .where({ id: next.id })
             .update({ status: "published" });
