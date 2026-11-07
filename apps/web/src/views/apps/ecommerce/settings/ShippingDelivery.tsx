@@ -11,8 +11,9 @@ import { CustomAvatar } from '@galaxy/ui'
 
 import { db as ecommerceData } from '@galaxy/fake-db/apps/ecommerce'
 
-import Link from '@components/Link'
 import { OptionMenu } from '@galaxy/ui'
+
+import Link from '@components/Link'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'

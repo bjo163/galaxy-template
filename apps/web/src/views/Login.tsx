@@ -29,7 +29,6 @@ import classnames from 'classnames'
 // Type Imports
 import { CustomTextField } from '@galaxy/ui'
 
-import type { SystemMode } from '@core/types'
 import type { Locale } from '@/configs/i18n'
 
 // Component Imports
@@ -57,7 +56,7 @@ const schema = object({
   )
 })
 
-const Login = ({ mode }: { mode: SystemMode }) => {
+const Login = () => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [errorState, setErrorState] = useState<string | null>(null)

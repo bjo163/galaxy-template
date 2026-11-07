@@ -12,10 +12,11 @@ import Tooltip from '@mui/material/Tooltip'
 // Type Imports
 import { CustomAvatar } from '@galaxy/ui'
 
+import { OptionMenu } from '@galaxy/ui'
+
 import type { ProjectsTabType } from '@/types/pages/profileTypes'
 
 // Component Imports
-import { OptionMenu } from '@galaxy/ui'
 import Link from '@components/Link'
 
 const Projects = ({ data }: { data?: ProjectsTabType[] }) => {

@@ -4,8 +4,9 @@
 import Grid from '@mui/material/Grid'
 
 // Type Imports
-import type { OrderType } from '@/types/apps/ecommerceTypes'
 import type { ecommerceOrderKPI } from '@galaxy/fake-db/apps/ecommerceOrderKPI'
+
+import type { OrderType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
 import OrderCard from './OrderCard'

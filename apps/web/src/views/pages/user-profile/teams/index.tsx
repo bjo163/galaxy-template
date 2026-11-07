@@ -10,10 +10,11 @@ import Tooltip from '@mui/material/Tooltip'
 import Chip from '@mui/material/Chip'
 
 // Type Imports
+import { OptionMenu } from '@galaxy/ui'
+
 import type { TeamsTabType } from '@/types/pages/profileTypes'
 
 // Component Imports
-import { OptionMenu } from '@galaxy/ui'
 import Link from '@components/Link'
 
 const Teams = ({ data }: { data?: TeamsTabType[] }) => {

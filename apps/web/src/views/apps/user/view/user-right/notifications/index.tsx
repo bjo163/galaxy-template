@@ -7,9 +7,10 @@ import Checkbox from '@mui/material/Checkbox'
 import Button from '@mui/material/Button'
 
 // Style Imports
+import { db as accountSettingsData } from '@galaxy/fake-db/pages/accountSettings'
+
 import tableStyles from '@core/styles/table.module.css'
 
-import { db as accountSettingsData } from '@galaxy/fake-db/pages/accountSettings'
 
 const NotificationsTab = () => {
   return (

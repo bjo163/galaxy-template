@@ -7,6 +7,8 @@ import IconButton from '@mui/material/IconButton'
 import classnames from 'classnames'
 
 // Type Imports
+import { OptionMenu } from '@galaxy/ui'
+
 import type { AppDispatch } from '@/redux-store'
 import type { Email } from '@/types/apps/emailTypes'
 
@@ -14,7 +16,6 @@ import type { Email } from '@/types/apps/emailTypes'
 import { deleteTrashEmails, moveEmailsToFolder, toggleLabel, toggleReadEmails } from '@/redux-store/slices/email'
 
 // Component Imports
-import { OptionMenu } from '@galaxy/ui'
 
 // Data Imports
 import { labelColors } from './SidebarLeft'

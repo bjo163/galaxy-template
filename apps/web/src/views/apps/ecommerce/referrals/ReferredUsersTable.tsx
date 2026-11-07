@@ -37,12 +37,13 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import { CustomAvatar, CustomTextField } from '@galaxy/ui'
 
+import { TablePaginationComponent } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { Locale } from '@configs/i18n'
 import type { ReferralsType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import { TablePaginationComponent } from '@galaxy/ui'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

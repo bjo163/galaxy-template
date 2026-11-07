@@ -17,11 +17,12 @@ import { CustomInputVertical, CustomTextField } from '@galaxy/ui'
 
 import { db } from '@galaxy/fake-db/pages/formOptions'
 
-import type { Mode } from '@core/types'
 import type { CustomInputVerticalData } from '@galaxy/ui'
 
 // Component Imports
 import { DirectionalIcon } from '@galaxy/ui'
+
+import type { Mode } from '@core/types'
 
 // Database Imports
 

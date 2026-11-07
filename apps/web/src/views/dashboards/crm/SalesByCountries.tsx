@@ -8,10 +8,11 @@ import Typography from '@mui/material/Typography'
 import classnames from 'classnames'
 
 // Type Imports
+import { OptionMenu } from '@galaxy/ui'
+
 import type { SalesByCountry } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import { OptionMenu } from '@galaxy/ui'
 
 const SalesByCountries = ({ data }: { data: SalesByCountry[] }) => {
   return (

@@ -15,14 +15,16 @@ import { styled } from '@mui/material/styles'
 import type { StepperProps } from '@mui/material/Stepper'
 
 // Component Imports
+import { DirectionalIcon } from '@galaxy/ui'
+
+import { StepperWrapper } from '@galaxy/ui'
+
 import StepCart from './StepCart'
 import StepAddress from './StepAddress'
 import StepPayment from './StepPayment'
 import StepConfirmation from './StepConfirmation'
-import { DirectionalIcon } from '@galaxy/ui'
 
 // Styled Component Imports
-import { StepperWrapper } from '@galaxy/ui'
 
 // Vars
 const steps = [

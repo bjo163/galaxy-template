@@ -14,11 +14,12 @@ import { useTheme } from '@mui/material/styles'
 import type { ApexOptions } from 'apexcharts'
 
 // Type Imports
-import type { ProjectStatusItem } from '@/types/apps/dashboardTypes'
 
 // Components Imports
 import { OptionMenu } from '@galaxy/ui'
 import { CustomAvatar } from '@galaxy/ui'
+
+import type { ProjectStatusItem } from '@/types/apps/dashboardTypes'
 
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))

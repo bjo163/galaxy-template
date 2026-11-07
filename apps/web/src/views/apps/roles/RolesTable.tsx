@@ -40,17 +40,17 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import { getInitials } from '@galaxy/utils'
 
-import { CustomAvatar , CustomTextField } from '@galaxy/ui'
+import { CustomAvatar , CustomTextField , TablePaginationComponent , OptionMenu } from '@galaxy/ui'
+
 
 import type { ThemeColor } from '@core/types'
 import type { UsersType } from '@/types/apps/userTypes'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import { OptionMenu } from '@galaxy/ui'
 
 
-import { TablePaginationComponent } from '@galaxy/ui'
+
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

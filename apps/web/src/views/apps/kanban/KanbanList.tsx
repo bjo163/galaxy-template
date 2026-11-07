@@ -13,6 +13,8 @@ import { animations } from '@formkit/drag-and-drop'
 import classnames from 'classnames'
 
 // Type Imports
+import { OptionMenu } from '@galaxy/ui'
+
 import type { TaskType, ColumnType, KanbanType } from '@/types/apps/kanbanTypes'
 import type { AppDispatch } from '@/redux-store'
 
@@ -20,7 +22,6 @@ import type { AppDispatch } from '@/redux-store'
 import { addTask, editColumn, deleteColumn, updateColumnTaskIds } from '@/redux-store/slices/kanban'
 
 // Component Imports
-import { OptionMenu } from '@galaxy/ui'
 import TaskCard from './TaskCard'
 import NewTask from './NewTask'
 

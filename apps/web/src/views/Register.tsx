@@ -26,7 +26,6 @@ import type { InferInput } from 'valibot'
 // Type Imports
 import { CustomTextField } from '@galaxy/ui'
 
-import type { SystemMode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
@@ -48,7 +47,7 @@ const schema = object({
 type FormData = InferInput<typeof schema>
 
 // Styled Custom Components
-const Register = ({ mode }: { mode: SystemMode }) => {
+const Register = () => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -58,6 +57,7 @@ const Register = ({ mode }: { mode: SystemMode }) => {
   // Hooks
   const { lang: locale } = useParams()
   const router = useRouter()
+
   const {
     control,
     handleSubmit,
@@ -66,7 +66,9 @@ const Register = ({ mode }: { mode: SystemMode }) => {
     resolver: valibotResolver(schema),
     defaultValues: { displayName: '', email: '', password: '' }
   })
+
   const { settings } = useSettings()
+
   const onSubmit: SubmitHandler<FormData> = async data => {
     setIsSubmitting(true)
     setErrorState(null)
@@ -77,11 +79,13 @@ const Register = ({ mode }: { mode: SystemMode }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       })
+
       const result = (await response.json()) as { message?: string }
 
       if (!response.ok) {
         setErrorState(result.message ?? 'Could not create your account. Please try again.')
-        return
+        
+return
       }
 
       const signInResult = await signIn('credentials', {

@@ -22,13 +22,17 @@ import classnames from 'classnames'
 // Type Imports
 import { CustomAvatar } from '@galaxy/ui'
 
+import { DirectionalIcon } from '@galaxy/ui'
+
+import { StepperWrapper } from '@galaxy/ui'
+
 import type { SystemMode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import { DirectionalIcon } from '@galaxy/ui'
 import Logo from '@components/layout/shared/Logo'
-import { StepperWrapper } from '@galaxy/ui'
+
+
 import StepAccountDetails from './StepAccountDetails'
 import StepPersonalInfo from './StepPersonalInfo'
 import StepBillingDetails from './StepBillingDetails'

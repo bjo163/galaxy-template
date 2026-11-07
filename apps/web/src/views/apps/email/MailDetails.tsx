@@ -25,6 +25,10 @@ import type { Editor } from '@tiptap/react'
 // Types Imports
 import { CustomIconButton, CustomChip } from '@galaxy/ui'
 
+import { OptionMenu } from '@galaxy/ui'
+
+import { DirectionalIcon } from '@galaxy/ui'
+
 import type { AppDispatch } from '@/redux-store'
 import type { Email } from '@/types/apps/emailTypes'
 
@@ -32,8 +36,7 @@ import type { Email } from '@/types/apps/emailTypes'
 import { moveEmailsToFolder, navigateEmails, toggleLabel } from '@/redux-store/slices/email'
 
 // Components Imports
-import { OptionMenu } from '@galaxy/ui'
-import { DirectionalIcon } from '@galaxy/ui'
+
 import MailCard from './MailCard'
 
 // Styles Imports

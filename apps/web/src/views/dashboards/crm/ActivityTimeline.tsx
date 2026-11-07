@@ -18,8 +18,9 @@ import type { TimelineProps } from '@mui/lab/Timeline'
 import type { ActivityTimelineItem } from '@galaxy/fake-db/apps/activityTimeline'
 
 // Components Imports
-import { ICON_MAP } from '@/app/client/iconMap'
 import { OptionMenu } from '@galaxy/ui'
+
+import { ICON_MAP } from '@/app/client/iconMap'
 
 // Styled Timeline component
 const Timeline = styled(MuiTimeline)<TimelineProps>({

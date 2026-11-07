@@ -9,11 +9,12 @@ import Chip from '@mui/material/Chip'
 import classnames from 'classnames'
 
 // Type Imports
-import type { SourceVisit } from '@/types/apps/dashboardTypes'
 
 // Components Imports
 import { OptionMenu } from '@galaxy/ui'
 import { CustomAvatar } from '@galaxy/ui'
+
+import type { SourceVisit } from '@/types/apps/dashboardTypes'
 
 const SourceVisits = ({ data }: { data: SourceVisit[] }) => {
   return (

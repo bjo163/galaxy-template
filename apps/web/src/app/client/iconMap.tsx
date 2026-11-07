@@ -21,11 +21,13 @@ export const ICON_MAP: Record<string, ReactNode> = {
   // ActivityTimeline card-header avatars
   'list-details': <i className='tabler-list-details text-xl' />,
   'chart-bar': <i className='tabler-chart-bar text-textSecondary' />,
+
   // RecentDevicesTable browser icons
   windows: <i className='tabler-brand-windows text-[22px] text-info' />,
   android: <i className='tabler-brand-android text-[22px] text-success' />,
   apple: <i className='tabler-brand-apple text-[22px] text-secondary' />,
   mobile: <i className='tabler-device-mobile text-[22px] text-error' />,
+
   // IconStepsCard step icons
   'steps-link': (
     <svg xmlns='http://www.w3.org/2000/svg' width='42' height='42' viewBox='0 0 43 42' fill='none'>

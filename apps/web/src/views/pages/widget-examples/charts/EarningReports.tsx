@@ -16,10 +16,11 @@ import type { ApexOptions } from 'apexcharts'
 // Types Imports
 import { CustomAvatar } from '@galaxy/ui'
 
+import { OptionMenu } from '@galaxy/ui'
+
 import type { EarningReport } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import { OptionMenu } from '@galaxy/ui'
 
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))

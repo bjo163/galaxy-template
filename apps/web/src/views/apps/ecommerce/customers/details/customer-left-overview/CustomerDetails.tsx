@@ -10,10 +10,11 @@ import type { ButtonProps } from '@mui/material/Button'
 // Type Imports
 import { CustomAvatar } from '@galaxy/ui'
 
+import { EditUserInfoDialog, OpenDialogOnElementClick } from '@galaxy/ui'
+
 import type { Customer } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import { EditUserInfoDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const CustomerDetails = ({ customerData }: { customerData?: Customer }) => {
   // Vars

@@ -18,10 +18,11 @@ import Button from '@mui/material/Button'
 // Type Imports
 import { CustomTextField } from '@galaxy/ui'
 
+import { DirectionalIcon } from '@galaxy/ui'
+
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import { DirectionalIcon } from '@galaxy/ui'
 import Logo from '@components/layout/shared/Logo'
 
 // Util Imports

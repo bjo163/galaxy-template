@@ -8,11 +8,12 @@ import Typography from '@mui/material/Typography'
 import classnames from 'classnames'
 
 // Type Imports
-import type { MonthlyCampaignState as MonthlyCampaignStateType } from '@/types/apps/dashboardTypes'
 
 // Components Imports
 import { OptionMenu } from '@galaxy/ui'
 import { CustomAvatar } from '@galaxy/ui'
+
+import type { MonthlyCampaignState as MonthlyCampaignStateType } from '@/types/apps/dashboardTypes'
 
 const MonthlyCampaignState = ({ data }: { data: MonthlyCampaignStateType[] }) => {
   return (

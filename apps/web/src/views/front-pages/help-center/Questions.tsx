@@ -13,8 +13,9 @@ import { CustomTextField } from '@galaxy/ui'
 
 import { db } from '@galaxy/fake-db/pages/frontPages'
 
-import Link from '@components/Link'
 import { DirectionalIcon } from '@galaxy/ui'
+
+import Link from '@components/Link'
 
 // Styles Imports
 import frontCommonStyles from '@views/front-pages/styles.module.css'

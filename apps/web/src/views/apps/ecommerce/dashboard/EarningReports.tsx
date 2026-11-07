@@ -14,10 +14,11 @@ import classnames from 'classnames'
 // Types Imports
 import { CustomAvatar } from '@galaxy/ui'
 
+import { OptionMenu } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 
 // Components Imports
-import { OptionMenu } from '@galaxy/ui'
 
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))

@@ -39,11 +39,12 @@ import { CustomAvatar } from '@galaxy/ui'
 
 import { CustomTextField } from '@galaxy/ui'
 
+import { TablePaginationComponent } from '@galaxy/ui'
+
 import type { Course } from '@/types/apps/academyTypes'
 import type { Locale } from '@configs/i18n'
 
 // Components Imports
-import { TablePaginationComponent } from '@galaxy/ui'
 
 
 

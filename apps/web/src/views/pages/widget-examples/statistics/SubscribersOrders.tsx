@@ -7,10 +7,11 @@ import Chip from '@mui/material/Chip'
 import Progress from '@mui/material/LinearProgress'
 
 // Types Imports
+import { OptionMenu } from '@galaxy/ui'
+
 import type { SubscribersOrdersProps } from '@/types/pages/widgetTypes'
 
 // Component Imports
-import { OptionMenu } from '@galaxy/ui'
 
 const SubscribersOrders = ({ data }: { data: SubscribersOrdersProps[] }) => {
   return (

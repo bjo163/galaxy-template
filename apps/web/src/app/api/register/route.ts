@@ -41,6 +41,7 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errorBody = (await response.json().catch(() => ({}))) as { message?: string; detail?: string }
+
       const message =
         response.status === 409
           ? 'An account with this email already exists. Try signing in instead.'

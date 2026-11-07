@@ -36,13 +36,15 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import { CustomAvatar } from '@galaxy/ui'
 
+import { OptionMenu } from '@galaxy/ui'
+
+import { TablePaginationComponent } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { Locale } from '@configs/i18n'
 import type { Vehicle } from '@/types/apps/logisticsTypes'
 
 // Components Imports
-import { OptionMenu } from '@galaxy/ui'
-import { TablePaginationComponent } from '@galaxy/ui'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

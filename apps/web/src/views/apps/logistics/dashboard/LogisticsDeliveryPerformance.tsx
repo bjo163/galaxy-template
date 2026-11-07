@@ -13,8 +13,6 @@ import { CustomAvatar } from '@galaxy/ui'
 import { OptionMenu } from '@galaxy/ui'
 
 // Types Imports
-import type { ThemeColor } from '@core/types'
-
 import type { DeliveryPerformanceItem } from '@galaxy/types/apps/logisticsTypes'
 
 type dataTypes = DeliveryPerformanceItem

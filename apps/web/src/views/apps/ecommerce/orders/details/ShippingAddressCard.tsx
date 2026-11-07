@@ -5,14 +5,16 @@ import Typography from '@mui/material/Typography'
 import type { TypographyProps } from '@mui/material/Typography'
 
 // Type Imports
+import { db as ecommerceData } from '@galaxy/fake-db/apps/ecommerce'
+
+import { AddEditAddressDialog, OpenDialogOnElementClick } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 
-import { db as ecommerceData } from '@galaxy/fake-db/apps/ecommerce'
 
 import type { AddressData } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import { AddEditAddressDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 // Vars
 

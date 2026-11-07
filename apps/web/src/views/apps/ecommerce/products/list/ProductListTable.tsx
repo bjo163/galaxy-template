@@ -42,14 +42,16 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import { CustomAvatar, CustomTextField } from '@galaxy/ui'
 
+import { OptionMenu } from '@galaxy/ui'
+
+import { TablePaginationComponent } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { Locale } from '@configs/i18n'
 import type { ProductType } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
 import TableFilters from './TableFilters'
-import { OptionMenu } from '@galaxy/ui'
-import { TablePaginationComponent } from '@galaxy/ui'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

@@ -12,11 +12,12 @@ import { useColorScheme } from '@mui/material/styles'
 import classnames from 'classnames'
 
 // Types Imports
+import { OptionMenu } from '@galaxy/ui'
+
 import type { SystemMode, ThemeColor } from '@core/types'
 import type { LastTransaction as LastTransactionType } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import { OptionMenu } from '@galaxy/ui'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'

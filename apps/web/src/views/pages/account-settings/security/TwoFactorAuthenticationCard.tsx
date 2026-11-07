@@ -7,10 +7,11 @@ import Typography from '@mui/material/Typography'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
+import { TwoFactorAuthDialog, OpenDialogOnElementClick } from '@galaxy/ui'
+
 import Link from '@components/Link'
 
 // Component Imports
-import { TwoFactorAuthDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const TwoFactorAuthenticationCard = () => {
   // Vars

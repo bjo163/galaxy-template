@@ -13,10 +13,11 @@ import type { TypographyProps } from '@mui/material/Typography'
 import type { CardProps } from '@mui/material/Card'
 
 // Type Imports
+import { RoleDialog, OpenDialogOnElementClick } from '@galaxy/ui'
+
 import type { RoleCard } from '@/types/apps/rolesTypes'
 
 // Component Imports
-import { RoleDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 import Link from '@components/Link'
 
 const RoleCards = ({ roleCards }: { roleCards: RoleCard[] }) => {

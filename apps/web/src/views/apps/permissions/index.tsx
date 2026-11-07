@@ -36,11 +36,12 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import { CustomTextField } from '@galaxy/ui'
 
+import { PermissionDialog, OpenDialogOnElementClick, TablePaginationComponent } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { PermissionRowType } from '@/types/apps/permissionTypes'
 
 // Component Imports
-import { PermissionDialog, OpenDialogOnElementClick, TablePaginationComponent } from '@galaxy/ui'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'

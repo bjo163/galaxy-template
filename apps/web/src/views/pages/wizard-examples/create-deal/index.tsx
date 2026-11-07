@@ -19,13 +19,14 @@ import classnames from 'classnames'
 // Component Imports
 import { CustomAvatar } from '@galaxy/ui'
 
+import { StepperWrapper } from '@galaxy/ui'
+
 import StepDealType from './StepDealType'
 import StepDealDetails from './StepDealDetails'
 import StepDealUsage from './StepDealUsage'
 import StepReview from './StepReview'
 
 // Styled Component Imports
-import { StepperWrapper } from '@galaxy/ui'
 
 // Vars
 const steps = [

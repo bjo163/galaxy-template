@@ -1,6 +1,4 @@
 // MUI Imports
-import type { ReactNode } from 'react'
-
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -23,7 +21,6 @@ import { LOGO_MAP } from '@/app/client/iconMap'
 import AppKeenSlider from '@/libs/styles/AppKeenSlider'
 
 // SVG Imports
-import HubSpot from '@assets/svg/front-pages/landing-page/HubSpot'
 import Pinterest from '@assets/svg/front-pages/landing-page/Pinterest'
 import Dribbble from '@assets/svg/front-pages/landing-page/Dribbble'
 import Airbnb from '@assets/svg/front-pages/landing-page/Airbnb'

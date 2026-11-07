@@ -14,11 +14,12 @@ import LinearProgress from '@mui/material/LinearProgress'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
+import { ConfirmationDialog, UpgradePlanDialog, OpenDialogOnElementClick } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { PricingPlanType } from '@/types/pages/pricingTypes'
 
 // Component Imports
-import { ConfirmationDialog, UpgradePlanDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const CurrentPlan = ({ data }: { data?: PricingPlanType[] }) => {
   const buttonProps = (children: string, variant: ButtonProps['variant'], color: ThemeColor): ButtonProps => ({

@@ -20,10 +20,11 @@ import type { ButtonProps } from '@mui/material/Button'
 // Type Imports
 import { CustomTextField } from '@galaxy/ui'
 
+import { BillingCardDialog, OpenDialogOnElementClick } from '@galaxy/ui'
+
 import type { PaymentMethodCard } from '@/types/apps/userViewTypes'
 
 // Component Imports
-import { BillingCardDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const PaymentMethod = ({ data }: { data: PaymentMethodCard[] }) => {
   // States

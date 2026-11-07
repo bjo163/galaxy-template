@@ -8,6 +8,7 @@ export type DataSourceKind = 'static' | 'db' | 'api'
 /** Resolve the active data source from the DATA_SOURCE env var. */
 export function resolveDataSource(kind?: string): DataSourceKind {
   const raw = (kind ?? process.env.DATA_SOURCE ?? 'static') as DataSourceKind | undefined
+
   switch (raw) {
     case 'static':
     case 'db':
@@ -21,15 +22,20 @@ export function resolveDataSource(kind?: string): DataSourceKind {
 /** Fetch JSON from the upstream API. endpointPath like '/apps/ecommerce' or 'apps/ecommerce'. */
 export async function fetchFromApi(endpointPath: string): Promise<unknown> {
   const base = process.env.API_URL
+
   if (!base) {
     throw new Error('[data-source] API_URL is not configured; set API_URL or use DATA_SOURCE=static|db')
   }
+
   const url = `${base.replace(/\/+$/, '')}/${endpointPath.replace(/^\/+/, '')}`
   const res = await fetch(url, { cache: 'no-store' })
+
   if (!res.ok) {
     throw new Error(`[data-source] API ${endpointPath} responded ${res.status}`)
   }
-  return res.json()
+
+  
+return res.json()
 }
 
 /**
@@ -56,11 +62,15 @@ export async function loadModuleData<T>(
       if (!options.endpointPath) {
         throw new Error('[data-source] endpointPath is required for api source')
       }
-      return (await fetchFromApi(options.endpointPath)) as T
+
+      
+return (await fetchFromApi(options.endpointPath)) as T
     case 'db':
       if (options.dbQuery) {
         return options.dbQuery()
       }
-      return options.staticData
+
+      
+return options.staticData
   }
 }

@@ -6,10 +6,11 @@ import Typography from '@mui/material/Typography'
 import LinearProgress from '@mui/material/LinearProgress'
 
 // Type Imports
+import { OptionMenu } from '@galaxy/ui'
+
 import type { ActiveProject } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import { OptionMenu } from '@galaxy/ui'
 
 const ActiveProjects = ({ data }: { data: ActiveProject[] }) => {
   return (

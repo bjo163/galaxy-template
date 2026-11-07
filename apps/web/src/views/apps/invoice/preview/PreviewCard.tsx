@@ -6,8 +6,9 @@ import Grid from '@mui/material/Grid'
 import Divider from '@mui/material/Divider'
 
 // Type Imports
-import type { InvoiceType } from '@/types/apps/invoiceTypes'
 import type { invoicePreview } from '@galaxy/fake-db/apps/invoicePreview'
+
+import type { InvoiceType } from '@/types/apps/invoiceTypes'
 
 // Component Imports
 import Logo from '@components/layout/shared/Logo'

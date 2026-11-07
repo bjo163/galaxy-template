@@ -22,12 +22,13 @@ import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
 
 // Type Imports
+import { DirectionalIcon } from '@galaxy/ui'
+
 import type { Course } from '@/types/apps/academyTypes'
 import type { Locale } from '@configs/i18n'
 import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import { DirectionalIcon } from '@galaxy/ui'
 
 // Util Imports
 import { getLocalizedUrl } from '@/utils/i18n'

@@ -10,10 +10,11 @@ import type { ButtonProps } from '@mui/material/Button'
 // Type Imports
 import { CustomAvatar } from '@galaxy/ui'
 
+import { EditUserInfoDialog, ConfirmationDialog, OpenDialogOnElementClick } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import { EditUserInfoDialog, ConfirmationDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 
 // Vars

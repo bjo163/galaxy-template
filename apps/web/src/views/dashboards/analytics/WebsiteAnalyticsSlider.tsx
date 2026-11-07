@@ -16,10 +16,11 @@ import { useKeenSlider } from 'keen-slider/react'
 import type { KeenSliderPlugin } from 'keen-slider/react'
 
 // Type Imports
+import { CustomAvatar } from '@galaxy/ui'
+
 import type { WebsiteAnalyticsSlide } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import { CustomAvatar } from '@galaxy/ui'
 
 import AppKeenSlider from '@/libs/styles/AppKeenSlider'
 

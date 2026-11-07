@@ -4,10 +4,11 @@ import Typography from '@mui/material/Typography'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Type Imports
+import { ConfirmationDialog, OpenDialogOnElementClick } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 
 // Component Imports
-import { ConfirmationDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 const CustomerDetailHeader = ({ customerId }: { customerId: string }) => {
   // Vars

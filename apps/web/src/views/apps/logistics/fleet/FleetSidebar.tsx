@@ -28,9 +28,12 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 // Types Imports
 import { CustomAvatar } from '@galaxy/ui'
 
-import type { viewStateType } from './index'
+// Data Imports
+import { db as logisticsData } from '@galaxy/fake-db/apps/logistics'
 
 import type { VehicleTrackingDataType } from '@galaxy/types/apps/logisticsTypes'
+
+import type { viewStateType } from './index'
 
 // Components Imports
 type Props = {
@@ -56,9 +59,6 @@ type Props = {
     }[]
   }
 }
-
-// Data Imports
-import { db as logisticsData } from '@galaxy/fake-db/apps/logistics'
 
 // Styled component for Accordion component
 const Accordion = styled(MuiAccordion)<AccordionProps>({

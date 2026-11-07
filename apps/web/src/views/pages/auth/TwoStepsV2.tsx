@@ -18,11 +18,12 @@ import type { SlotProps } from 'input-otp'
 import classnames from 'classnames'
 
 // Type Imports
+import { Form } from '@galaxy/ui'
+
 import type { SystemMode } from '@core/types'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import { Form } from '@galaxy/ui'
 import Link from '@components/Link'
 import Logo from '@components/layout/shared/Logo'
 

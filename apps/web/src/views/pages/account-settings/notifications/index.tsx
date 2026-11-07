@@ -15,18 +15,12 @@ import { CustomTextField } from '@galaxy/ui'
 
 import { db as accountSettingsData } from '@galaxy/fake-db/pages/accountSettings'
 
-import Link from '@components/Link'
 import { Form } from '@galaxy/ui'
+
+import Link from '@components/Link'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
-
-type TableDataType = {
-  type: string
-  app: boolean
-  email: boolean
-  browser: boolean
-}
 
 const Notifications = () => {
   return (

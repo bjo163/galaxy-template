@@ -2,7 +2,6 @@
 import Grid from '@mui/material/Grid'
 
 // Type Imports
-import type { UserDataType } from '@components/card-statistics/HorizontalWithSubtitle'
 import type { userListCards } from '@galaxy/fake-db/apps/userListCards'
 
 // Component Imports

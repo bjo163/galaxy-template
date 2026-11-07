@@ -34,10 +34,11 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import { CustomAvatar, CustomTextField } from '@galaxy/ui'
 
+import { OptionMenu } from '@galaxy/ui'
+
 import type { ProjectTableRowType } from '@/types/pages/profileTypes'
 
 // Component Imports
-import { OptionMenu } from '@galaxy/ui'
 import TablePaginationComponent from '@/components/TablePaginationComponent'
 
 // Style Imports

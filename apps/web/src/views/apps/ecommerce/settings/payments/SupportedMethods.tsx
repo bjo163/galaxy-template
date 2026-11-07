@@ -10,8 +10,9 @@ import Typography from '@mui/material/Typography'
 import type { ButtonProps } from '@mui/material/Button'
 
 // Component Imports
-import Link from '@components/Link'
 import { PaymentMethodDialog, OpenDialogOnElementClick } from '@galaxy/ui'
+
+import Link from '@components/Link'
 
 const SupportedMethods = () => {
   // Vars

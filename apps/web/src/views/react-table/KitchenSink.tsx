@@ -30,10 +30,11 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Type Imports
 import { CustomTextField } from '@galaxy/ui'
 
+import { TablePaginationComponent } from '@galaxy/ui'
+
 import type { DataType } from '@/types/apps/reactTableTypes'
 
 // Component Imports
-import { TablePaginationComponent } from '@galaxy/ui'
 
 // Icon Imports
 import ChevronRight from '@menu/svg/ChevronRight'

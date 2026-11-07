@@ -8,7 +8,6 @@ import Chip from '@mui/material/Chip'
 // Type Imports
 import { CustomAvatar } from '@galaxy/ui'
 
-import type { ThemeColor } from '@core/types'
 
 // Components Imports
 import { OptionMenu } from '@galaxy/ui'

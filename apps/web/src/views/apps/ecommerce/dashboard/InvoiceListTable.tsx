@@ -42,13 +42,15 @@ import { CustomAvatar } from '@galaxy/ui'
 
 import { CustomTextField } from '@galaxy/ui'
 
+import { OptionMenu } from '@galaxy/ui'
+
+import { TablePaginationComponent } from '@galaxy/ui'
+
 import type { ThemeColor } from '@core/types'
 import type { InvoiceType } from '@/types/apps/invoiceTypes'
 import type { Locale } from '@configs/i18n'
 
 // Component Imports
-import { OptionMenu } from '@galaxy/ui'
-import { TablePaginationComponent } from '@galaxy/ui'
 
 
 

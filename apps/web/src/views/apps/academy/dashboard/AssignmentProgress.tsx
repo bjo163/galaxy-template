@@ -8,7 +8,6 @@ import CircularProgress from '@mui/material/CircularProgress'
 // Type Imports
 import { CustomIconButton } from '@galaxy/ui'
 
-import type { ThemeColor } from '@core/types'
 
 // Components Imports
 import { OptionMenu } from '@galaxy/ui'

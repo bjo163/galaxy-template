@@ -10,13 +10,12 @@ import { getInitials } from '@galaxy/utils'
 
 import { db as ecommerceData } from '@galaxy/fake-db/apps/ecommerce'
 
-import { CustomAvatar } from '@galaxy/ui'
+import { CustomAvatar , EditUserInfoDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 import type { ThemeColor } from '@core/types'
 import type { OrderType, UserDialogData } from '@/types/apps/ecommerceTypes'
 
 // Component Imports
-import { EditUserInfoDialog, OpenDialogOnElementClick } from '@galaxy/ui'
 
 // Util Imports
 

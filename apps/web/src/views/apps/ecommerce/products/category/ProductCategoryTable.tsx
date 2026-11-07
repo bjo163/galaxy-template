@@ -34,9 +34,10 @@ import type { RankingInfo } from '@tanstack/match-sorter-utils'
 // Component Imports
 import { CustomTextField } from '@galaxy/ui'
 
-import AddCategoryDrawer from './AddCategoryDrawer'
 import { OptionMenu } from '@galaxy/ui'
 import { TablePaginationComponent } from '@galaxy/ui'
+
+import AddCategoryDrawer from './AddCategoryDrawer'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'

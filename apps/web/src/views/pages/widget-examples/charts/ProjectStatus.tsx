@@ -16,9 +16,10 @@ import type { ApexOptions } from 'apexcharts'
 // Components Imports
 import { CustomAvatar } from '@galaxy/ui'
 
+import { OptionMenu } from '@galaxy/ui'
+
 import type { ProjectStatusItem } from '@/types/apps/dashboardTypes'
 
-import { OptionMenu } from '@galaxy/ui'
 
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))

@@ -7,12 +7,11 @@ import Typography from '@mui/material/Typography'
 // Third-party Imports
 import classnames from 'classnames'
 
-import { CustomAvatar } from '@galaxy/ui'
+import { CustomAvatar , OptionMenu } from '@galaxy/ui'
 
 import type { MonthlyCampaignState as MonthlyCampaignStateType } from '@/types/apps/dashboardTypes'
 
 // Components Imports
-import { OptionMenu } from '@galaxy/ui'
 
 const MonthlyCampaignState = ({ data }: { data: MonthlyCampaignStateType[] }) => {
   return (

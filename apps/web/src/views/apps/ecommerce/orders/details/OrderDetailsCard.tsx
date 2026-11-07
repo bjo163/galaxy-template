@@ -28,11 +28,12 @@ import {
 import type { ColumnDef, FilterFn } from '@tanstack/react-table'
 
 // Component Imports
-import Link from '@components/Link'
 
 import { db as ecommerceData } from '@galaxy/fake-db/apps/ecommerce'
 
 import type { OrderItem } from '@galaxy/types/apps/ecommerceTypes'
+
+import Link from '@components/Link'
 
 // Style Imports
 import tableStyles from '@core/styles/table.module.css'
