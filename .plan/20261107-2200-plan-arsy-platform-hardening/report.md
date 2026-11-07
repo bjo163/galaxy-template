@@ -1,64 +1,44 @@
 # Completion Report
 
-**Status:** IN PROGRESS — implementation branch has passing CI, but production acceptance is not complete.  
-**Branch:** `feat-arsy-issues-12-31`  
-**Scope:** GitHub issues #12–#31  
-**Reviewed head:** `9c8a7e1719ccd32f646cff204a637e6986ab1441`
+**Status:** IN PROGRESS — lifecycle implementation is present on the current PR head; CI is queued and production acceptance is not complete.
+**Branch:** `feat-arsy-issues-12-31`
+**PR:** [#32](https://github.com/bjo163/galaxy-template/pull/32)
+**Scope:** GitHub issues #12–#31
+**Reviewed head:** `3793ea1df21af1512ef63aff9eb3a7aad7e70a7a`
 
-## Implemented in this branch
+## Current implementation snapshot
 
-- [x] #12 — Project credential authentication is separated from operation-specific scope checks; read-only/write-only regression tests are included.
-- [x] #13 — Project-user roles map to distinct data-plane capabilities.
-- [x] #15 — Typed JSONB query expressions and matching typed index expressions are implemented. PostgreSQL query-plan/EXPLAIN evidence is still required.
-- [x] #17 — Database-backed fixed-window authentication throttling uses hashed identifiers and endpoint scopes. Full abuse-resistance acceptance (backend failure behavior, concurrency and enumeration tests) still needs evidence.
-- [x] #18 — Session inventory and revocation operations are implemented. Password-change/reset invalidation and the full session policy still need acceptance verification.
-- [x] #19 — Record listing supports bounded keyset pagination with project/model/filter-bound cursors. Backward navigation, concurrent mutation and tamper/context regression coverage remain to be verified.
-- [x] #20 — Several control-plane list endpoints now have bounded pagination and batched membership lookup. Complete endpoint inventory, query budgets and N+1 regression coverage remain open.
-- [x] #21 — Record payload complexity budgets and regression coverage are implemented.
-- [x] #22 — Scoped idempotency persistence/replay is implemented for record mutations. Real-PostgreSQL concurrent duplicate, rollback, expiry and cross-project tests remain required.
-- [x] #23 — Record create/update/delete audit events are written transactionally with redacted metadata. Audit query coverage and rollback/redaction tests require final evidence.
-- [x] #24 — HTTP, database query and pool metrics are implemented with bounded labels. Pool sampling, acquisition wait/timeout, transaction duration, correlation IDs and operational alert/runbook coverage remain incomplete.
-- [x] #25 — PostgreSQL pool sizing and acquire/idle/create timeouts are configurable and validated. Connection budget, saturation and graceful-shutdown acceptance still need verification.
-- [x] #26 — Monorepo quality workflow and workspace manifest/boundary validation are added.
-- [x] #27 — CI matrix runs PostgreSQL 17 and 18. These versions are CI-tested for the current RLS/migration workflow; broader index and backup/restore matrix coverage remains outstanding.
-- [x] #28 — Non-root production image and hardened Compose profile are added. A real deployment/smoke test and separate privileged one-shot migration deployment remain to be demonstrated.
-- [x] #29 — Bounded cleanup for expired sessions, rate-limit buckets and idempotency rows is implemented. Verification-token/invitation coverage, scheduler integration and operational telemetry remain open.
-- [x] #30 — Audit policy, project-scoped NDJSON export, SHA-256 manifest verification and count validation are implemented. KMS encryption, immutable object storage, automated restore/readback and deletion lifecycle are explicitly not implemented.
-- [ ] #14 — Synchronous revision validation/backfill is now capped at 500 records per publish; larger datasets are rejected pending the resumable transform worker. Progress/failure recovery and staged rollout remain unimplemented.
-- [ ] #16 — Unsafe synchronous index DDL has been removed from model publication. A changed/new indexed-field definition now returns 409 until the online lifecycle is available. Persistent job states, concurrent DDL outside transactions, retries and publication gating remain required.
-- [ ] #31 — PostgreSQL CI now verifies migration rollback/re-apply and RLS behavior. Interrupted migration/retry, supported-version upgrade compatibility and rolling-deployment verification remain incomplete.
+- #12–#13 — Credential scope and project membership capability enforcement are implemented; keep open until all issue-specific regression evidence is linked.
+- #14 — Resumable migration-job code is present: bounded batches, persisted cursor/progress, staged payloads, validation, failure state, retry path, write pause, and gated publication. Remaining: verify failure/restart and concurrent mutation behavior on PostgreSQL, race-safe snapshot semantics, staged cutover under concurrent reads/writes, and large-model lock duration.
+- #15 — Typed JSONB query/index expressions are implemented. PostgreSQL EXPLAIN evidence and representative selectivity/performance measurements remain.
+- #16 — Persistent online index-job code is present with concurrent DDL outside transactions, advisory locking, retry budget, validity checks, and deferred retirement. Remaining: PostgreSQL failure/restart and concurrent-publish tests, invalid-index cleanup/recovery evidence, and proof publication cannot pass with any required index not valid.
+- #17–#25 — Authentication throttling, session lifecycle, keyset pagination, bounded control-plane listings, payload budgets, idempotency, audit events, observability, and pool configuration have implementation in this branch. Issue-level acceptance gaps remain: abuse/concurrency behavior; reset/change session invalidation; cursor tamper/backward/concurrent mutation; endpoint/query-budget inventory; real-PostgreSQL idempotency and audit rollback/redaction; pool saturation, acquisition wait and graceful shutdown.
+- #26 — Monorepo quality workflow and workspace-boundary validation are added. Current-head run is queued; do not cite earlier-head CI as current evidence.
+- #27 — PostgreSQL 17/18 matrix is configured. Broader backup/restore and index lifecycle compatibility evidence remains.
+- #28 — Hardened non-root production image and Compose profile are present. A real deployment, health/smoke test, separate one-shot migrator operation, graceful shutdown and rolling upgrade remain unverified.
+- #29 — Bounded cleanup jobs are present. Scheduler integration, verification-token/invitation coverage and operational telemetry remain.
+- #30 — Audit policy, project-scoped NDJSON export and integrity/count verification are present. KMS/key rotation, immutable archive storage, automated readback and deletion lifecycle remain unimplemented.
+- #31 — Migration runbook and rollback/re-apply checks are present. Full PostgreSQL interrupted-migration injection/retry, upgrade from explicitly supported prior Arsy schema versions, and overlapping old/new application compatibility remain unverified.
 
-## Migration safety documentation added
+## Current CI state
 
-- Added `apps/arsy/src/migrations/PRODUCTION.md` with expand/contract rollout, out-of-band migrator procedure, interruption/recovery rules, and explicit verification gates.
-- Updated `apps/arsy/src/migrations/README.md` to document the current transactional Knex runner and prohibit concurrent index DDL inside migration transactions.
-- The runbook intentionally records that #14/#16/#31 and production recovery remain incomplete; documentation is not a substitute for their executable acceptance evidence.
+At the reviewed head, GitHub Actions runs are queued:
 
-## Merge-safety hardening added
+- Monorepo Quality: [run 42341932709](https://github.com/bjo163/galaxy-template/actions/runs/42341932709)
+- Arsy PostgreSQL RLS (PostgreSQL 17/18): [run 42341932723](https://github.com/bjo163/galaxy-template/actions/runs/42341932723)
 
-- Model revision publication now refuses to scan/backfill more than 500 existing records in the request transaction; larger models must wait for the resumable migration worker (#14).
-- Model publication no longer runs `DROP INDEX`/`CREATE INDEX` in a transaction. Index-definition changes are rejected with an actionable 409 until the online index lifecycle (#16) exists; a regression test covers this guard.
-- These are conservative compatibility guards, not completion of #14 or #16.
+Earlier successful runs belong to a different commit and are not evidence for this head. Recheck both runs after completion and inspect failed jobs before changing this report.
 
-## CI evidence
+## Remaining release blockers
 
-The reviewed head has two completed successful GitHub Actions runs:
+1. Complete and prove #14 PostgreSQL failure/restart, race-safe record snapshot/cursor semantics, concurrent read/write behavior, and production-sized cutover lock measurements.
+2. Complete and prove #16 PostgreSQL failure/restart, concurrent-publish safety, invalid-index recovery, and required-index publication gating.
+3. Complete #31 with injected interrupted migration/retry, supported prior-schema upgrade tests, and rolling old/new application compatibility.
+4. Complete #30 encryption/key management, immutable archive, readback, deletion and retention lifecycle after the ownership decision in #8.
+5. Complete #3 backup/restore with a successful restore rehearsal; do not claim recoverability without it.
+6. Run a real production Compose smoke deployment with distinct least-privilege runtime/migrator credentials, health checks, graceful shutdown and rolling upgrade.
+7. Close remaining acceptance gaps for #12–#13 and #15, #17–#25, #27–#29 with direct test/evidence links in the relevant issue threads.
 
-- Monorepo Quality: https://github.com/bjo163/galaxy-template/actions/runs/42301441922
-- Arsy PostgreSQL RLS (PostgreSQL 17/18 matrix): https://github.com/bjo163/galaxy-template/actions/runs/42301441904
+## Merge decision
 
-These runs are evidence for the checks configured in those workflows only. They are not evidence of a production deployment, backup/restore, online index lifecycle, or all acceptance criteria above.
-
-## Release blockers
-
-1. Complete #14 with resumable revision migration jobs and safe publication/rollback semantics.
-2. Complete #16 with persistent online index jobs and PostgreSQL concurrent DDL outside transactions.
-3. Expand #31 to interrupted/retried migrations and supported prior-version upgrades.
-4. Complete #30's KMS/WORM/readback and retention lifecycle, coordinated with the ownership/retention decision in #8.
-5. Execute a real production Compose deployment with a separately provisioned least-privilege runtime role; verify health, graceful shutdown and rolling upgrade.
-6. Complete backup/restore issue #3 before claiming recoverability.
-7. Finish the remaining acceptance tests called out per issue, then update the issue threads with exact evidence.
-
-## PR decision
-
-Keep PR #32 in Draft. Do not close issues #12–#31 or merge to `main` until each issue's own acceptance criteria have direct implementation and test evidence. The branch rule explicitly prohibits pushing to `main`.
+Keep PR #32 in Draft. Do not merge to `main` or close issues #12–#31 until current-head CI is green and each issue's acceptance criteria have direct implementation and test evidence. The repository's branch governance prohibits pushing directly to `main`.
