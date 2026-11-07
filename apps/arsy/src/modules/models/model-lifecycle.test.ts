@@ -271,7 +271,12 @@ describe("model lifecycle primitives", () => {
           created_at: now,
           updated_at: now,
         });
-        assert.equal(await processModelMigrationBatch(migrator.knex, migrationJobId), "running");
+        const [firstBatch, concurrentRead] = await Promise.all([
+          processModelMigrationBatch(migrator.knex, migrationJobId),
+          admin.knex("arsy_records").select("payload").where({ id: recordId }).first(),
+        ]);
+        assert.equal(firstBatch, "running");
+        assert.deepEqual(concurrentRead?.payload, { old_name: "Ada" });
         assert.equal(await processModelMigrationBatch(migrator.knex, migrationJobId), "ready");
         const stagedPayload = await admin.knex("arsy_model_migration_records")
           .select("payload").where({ job_id: migrationJobId, record_id: recordId }).first();
