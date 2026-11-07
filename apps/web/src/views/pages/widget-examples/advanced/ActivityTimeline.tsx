@@ -17,10 +17,12 @@ import Typography from '@mui/material/Typography'
 import type { TimelineProps } from '@mui/lab/Timeline'
 
 // Components Imports
-import OptionMenu from '@core/components/option-menu'
-
 // Type Imports
 import type { ActivityTimelineItem } from '@galaxy/fake-db/apps/activityTimeline'
+
+
+// Components Imports
+import OptionMenu from '@core/components/option-menu'
 
 // Styled Timeline component
 const Timeline = styled(MuiTimeline)<TimelineProps>({

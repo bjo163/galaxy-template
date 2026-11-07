@@ -2,8 +2,9 @@
 
 A pnpm + Turborepo workspace containing the Galaxy web app, Arsy Fastify API,
 and shared packages. Arsy is the self-hostable BaaS with tenant-scoped projects,
-user-defined models, and declarative add-ons. Current capabilities and
-production acceptance gaps are tracked separately.
+user-defined models, and declarative add-ons. PostgreSQL 17 and 18 are the
+supported server majors and are exercised by the dedicated RLS CI matrix.
+Current capabilities and production acceptance gaps are tracked separately.
 
 ## Layout
 

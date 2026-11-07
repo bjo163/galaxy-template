@@ -125,7 +125,7 @@ const Login = ({ mode }: { mode: SystemMode }) => {
   }
 
   return (
-    <div className='flex bs-full justify-center'>
+    <div className='flex bs-full justify-center' data-mode={mode}>
       <div
         className={classnames(
           'flex bs-full items-center justify-center flex-1 min-bs-[100dvh] relative p-6 max-md:hidden',

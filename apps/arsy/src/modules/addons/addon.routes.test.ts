@@ -5,6 +5,7 @@ import { createApp } from "../../app.js";
 import { loadConfig } from "../../config/env.js";
 import { down as rollbackControlPlane } from "../../migrations/0001_arsy_control_plane.js";
 import { up as migrateControlPlane } from "../../migrations/0001_arsy_control_plane.js";
+import { up as migrateAuthRateLimits } from "../../migrations/0003_auth_rate_limits.js";
 
 describe("Arsy add-on API", () => {
   it("validates and manages declarative add-ons with project-scoped grants", async () => {
@@ -16,6 +17,7 @@ describe("Arsy add-on API", () => {
       await app.ready();
       assert.ok(app.database);
       await migrateControlPlane(app.database.knex);
+      await migrateAuthRateLimits(app.database.knex);
 
       const owner = await register(app, "addon-owner@example.com");
       const workspace = await createWorkspace(app, owner.token);
@@ -236,6 +238,7 @@ describe("Arsy add-on API", () => {
         false,
       );
       await migrateControlPlane(app.database.knex);
+      await migrateAuthRateLimits(app.database.knex);
       assert.equal(
         await app.database.knex.schema.hasTable("arsy_addon_definitions"),
         true,

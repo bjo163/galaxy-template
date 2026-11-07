@@ -54,6 +54,7 @@ export function createApp(config: AppConfig = loadConfig()): FastifyInstance {
 
   app.addHook("onResponse", async (request, reply) => {
     metrics?.recordRequest(request, reply);
+    metrics?.recordDatabasePool(app.database?.knex);
     request.log.info(
       {
         method: request.method,
@@ -65,7 +66,7 @@ export function createApp(config: AppConfig = loadConfig()): FastifyInstance {
     );
   });
 
-  registerDatabase(app, config.database);
+  registerDatabase(app, config.database, metrics);
   registerIdentityDecorators(app);
   registerPlugins(app, config, metrics);
   registerErrorHandling(app);

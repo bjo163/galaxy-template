@@ -119,6 +119,24 @@ describe("model definition validation", () => {
     }
   });
 
+  it("rejects record payloads that exceed structural and byte budgets", () => {
+    const definition = validateModelDefinition({
+      key: "documents",
+      displayName: "Documents",
+      fields: [{ key: "content", type: "json", required: true }],
+      access: { defaultVisibility: "project" },
+    });
+    const tooDeep: Record<string, unknown> = {};
+    let cursor = tooDeep;
+    for (let index = 0; index < 18; index += 1) {
+      const child: Record<string, unknown> = {};
+      cursor.child = child;
+      cursor = child;
+    }
+    assert.throws(() => validateRecordPayload(definition, { content: tooDeep }), /complexity limits/);
+    assert.throws(() => validateRecordPayload(definition, { content: "x".repeat(70_000) }), /string exceeds the size limit/);
+  });
+
   it("merges partial updates before checking required fields", () => {
     const definition = validateModelDefinition(validDefinition);
 

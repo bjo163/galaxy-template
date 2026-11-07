@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
 
+import { HttpError } from "../core/auth/identity.js";
 import { createProblemDetails } from "../core/http/problem-details.js";
 
 export function registerErrorHandling(app: FastifyInstance): void {
@@ -41,6 +42,12 @@ export function registerErrorHandling(app: FastifyInstance): void {
           : error instanceof Error
             ? error.message
             : "The request could not be processed.";
+
+    if (error instanceof HttpError) {
+      for (const [name, value] of Object.entries(error.headers)) {
+        reply.header(name, value);
+      }
+    }
 
     return reply
       .code(statusCode)

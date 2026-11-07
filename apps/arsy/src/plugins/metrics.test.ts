@@ -29,6 +29,7 @@ describe("Prometheus metrics endpoint", () => {
       method: "GET",
       url: "/api/v1/health?userId=private-query-value",
     });
+    await metricsApp.database?.knex.raw("select 1");
 
     const unauthorizedResponse = await metricsApp.inject({
       method: "GET",
@@ -63,6 +64,9 @@ describe("Prometheus metrics endpoint", () => {
     );
     assert.equal(authorizedResponse.headers["cache-control"], "no-store");
     assert.match(metricsText, /arsy_http_requests_total/);
+    assert.match(metricsText, /arsy_database_pool_connections/);
+    assert.match(metricsText, /arsy_database_queries_total/);
+    assert.match(metricsText, /arsy_database_query_duration_seconds/);
     assert.match(metricsText, /route="\/api\/v1\/health"/);
     assert.equal(metricsText.includes("private-query-value"), false);
     assert.equal(metricsText.includes(metricsToken), false);

@@ -36,6 +36,7 @@ const InterestedTopics = ({ data }: { data: WidgetInterestedTopic[] }) => {
   // Vars
   const data1 = data.slice(0, 3)
   const data2 = data.slice(3, 6)
+
   // Hooks
   const theme = useTheme()
 

@@ -13,6 +13,7 @@ import {
   requireProjectCredential,
 } from "../../core/auth/project-credential.js";
 import {
+  canonicalJson,
   modelDefinitionHash,
   type ModelDefinition,
   type ModelField,
@@ -45,6 +46,48 @@ type ProjectActor = {
   workspaceId: string;
   projectId: string;
 };
+
+type RecordCursor = {
+  version: 1;
+  projectId: string;
+  modelKey: string;
+  filterHash: string;
+  createdAt: string;
+  id: string;
+};
+
+function encodeRecordCursor(cursor: RecordCursor): string {
+  return Buffer.from(JSON.stringify(cursor), "utf8").toString("base64url");
+}
+
+function decodeRecordCursor(
+  value: string,
+  projectId: string,
+  modelKey: string,
+  filterHash: string,
+): RecordCursor {
+  if (value.length > 2_048 || !/^[A-Za-z0-9_-]+$/.test(value)) {
+    throw new HttpError(400, "The pagination cursor is invalid.");
+  }
+  try {
+    const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as Record<string, unknown>;
+    if (
+      parsed.version !== 1 ||
+      parsed.projectId !== projectId ||
+      parsed.modelKey !== modelKey ||
+      parsed.filterHash !== filterHash ||
+      typeof parsed.createdAt !== "string" ||
+      Number.isNaN(Date.parse(parsed.createdAt)) ||
+      typeof parsed.id !== "string" ||
+      !/^[0-9a-f-]{36}$/i.test(parsed.id)
+    ) {
+      throw new Error("cursor context mismatch");
+    }
+    return parsed as RecordCursor;
+  } catch {
+    throw new HttpError(400, "The pagination cursor is invalid for this query.");
+  }
+}
 
 type FilterExpression =
   | { and: FilterExpression[] }
@@ -164,6 +207,7 @@ async function getActiveDefinition(
       "arsy_model_definitions.model_key": modelKey,
       "arsy_model_definitions.status": "active",
     })
+    .forShare()
     .first();
   if (!row) {
     throw new HttpError(404, "The published model was not found.");
@@ -243,28 +287,36 @@ async function resolveProjectActor(
         })
         .first();
       if (!project) {
-        return false;
+        return null;
       }
-      return Boolean(
-        await trx("arsy_project_users")
-          .select("id")
-          .where({
-            workspace_id: workspaceId,
-            project_id: projectId,
-            account_id: account.id,
-          })
-          .first(),
-      );
+      return trx("arsy_project_users")
+        .select("role")
+        .where({
+          workspace_id: workspaceId,
+          project_id: projectId,
+          account_id: account.id,
+        })
+        .first();
     },
   );
   if (!membership) {
     throw new HttpError(404, "The requested project was not found.");
   }
 
+  const roleScopes: Record<string, readonly string[]> = {
+    admin: ["models:read", "models:manage", "records:read", "records:write", "addons:manage"],
+    developer: ["models:read", "models:manage", "records:read", "records:write"],
+    member: ["records:read", "records:write"],
+  };
+  const scopes = roleScopes[membership.role as string];
+  if (!scopes) {
+    throw new HttpError(403, "The project membership role is not supported.");
+  }
+
   return {
     accountId: account.id,
     credentialId: null,
-    scopes: ["models:read", "records:read", "records:write"],
+    scopes,
     workspaceId,
     projectId,
   };
@@ -387,6 +439,24 @@ function fieldExpression(field: ModelField): string {
   return "payload ->> ?";
 }
 
+function fieldIndexExpression(field: ModelField): string {
+  const key = field.key.replace(/'/g, "''");
+  const extracted = `payload ->> '${key}'`;
+  switch (field.type) {
+    case "integer":
+    case "number":
+      return `(${extracted})::numeric`;
+    case "boolean":
+      return `(${extracted})::boolean`;
+    case "date":
+      return `(${extracted})::date`;
+    case "datetime":
+      return `(${extracted})::timestamptz`;
+    default:
+      return extracted;
+  }
+}
+
 function scalarFilterValue(field: ModelField, value: unknown): string | number | boolean {
   if (
     typeof value === "string" ||
@@ -466,56 +536,199 @@ function applyDomain(
   );
 }
 
-function getIndexName(
-  projectId: string,
-  modelKey: string,
-  fieldKey: string,
-): string {
-  const digest = createHash("sha256")
-    .update(`${projectId}:${modelKey}:${fieldKey}`)
-    .digest("hex")
-    .slice(0, 40);
-  return `arsy_field_${digest}`;
+export async function assertModelWritesAllowed(
+  trx: Knex.Transaction,
+  definitionId: string,
+): Promise<void> {
+  const job = await trx("arsy_model_migration_jobs as jobs")
+    .join("arsy_model_definitions as definitions", "definitions.id", "jobs.definition_id")
+    .select("jobs.id")
+    .where("jobs.definition_id", definitionId)
+    .whereIn("jobs.status", ["queued", "running", "ready"])
+    .andWhere(function pendingCutover() {
+      this.whereNull("definitions.active_revision")
+        .orWhereRaw("definitions.active_revision < jobs.to_revision");
+    })
+    .first();
+  if (job) {
+    throw new HttpError(
+      409,
+      "Writes are temporarily paused while this model revision is being migrated. Retry after the migration is ready.",
+    );
+  }
 }
 
-async function recreateFieldIndexes(
+async function validateExistingRecordsForRevision(
   trx: Knex.Transaction,
   projectId: string,
   modelKey: string,
-  previous: ModelDefinition | undefined,
-  next: ModelDefinition,
+  revision: number,
+  definition: ModelDefinition,
 ): Promise<void> {
-  const indexedFields = new Map<string, ModelField>();
-  for (const field of [...(previous?.fields ?? []), ...next.fields]) {
-    if (field.indexed) {
-      indexedFields.set(field.key, field);
-    }
-  }
-
-  for (const field of indexedFields.values()) {
-    const indexName = getIndexName(projectId, modelKey, field.key);
-    await trx.raw("DROP INDEX IF EXISTS ??", [indexName]);
-  }
-
-  for (const field of next.fields.filter((candidate) => candidate.indexed)) {
-    const indexName = getIndexName(projectId, modelKey, field.key);
-    const unique = field.unique ? "UNIQUE " : "";
-    await trx.raw(
-      `CREATE ${unique}INDEX ?? ON "arsy_records" ("workspace_id", "project_id", "model_key", (payload ->> '${field.key}'))`,
-      [indexName],
+  // Synchronous publication is deliberately bounded. Large backfills need the
+  // resumable migration worker tracked in issue #14, not a long HTTP transaction.
+  const countRow = await trx("arsy_records")
+    .where({ project_id: projectId, model_key: modelKey })
+    .count({ total: "id" })
+    .first();
+  const total = Number(countRow?.total ?? 0);
+  if (total > 500) {
+    throw new HttpError(
+      409,
+      "This model has more than 500 records. A resumable data migration is required before publication.",
     );
   }
+
+  const rows = await trx("arsy_records")
+    .select("id", "payload")
+    .where({ project_id: projectId, model_key: modelKey })
+    .orderBy("id", "asc")
+    .limit(500);
+
+  for (const row of rows) {
+    const existing = readJsonObject(row.payload);
+    let normalized: Record<string, unknown>;
+    try {
+      normalized = validateRecordPayload(definition, existing);
+    } catch {
+      throw new HttpError(
+        409,
+        `Model revision ${revision} is incompatible with existing records. A data migration is required before publication.`,
+      );
+    }
+    if (canonicalJson(normalized) !== canonicalJson(existing)) {
+      await trx("arsy_records")
+        .where({ id: row.id, project_id: projectId, model_key: modelKey })
+        .update({
+          payload: JSON.stringify(normalized),
+          model_revision: revision,
+        });
+    }
+  }
+}
+
+function assertIndexDefinitionUnchanged(
+  previous: ModelDefinition | undefined,
+  next: ModelDefinition,
+): void {
+  const signature = (definition: ModelDefinition | undefined) =>
+    (definition?.fields ?? [])
+      .filter((field) => field.indexed)
+      .map((field) => ({
+        key: field.key,
+        type: field.type,
+        unique: Boolean(field.unique),
+      }))
+      .sort((left, right) => left.key.localeCompare(right.key));
+
+  if (canonicalJson(signature(previous)) !== canonicalJson(signature(next))) {
+    throw new HttpError(
+      409,
+      "Index changes are temporarily blocked until the online index lifecycle is available. Keep indexed fields unchanged and retry after the index job is ready.",
+    );
+  }
+}
+
+type IdempotencyRecord = {
+  id: string;
+  replay?: { statusCode: number; body: unknown };
+};
+
+async function beginIdempotency(
+  trx: Knex.Transaction,
+  actor: ProjectActor,
+  method: string,
+  routeKey: string,
+  key: string | undefined,
+  body: unknown,
+): Promise<IdempotencyRecord | null> {
+  if (!key) return null;
+  if (!/^[A-Za-z0-9._:-]{16,128}$/.test(key)) {
+    throw new HttpError(400, "Idempotency-Key must contain 16 to 128 safe characters.");
+  }
+  const keyHash = createHash("sha256").update(key).digest("hex");
+  const requestHash = createHash("sha256").update(canonicalJson(body ?? null)).digest("hex");
+  const identity = {
+    workspace_id: actor.workspaceId,
+    project_id: actor.projectId,
+    actor_id: actor.accountId,
+    method,
+    route_key: routeKey,
+    key_hash: keyHash,
+  };
+  const inserted = await trx("arsy_idempotency_keys")
+    .insert({
+      id: randomUUID(),
+      ...identity,
+      request_hash: requestHash,
+      response_status: null,
+      response_body: null,
+      created_at: new Date(),
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    })
+    .onConflict([
+      "workspace_id",
+      "project_id",
+      "actor_id",
+      "method",
+      "route_key",
+      "key_hash",
+    ])
+    .ignore()
+    .returning("id");
+  if (inserted.length > 0) return { id: inserted[0].id as string };
+
+  const existing = await trx("arsy_idempotency_keys")
+    .select("id", "request_hash as requestHash", "response_status as responseStatus", "response_body as responseBody")
+    .where(identity)
+    .forUpdate()
+    .first();
+  if (!existing) {
+    throw new HttpError(409, "The idempotent request is currently being processed.");
+  }
+  if (existing.requestHash !== requestHash) {
+    throw new HttpError(409, "Idempotency-Key was already used with a different request.");
+  }
+  if (existing.responseStatus === null || existing.responseStatus === undefined) {
+    throw new HttpError(409, "The idempotent request is currently being processed.");
+  }
+  return {
+    id: existing.id as string,
+    replay: {
+      statusCode: Number(existing.responseStatus),
+      body: existing.responseBody,
+    },
+  };
+}
+
+async function completeIdempotency(
+  trx: Knex.Transaction,
+  record: IdempotencyRecord | null,
+  statusCode: number,
+  body: unknown,
+): Promise<void> {
+  if (!record || record.replay) return;
+  await trx("arsy_idempotency_keys")
+    .where({ id: record.id })
+    .update({ response_status: statusCode, response_body: body ?? null });
+}
+
+function getIdempotencyKey(request: FastifyRequest): string | undefined {
+  const value = request.headers["idempotency-key"];
+  if (value === undefined) return undefined;
+  if (typeof value !== "string") {
+    throw new HttpError(400, "Idempotency-Key must be a single header value.");
+  }
+  return value;
 }
 
 async function resolveDataActor(
   request: FastifyRequest,
   knex: Knex,
 ): Promise<ProjectActor> {
-  const actor = await resolveProjectActor(request, knex);
-  if (actor.credentialId) {
-    requireCredentialScope(actor, "records:read");
-  }
-  return actor;
+  // Authentication resolves identity and tenant context only. Each route
+  // enforces the scope required by its own operation.
+  return resolveProjectActor(request, knex);
 }
 
 export async function registerModelRoutes(
@@ -803,13 +1016,78 @@ export async function registerModelRoutes(
               )
             : undefined;
           const previousDefinition = previous?.definition;
-          await recreateFieldIndexes(
-            trx,
-            request.params.projectId,
-            request.params.modelKey,
-            previousDefinition,
-            definition,
-          );
+          const migrationJob = await trx("arsy_model_migration_jobs")
+            .where({
+              definition_id: model.id,
+              to_revision: request.body.revision,
+              status: "ready",
+            })
+            .first();
+          if (
+            migrationJob &&
+            Number(migrationJob.from_revision ?? 0) !== Number(model.activeRevision ?? 0)
+          ) {
+            throw new HttpError(
+              409,
+              "This migration was prepared from a different active model revision. Create a fresh migration job before publishing.",
+            );
+          }
+          if (!migrationJob) {
+            await validateExistingRecordsForRevision(
+              trx,
+              request.params.projectId,
+              request.params.modelKey,
+              request.body.revision,
+              definition,
+            );
+          }
+          const pendingIndexJob = await trx("arsy_model_index_jobs")
+            .where({
+              definition_id: model.id,
+              revision: request.body.revision,
+              operation: "create",
+            })
+            .whereNotIn("status", ["ready", "removed"])
+            .first();
+          if (pendingIndexJob) {
+            throw new HttpError(
+              409,
+              "The model revision cannot be published until all required online index jobs are ready.",
+            );
+          }
+          if (migrationJob) {
+            if (Number(migrationJob.processed_records) !== Number(migrationJob.total_records)) {
+              throw new HttpError(409, "The staged migration record count does not match the migration snapshot.");
+            }
+            const stagedCount = await trx("arsy_model_migration_records")
+              .where({ job_id: migrationJob.id })
+              .count({ total: "record_id" })
+              .first();
+            if (Number(stagedCount?.total ?? 0) !== Number(migrationJob.total_records)) {
+              throw new HttpError(409, "The staged payload set is incomplete; retry the migration before publication.");
+            }
+            await trx("arsy_records as records")
+              .join("arsy_model_migration_records as staged", function joinStagedPayload() {
+                this.on("staged.record_id", "=", "records.id");
+              })
+              .where({
+                "staged.job_id": migrationJob.id,
+                "records.workspace_id": request.params.workspaceId,
+                "records.project_id": request.params.projectId,
+                "records.definition_id": model.id,
+              })
+              .update({
+                payload: trx.ref("staged.payload"),
+                model_revision: request.body.revision,
+                updated_at: new Date(),
+              });
+            await trx("arsy_model_migration_records")
+              .where({ job_id: migrationJob.id })
+              .delete();
+          }
+          if (!migrationJob) {
+            assertIndexDefinitionUnchanged(previousDefinition, definition);
+          }
           await trx("arsy_model_revisions")
             .where({ id: next.id })
             .update({ status: "published" });
@@ -892,7 +1170,7 @@ export async function registerModelRoutes(
     },
   );
 
-  app.post<{ Params: RouteParams; Body: { filter?: unknown; limit?: number } }>(
+  app.post<{ Params: RouteParams; Body: { filter?: unknown; limit?: number; cursor?: string } }>(
     "/data/:modelKey/query",
     {
       schema: {
@@ -907,6 +1185,7 @@ export async function registerModelRoutes(
           properties: {
             filter: { type: "object" },
             limit: { type: "integer", minimum: 1, maximum: 100 },
+            cursor: { type: "string", minLength: 1, maxLength: 2048 },
           },
         },
       },
@@ -928,6 +1207,10 @@ export async function registerModelRoutes(
           const fieldMap = new Map(
             model.definition.fields.map((field) => [field.key, field]),
           );
+          const limit = request.body.limit ?? 50;
+          const filterHash = createHash("sha256")
+            .update(JSON.stringify(request.body.filter ?? null))
+            .digest("hex");
           const query = trx("arsy_records")
             .select(
               "id",
@@ -945,7 +1228,21 @@ export async function registerModelRoutes(
               model_key: request.params.modelKey,
             })
             .orderBy("created_at", "desc")
-            .limit(request.body.limit ?? 50);
+            .orderBy("id", "desc")
+            .limit(limit + 1);
+
+          if (request.body.cursor) {
+            const cursor = decodeRecordCursor(
+              request.body.cursor,
+              actor.projectId,
+              request.params.modelKey,
+              filterHash,
+            );
+            query.andWhereRaw("(created_at, id) < (?, ?)", [
+              new Date(cursor.createdAt),
+              cursor.id,
+            ]);
+          }
 
           if (model.definition.access.defaultVisibility === "private") {
             query.andWhere("owner_user_id", actor.accountId);
@@ -957,8 +1254,22 @@ export async function registerModelRoutes(
               fieldMap,
             );
           }
-          const rows = await query;
+          const fetchedRows = await query;
+          const hasMore = fetchedRows.length > limit;
+          const rows = fetchedRows.slice(0, limit);
+          const lastRow = rows.at(-1);
+          const nextCursor = hasMore && lastRow
+            ? encodeRecordCursor({
+                version: 1,
+                projectId: actor.projectId,
+                modelKey: request.params.modelKey,
+                filterHash,
+                createdAt: new Date(lastRow.createdAt as string).toISOString(),
+                id: lastRow.id as string,
+              })
+            : null;
           return {
+            nextCursor,
             data: rows.map((row) => ({
               id: row.id,
               ...readJsonObject(row.payload),
@@ -999,6 +1310,18 @@ export async function registerModelRoutes(
             actor.projectId,
             request.params.modelKey,
           );
+          await assertModelWritesAllowed(trx, model.definitionId);
+          const idempotency = await beginIdempotency(
+            trx,
+            actor,
+            "POST",
+            `/data/${request.params.modelKey}`,
+            getIdempotencyKey(request),
+            request.body,
+          );
+          if (idempotency?.replay) {
+            return reply.code(idempotency.replay.statusCode).send(idempotency.replay.body);
+          }
           const payload = validateRecordPayload(model.definition, request.body);
           const now = new Date();
           const id = randomUUID();
@@ -1023,14 +1346,25 @@ export async function registerModelRoutes(
             }
             throw error;
           }
-          return reply.code(201).send({
+          await writeAudit(trx, {
+            workspaceId: actor.workspaceId,
+            projectId: actor.projectId,
+            actorId: actor.accountId,
+            action: "record.created",
+            resourceType: "record",
+            resourceId: id,
+            metadata: { modelKey: request.params.modelKey, fieldCount: Object.keys(payload).length },
+          });
+          const responseBody = {
             id,
             ...payload,
             ownerUserId: actor.accountId,
             modelRevision: model.activeRevision,
             createdAt: now.toISOString(),
             updatedAt: now.toISOString(),
-          });
+          };
+          await completeIdempotency(trx, idempotency, 201, responseBody);
+          return reply.code(201).send(responseBody);
         },
       );
     },
@@ -1093,7 +1427,7 @@ export async function registerModelRoutes(
         body: { type: "object", additionalProperties: true },
       },
     },
-    async (request) => {
+    async (request, reply) => {
       const actor = await resolveProjectActor(request, getKnex(app));
       requireCredentialScope(actor, "records:write");
       return withProjectTransaction(
@@ -1106,6 +1440,18 @@ export async function registerModelRoutes(
             actor.projectId,
             request.params.modelKey,
           );
+          await assertModelWritesAllowed(trx, model.definitionId);
+          const idempotency = await beginIdempotency(
+            trx,
+            actor,
+            "PATCH",
+            `/data/${request.params.modelKey}/${request.params.recordId}`,
+            getIdempotencyKey(request),
+            request.body,
+          );
+          if (idempotency?.replay) {
+            return reply.code(idempotency.replay.statusCode).send(idempotency.replay.body);
+          }
           const query = trx("arsy_records")
             .select("id", "payload", "owner_user_id as ownerUserId")
             .where({
@@ -1141,13 +1487,24 @@ export async function registerModelRoutes(
               model_revision: model.activeRevision,
               updated_at: now,
             });
-          return {
+          await writeAudit(trx, {
+            workspaceId: actor.workspaceId,
+            projectId: actor.projectId,
+            actorId: actor.accountId,
+            action: "record.updated",
+            resourceType: "record",
+            resourceId: request.params.recordId as string,
+            metadata: { modelKey: request.params.modelKey, changedFields: Object.keys(request.body as Record<string, unknown>) },
+          });
+          const responseBody = {
             id: row.id,
             ...payload,
             ownerUserId: row.ownerUserId,
             modelRevision: model.activeRevision,
             updatedAt: now.toISOString(),
           };
+          await completeIdempotency(trx, idempotency, 200, responseBody);
+          return responseBody;
         },
       );
     },
@@ -1168,6 +1525,18 @@ export async function registerModelRoutes(
             actor.projectId,
             request.params.modelKey,
           );
+          await assertModelWritesAllowed(trx, model.definitionId);
+          const idempotency = await beginIdempotency(
+            trx,
+            actor,
+            "DELETE",
+            `/data/${request.params.modelKey}/${request.params.recordId}`,
+            getIdempotencyKey(request),
+            null,
+          );
+          if (idempotency?.replay) {
+            return reply.code(idempotency.replay.statusCode).send();
+          }
           const query = trx("arsy_records").where({
             id: request.params.recordId,
             workspace_id: actor.workspaceId,
@@ -1181,6 +1550,16 @@ export async function registerModelRoutes(
           if (deleted === 0) {
             throw new HttpError(404, "The record was not found.");
           }
+          await writeAudit(trx, {
+            workspaceId: actor.workspaceId,
+            projectId: actor.projectId,
+            actorId: actor.accountId,
+            action: "record.deleted",
+            resourceType: "record",
+            resourceId: request.params.recordId as string,
+            metadata: { modelKey: request.params.modelKey },
+          });
+          await completeIdempotency(trx, idempotency, 204, null);
           return reply.code(204).send();
         },
       );
