@@ -302,7 +302,7 @@ export async function processModelIndexJob(
   if (job.status === "failed") return "failed";
 
   try {
-    const expression = fieldSqlExpression(job.field_key, job.field_type);
+    const expression = `(${fieldSqlExpression(job.field_key, job.field_type)})`;
     if (job.operation === "create") {
       await knex.raw(`${job.is_unique ? "CREATE UNIQUE INDEX CONCURRENTLY" : "CREATE INDEX CONCURRENTLY"} IF NOT EXISTS "${job.index_name}" ON "arsy_records" ("workspace_id", "project_id", "model_key", ${expression})`);
       const validity = await knex({ i: "pg_index" })
