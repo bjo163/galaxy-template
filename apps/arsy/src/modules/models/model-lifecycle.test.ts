@@ -30,6 +30,23 @@ describe("model lifecycle primitives", () => {
     assert.deepEqual(result, { display_name: "Ada", enabled: true });
   });
 
+  it("casts field values only through explicit safe conversions", () => {
+    assert.deepEqual(
+      applyModelMigrationPlan(
+        { count: "42", enabled: "true" },
+        { operations: [
+          { op: "cast", field: "count", toType: "integer" },
+          { op: "cast", field: "enabled", toType: "boolean" },
+        ] },
+      ),
+      { count: 42, enabled: true },
+    );
+    assert.throws(
+      () => applyModelMigrationPlan({ count: "42x" }, { operations: [{ op: "cast", field: "count", toType: "integer" }] }),
+      /invalid numeric value/,
+    );
+  });
+
   it("rejects invalid transforms and validates the final target payload", () => {
     assert.throws(
       () => applyModelMigrationPlan({ name: "Ada" }, { operations: [{ op: "execute", field: "name" }] }),
