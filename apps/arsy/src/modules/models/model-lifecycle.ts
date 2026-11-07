@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-import type { Knex } from "@galaxy/database";
+import { setTransactionSetting, type Knex } from "@galaxy/database";
 import { validateModelDefinition, validateRecordPayload, type ModelDefinition } from "../../core/models/model-definition.js";
 
 type MigrationJob = {
@@ -18,6 +18,8 @@ type MigrationJob = {
 
 type IndexJob = {
   id: string;
+  workspace_id: string;
+  project_id: string;
   definition_id: string;
   revision: number;
   field_key: string;
@@ -151,6 +153,8 @@ export async function processModelMigrationBatch(
     if (job.status === "ready") return "ready";
     if (job.status === "failed" || job.status === "cancelled") return job.status as "failed";
 
+    await setTransactionSetting(trx, "arsy.workspace_id", job.workspace_id);
+    await setTransactionSetting(trx, "arsy.project_id", job.project_id);
     const plan = jsonObject(job.plan);
     const target = validateModelDefinition(plan.targetDefinition) as ModelDefinition;
     if (!Array.isArray(target.fields)) {
@@ -234,10 +238,14 @@ export async function processModelIndexJob(
 ): Promise<"ready" | "running" | "failed" | "missing"> {
   const candidate = await knex("arsy_model_index_jobs").where({ id: jobId }).first() as IndexJob | undefined;
   if (candidate?.operation === "drop") {
-    const model = await knex("arsy_model_definitions")
-      .select("active_revision")
-      .where({ id: candidate.definition_id })
-      .first();
+    const model = await knex.transaction(async (trx) => {
+      await setTransactionSetting(trx, "arsy.workspace_id", candidate.workspace_id);
+      await setTransactionSetting(trx, "arsy.project_id", candidate.project_id);
+      return trx("arsy_model_definitions")
+        .select("active_revision")
+        .where({ id: candidate.definition_id })
+        .first();
+    });
     if (Number(model?.active_revision ?? 0) < candidate.revision) return "running";
     const replacementBuild = await knex("arsy_model_index_jobs")
       .select("id")
