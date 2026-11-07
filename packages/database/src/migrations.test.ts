@@ -82,13 +82,16 @@ describe("database migrations", () => {
     const directory = await mkdtemp(join(tmpdir(), "galaxy-migrations-retry-"));
     temporaryDirectories.push(directory);
     const migrationPath = join(directory, "001_retryable_probe.js");
+    const failureMarker = join(directory, "fail-once");
 
+    await writeFile(failureMarker, "fail");
     await writeFile(
       migrationPath,
       [
+        "import { existsSync } from 'node:fs';",
         "export async function up(knex) {",
         "  await knex.schema.createTable('retryable_probe', (table) => table.increments('id').primary());",
-        "  throw new Error('injected migration interruption');",
+        `  if (existsSync(${JSON.stringify(failureMarker)})) throw new Error('injected migration interruption');`,
         "}",
         "export async function down(knex) { await knex.schema.dropTableIfExists('retryable_probe'); }",
         "",
@@ -105,17 +108,7 @@ describe("database migrations", () => {
       pending: ["001_retryable_probe.js"],
     });
 
-    await writeFile(
-      migrationPath,
-      [
-        "export async function up(knex) {",
-        "  await knex.schema.createTable('retryable_probe', (table) => table.increments('id').primary());",
-        "}",
-        "export async function down(knex) { await knex.schema.dropTableIfExists('retryable_probe'); }",
-        "",
-      ].join("\n"),
-    );
-
+    await rm(failureMarker);
     const retried = await runMigrations(database.knex, directory, "up");
     assert.deepEqual(retried, {
       batch: 1,
