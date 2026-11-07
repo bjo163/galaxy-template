@@ -3,7 +3,7 @@
 **Status:** IN PROGRESS — implementation branch has passing CI, but production acceptance is not complete.  
 **Branch:** `feat-arsy-issues-12-31`  
 **Scope:** GitHub issues #12–#31  
-**Reviewed head:** `6e716a0df0db5fb5e7e41cef7910565552a66bfb`
+**Reviewed head:** `9c8a7e1719ccd32f646cff204a637e6986ab1441`
 
 ## Implemented in this branch
 
@@ -24,8 +24,8 @@
 - [x] #28 — Non-root production image and hardened Compose profile are added. A real deployment/smoke test and separate privileged one-shot migration deployment remain to be demonstrated.
 - [x] #29 — Bounded cleanup for expired sessions, rate-limit buckets and idempotency rows is implemented. Verification-token/invitation coverage, scheduler integration and operational telemetry remain open.
 - [x] #30 — Audit policy, project-scoped NDJSON export, SHA-256 manifest verification and count validation are implemented. KMS encryption, immutable object storage, automated restore/readback and deletion lifecycle are explicitly not implemented.
-- [ ] #14 — Revision compatibility checks and transactional record validation/backfill exist, but resumable transform jobs, progress/failure recovery and staged rollout are not implemented.
-- [ ] #16 — Dynamic index creation/removal is not yet an asynchronous online lifecycle. Persistent job states, concurrent DDL outside transactions, retries and publication gating remain required.
+- [ ] #14 — Synchronous revision validation/backfill is now capped at 500 records per publish; larger datasets are rejected pending the resumable transform worker. Progress/failure recovery and staged rollout remain unimplemented.
+- [ ] #16 — Unsafe synchronous index DDL has been removed from model publication. A changed/new indexed-field definition now returns 409 until the online lifecycle is available. Persistent job states, concurrent DDL outside transactions, retries and publication gating remain required.
 - [ ] #31 — PostgreSQL CI now verifies migration rollback/re-apply and RLS behavior. Interrupted migration/retry, supported-version upgrade compatibility and rolling-deployment verification remain incomplete.
 
 ## Migration safety documentation added
@@ -33,6 +33,12 @@
 - Added `apps/arsy/src/migrations/PRODUCTION.md` with expand/contract rollout, out-of-band migrator procedure, interruption/recovery rules, and explicit verification gates.
 - Updated `apps/arsy/src/migrations/README.md` to document the current transactional Knex runner and prohibit concurrent index DDL inside migration transactions.
 - The runbook intentionally records that #14/#16/#31 and production recovery remain incomplete; documentation is not a substitute for their executable acceptance evidence.
+
+## Merge-safety hardening added
+
+- Model revision publication now refuses to scan/backfill more than 500 existing records in the request transaction; larger models must wait for the resumable migration worker (#14).
+- Model publication no longer runs `DROP INDEX`/`CREATE INDEX` in a transaction. Index-definition changes are rejected with an actionable 409 until the online index lifecycle (#16) exists; a regression test covers this guard.
+- These are conservative compatibility guards, not completion of #14 or #16.
 
 ## CI evidence
 
