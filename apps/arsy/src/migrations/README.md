@@ -29,8 +29,10 @@ prior-version upgrade, interrupted-migration, or rolling-deployment test.
 
 The shared Knex migrator currently wraps migrations in transactions. Do not put
 `CREATE INDEX CONCURRENTLY` or `DROP INDEX CONCURRENTLY` in these migration
-files. Model field-index replacement is currently performed during model
-publication and is not yet an online/resumable lifecycle; see
+files. Model publication now rejects new or changed indexed-field definitions
+rather than executing transactional index DDL, and synchronous revision
+validation is capped at 500 records. These are safety guards, not a replacement
+for the resumable model/index job lifecycle; see
 [`PRODUCTION.md`](./PRODUCTION.md) for the release procedure, recovery rules,
 and explicit outstanding gates.
 
