@@ -277,7 +277,7 @@ export async function registerModelLifecycleRoutes(app: FastifyInstance): Promis
         for (const [key, field] of oldIndexes) {
           const next = nextIndexes.get(key);
           if (next && next.type === field.type && next.unique === field.unique) continue;
-          const indexName = makeModelIndexName(request.params.projectId, request.params.modelKey, key, field.unique);
+          const indexName = makeModelIndexName(request.params.projectId, request.params.modelKey, key, field.type, field.unique, Number(model.activeRevision ?? 0));
           await trx("arsy_model_index_jobs").insert({
             id: randomUUID(),
             workspace_id: request.params.workspaceId,
